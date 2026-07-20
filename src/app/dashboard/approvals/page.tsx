@@ -63,7 +63,8 @@ export default function ApprovalsPage() {
     }
     
     setIsSubmitting(true);
-    const res = await updateApprovalStatus(actionId, actionType, notes);
+    const mappedStatus = actionType === 'approve' ? 'approved' : 'rejected';
+    const res = await updateApprovalStatus(actionId, mappedStatus, notes);
     
     if (res.success) {
       setActionId(null);
