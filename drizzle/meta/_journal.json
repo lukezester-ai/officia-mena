@@ -36,6 +36,13 @@
       "when": 1784406173199,
       "tag": "0004_foamy_harry_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784624840735,
+      "tag": "0005_foamy_absorbing_man",
+      "breakpoints": true
     }
   ]
 }
