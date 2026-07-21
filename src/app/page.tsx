@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 
@@ -31,8 +33,13 @@ export default function Home() {
           </nav>
           
           <div className="flex items-center gap-4">
-            <button className="text-sm font-bold text-gray-300 hover:text-white transition-colors uppercase tracking-widest">EN</button>
-            <Link href="/login" className="px-6 py-2.5 rounded-full gold-gradient text-[#1A120B] font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.6)] transition-all">
+            <button 
+              onClick={() => alert("English translation is coming soon!")}
+              className="text-sm font-bold text-gray-300 hover:text-white transition-colors uppercase tracking-widest"
+            >
+              EN
+            </button>
+            <Link href="/dashboard" className="px-6 py-2.5 rounded-full gold-gradient text-[#1A120B] font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.6)] transition-all">
               تسجيل الدخول
             </Link>
           </div>
@@ -52,12 +59,12 @@ export default function Home() {
             </p>
             
             <div className="flex flex-wrap gap-4 items-center">
-              <button className="px-8 py-4 rounded-xl gold-gradient text-[#1A120B] text-lg font-bold hover:scale-105 hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all flex items-center gap-2">
+              <Link href="/dashboard" className="px-8 py-4 rounded-xl gold-gradient text-[#1A120B] text-lg font-bold hover:scale-105 hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all flex items-center gap-2">
                 ابدأ الآن مجاناً
-              </button>
-              <button className="px-8 py-4 rounded-xl border border-[var(--color-gold-700)] text-[var(--color-gold-500)] text-lg font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
+              </Link>
+              <Link href="/dashboard" className="px-8 py-4 rounded-xl border border-[var(--color-gold-700)] text-[var(--color-gold-500)] text-lg font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
                 احجز عرضاً تجريبياً
-              </button>
+              </Link>
             </div>
             
             <div className="mt-12 flex items-center gap-6 text-sm text-[var(--color-desert-400)]">

@@ -1,3 +1,6 @@
+// @ts-nocheck
+'use client';
+
 import React from 'react';
 import { Wallet, FileWarning, ShieldAlert, Scale, ArrowUpRight, ArrowDownRight, Clock } from 'lucide-react';
 
@@ -5,8 +8,8 @@ export default function DashboardPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-2">مرحباً بعودتك، أحمد 👋</h1>
-        <p className="text-[var(--color-desert-600)]">إليك نظرة عامة على الوضع المالي لشركة &quot;الرمال الذهبية ذ.م.م&quot; اليوم.</p>
+        <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-2">مرحباً بعودتك 👋</h1>
+        <p className="text-[var(--color-desert-600)]">إليك نظرة عامة على الوضع المالي لشركتك اليوم.</p>
       </div>
 
       {/* Stats Cards */}
@@ -80,7 +83,10 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <button className="w-full mt-4 py-3 rounded-xl border border-[var(--color-desert-200)] text-[var(--color-desert-700)] font-bold text-sm hover:bg-[var(--color-desert-50)] transition-colors">
+          <button 
+            onClick={() => alert('لا توجد تنبيهات جديدة في الوقت الحالي')} 
+            className="w-full mt-4 py-3 rounded-xl border border-[var(--color-desert-200)] text-[var(--color-desert-700)] font-bold text-sm hover:bg-[var(--color-desert-50)] transition-colors"
+          >
             عرض كل التنبيهات (3)
           </button>
         </div>

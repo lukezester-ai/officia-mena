@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -12,6 +15,8 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar() {
+  const pathname = usePathname();
+  
   const menuItems = [
     { icon: LayoutDashboard, label: 'لوحة القيادة', href: '/dashboard' }, // Dashboard
     { icon: BrainCircuit, label: 'المايسترو (AI)', href: '/dashboard/ai-maestro' }, // AI Maestro
@@ -39,7 +44,7 @@ export default function Sidebar() {
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
         {menuItems.map((item, index) => {
           const Icon = item.icon;
-          const isActive = index === 0; // Just for demo, first item is active
+          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
           
           return (
             <Link 
