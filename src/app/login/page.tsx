@@ -18,10 +18,16 @@ export default function LoginPage() {
     const formData = new FormData(e.currentTarget);
     const action = isLogin ? login : signup;
     
-    const result = await action(formData);
-    
-    if (result?.error) {
-      setError(result.error);
+    try {
+      const result = await action(formData);
+      
+      if (result?.error) {
+        setError(result.error);
+        setIsLoading(false);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError('An error occurred. Please check your Supabase environment variables in Vercel.');
       setIsLoading(false);
     }
   };

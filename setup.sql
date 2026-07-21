@@ -309,18 +309,18 @@ ALTER TABLE "purchase_orders" ADD CONSTRAINT "purchase_orders_tenant_id_tenants_
 ALTER TABLE "quotations" ADD CONSTRAINT "quotations_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE no action ON UPDATE no action;
 
 
--- Create a trigger to automatically create a tenant and user when a new Supabase auth user signs up
+/* Create a trigger */
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 DECLARE
   new_tenant_id uuid;
 BEGIN
-  -- 1. Create a new tenant (company) for this user
+  /* 1. Create a new tenant (company) for this user */
   new_tenant_id := gen_random_uuid();
   INSERT INTO public.tenants (id, name, country, created_at, updated_at)
   VALUES (new_tenant_id, 'My Company', 'SA', now(), now());
 
-  -- 2. Create the user profile and link it to the tenant
+  /* 2. Create the user profile and link it to the tenant */
   INSERT INTO public.users (id, clerk_id, tenant_id, email, created_at)
   VALUES (gen_random_uuid(), NEW.id::text, new_tenant_id, NEW.email, now());
 
@@ -328,10 +328,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Drop trigger if exists
+/* Drop trigger */
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 
--- Create the trigger
+/* Create trigger */
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
