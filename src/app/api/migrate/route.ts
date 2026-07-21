@@ -11,7 +11,11 @@ export async function GET() {
       return NextResponse.json({ error: 'DATABASE_URL is not set' }, { status: 500 });
     }
 
-    const migrationClient = postgres(connectionString, { max: 1 });
+    const migrationClient = postgres(connectionString, { 
+      max: 1,
+      ssl: 'require',
+      prepare: false
+    });
     const db = drizzle(migrationClient);
 
     // Run the migrations. In Vercel, the drizzle folder is at process.cwd() + '/drizzle'
@@ -21,6 +25,12 @@ export async function GET() {
 
     return NextResponse.json({ success: true, message: 'Database migrated successfully! All tables created.' });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message, stack: error.stack }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message, 
+      code: error.code,
+      detail: error.detail,
+      stack: error.stack 
+    }, { status: 500 });
   }
 }
