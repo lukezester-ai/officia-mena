@@ -25,11 +25,13 @@ export async function GET() {
 
     return NextResponse.json({ success: true, message: 'Database migrated successfully! All tables created.' });
   } catch (error: any) {
+    const cause = error.cause || {};
     return NextResponse.json({ 
       success: false, 
-      error: error.message, 
-      code: error.code,
-      detail: error.detail,
+      error: error.message,
+      causeMsg: cause.message,
+      causeCode: cause.code,
+      causeDetail: cause.detail,
       stack: error.stack 
     }, { status: 500 });
   }
