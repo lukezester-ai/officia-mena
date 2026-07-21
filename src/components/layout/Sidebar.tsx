@@ -31,14 +31,14 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-white border-l border-[var(--color-desert-200)] flex flex-col h-full shadow-sm z-20 relative">
       <div className="h-16 flex items-center px-6 border-b border-[var(--color-desert-200)]">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 cursor-pointer">
           <div className="w-8 h-8 rounded-lg gold-gradient flex items-center justify-center font-bold text-white">
             O
           </div>
           <span className="text-xl font-bold text-[var(--color-desert-900)]">
             Officia <span className="text-[var(--color-gold-600)]">MENA</span>
           </span>
-        </div>
+        </Link>
       </div>
       
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
