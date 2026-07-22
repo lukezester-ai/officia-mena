@@ -114,11 +114,19 @@ export default function OCRScannerPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/10 p-4 rounded-xl border border-white/10">
                   <p className="text-sm text-[var(--color-desert-400)] mb-1">التاريخ</p>
-                  <p className="font-bold font-mono">{result.date}</p>
+                  <p className="font-bold font-mono text-sm">{result.date}</p>
                 </div>
                 <div className="bg-white/10 p-4 rounded-xl border border-white/10">
                   <p className="text-sm text-[var(--color-desert-400)] mb-1">التصنيف</p>
-                  <p className="font-bold">{result.category}</p>
+                  <p className="font-bold text-sm">{result.category}</p>
+                </div>
+                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                  <p className="text-sm text-[var(--color-desert-400)] mb-1">مبلغ الضريبة (VAT)</p>
+                  <p className="font-bold font-mono text-sm text-[var(--color-gold-400)]">{result.vatAmount} SAR</p>
+                </div>
+                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                  <p className="text-sm text-[var(--color-desert-400)] mb-1">الرقم الضريبي</p>
+                  <p className="font-bold font-mono text-xs">{result.vatNumber}</p>
                 </div>
               </div>
 
