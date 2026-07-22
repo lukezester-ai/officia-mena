@@ -49,9 +49,7 @@ export async function logout() {
 export async function getGoogleOAuthUrl() {
   const supabase = await createClient();
   
-  // Try to use the deployment URL, fallback to the hardcoded Vercel domain
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                 (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://officia-mena.vercel.app');
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://officia-mena.vercel.app';
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
