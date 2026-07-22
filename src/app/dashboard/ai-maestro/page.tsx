@@ -47,19 +47,19 @@ export default function AiMaestroPage() {
       <div className="flex-1 bg-white border border-[var(--color-desert-200)] rounded-3xl shadow-sm overflow-hidden flex flex-col">
         <div className="flex-1 p-6 overflow-y-auto space-y-6">
           {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
-              <BrainCircuit size={64} className="text-[var(--color-desert-300)]" />
+            <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+              <BrainCircuit size={64} className="text-[var(--color-gold-500)] opacity-80" />
               <div>
-                <p className="text-xl font-bold text-[var(--color-desert-500)] mb-2">أهلاً بك أيها المدير</p>
-                <p className="text-sm text-[var(--color-desert-400)] max-w-md mx-auto">
+                <p className="text-2xl font-bold text-[var(--color-desert-900)] mb-3">أهلاً بك أيها المدير</p>
+                <p className="text-base text-[var(--color-desert-700)] max-w-md mx-auto leading-relaxed">
                   أنا المايسترو. يمكنني الغوص في قواعد البيانات الخاصة بالشركة واستخراج تقارير حية عن المخاطر، الرواتب، والإقامات.
                 </p>
               </div>
-              <div className="flex flex-wrap justify-center gap-2 mt-8">
-                <span className="bg-[var(--color-desert-50)] text-[var(--color-desert-600)] px-3 py-1.5 rounded-lg text-xs font-bold border border-[var(--color-desert-200)]">
+              <div className="flex flex-wrap justify-center gap-3 mt-8">
+                <span className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm">
                   &quot;حلل المخاطر القانونية اليوم&quot;
                 </span>
-                <span className="bg-[var(--color-desert-50)] text-[var(--color-desert-600)] px-3 py-1.5 rounded-lg text-xs font-bold border border-[var(--color-desert-200)]">
+                <span className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm">
                   &quot;ما هو وضع الرواتب والإقامات؟&quot;
                 </span>
               </div>
