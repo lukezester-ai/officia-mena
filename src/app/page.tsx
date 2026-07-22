@@ -3,6 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 
+import { motion } from 'framer-motion';
+import { Receipt, Users, BrainCircuit } from 'lucide-react';
+
 export default function Home() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#1A120B]">
@@ -46,8 +49,10 @@ export default function Home() {
         </header>
 
         {/* Hero Section */}
-        <main className="max-w-7xl mx-auto px-6 w-full min-h-[90vh] flex items-center justify-center lg:justify-start pb-20">
-          <div className="max-w-3xl glass-panel p-10 md:p-14 rounded-3xl relative">
+        <main className="max-w-7xl mx-auto px-6 w-full min-h-[90vh] flex flex-col lg:flex-row items-center justify-between gap-12 pb-20 pt-10">
+          
+          {/* Left Side (Text) */}
+          <div className="w-full lg:w-[55%] glass-panel p-10 md:p-14 rounded-3xl relative z-10">
             <div className="absolute top-0 right-10 w-20 h-1 gold-gradient rounded-b-lg"></div>
             
             <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-6">
@@ -77,6 +82,98 @@ export default function Home() {
                 دعم كامل للغة العربية
               </div>
             </div>
+          </div>
+
+          {/* Right Side (Animated Graphic) */}
+          <div className="w-full lg:w-[45%] relative hidden lg:block z-10" dir="ltr">
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="relative w-full h-[500px]"
+            >
+              {/* Main glowing backplate */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gold-500)]/20 to-[var(--color-desert-600)]/10 rounded-3xl blur-xl transform rotate-3"></div>
+              
+              {/* Main Dashboard Panel */}
+              <motion.div 
+                animate={{ y: [-5, 5, -5] }}
+                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                className="absolute inset-0 glass-panel rounded-3xl border border-[var(--color-gold-700)]/40 p-6 shadow-2xl flex flex-col gap-5 overflow-hidden backdrop-blur-xl bg-black/40"
+              >
+                {/* Header */}
+                <div className="flex justify-between items-center border-b border-gray-800/50 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full gold-gradient shadow-[0_0_10px_rgba(212,175,55,0.3)]"></div>
+                    <div className="h-3 w-24 bg-gray-600/50 rounded-full"></div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-gray-700"></div>
+                    <div className="w-3 h-3 rounded-full bg-gray-700"></div>
+                    <div className="w-3 h-3 rounded-full bg-gray-700"></div>
+                  </div>
+                </div>
+
+                {/* KPI Cards */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-800/40 rounded-2xl p-4 border border-gray-700/50 hover:border-[var(--color-gold-500)]/50 transition-colors">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="h-3 w-16 bg-gray-600/50 rounded-full"></div>
+                      <Receipt className="text-[var(--color-gold-500)]" size={18} />
+                    </div>
+                    <div className="h-6 w-24 bg-white/80 rounded-full mb-2"></div>
+                    <div className="h-2 w-12 bg-emerald-500/80 rounded-full"></div>
+                  </div>
+                  <div className="bg-gray-800/40 rounded-2xl p-4 border border-gray-700/50 hover:border-[var(--color-emerald-500)]/50 transition-colors">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="h-3 w-16 bg-gray-600/50 rounded-full"></div>
+                      <Users className="text-[var(--color-emerald-500)]" size={18} />
+                    </div>
+                    <div className="h-6 w-20 bg-white/80 rounded-full mb-2"></div>
+                    <div className="h-2 w-14 bg-emerald-500/80 rounded-full"></div>
+                  </div>
+                </div>
+
+                {/* Chart Area */}
+                <div className="flex-1 bg-gray-800/30 rounded-2xl border border-gray-700/50 p-5 mt-2 relative overflow-hidden flex flex-col justify-end">
+                   <div className="absolute top-4 left-4 h-3 w-24 bg-gray-600/50 rounded-full"></div>
+                   <div className="flex items-end justify-between gap-3 h-32 w-full">
+                     {[40, 70, 45, 90, 60, 110, 80].map((height, i) => (
+                       <motion.div 
+                         key={i}
+                         initial={{ height: 0 }}
+                         animate={{ height: `${height}px` }}
+                         transition={{ duration: 1, delay: i * 0.1 + 0.5 }}
+                         className="w-full bg-gradient-to-t from-[var(--color-gold-600)] to-[var(--color-gold-400)] rounded-t-md opacity-80 shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+                       ></motion.div>
+                     ))}
+                   </div>
+                </div>
+              </motion.div>
+
+              {/* Floating AI Notification */}
+              <motion.div 
+                initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ delay: 1.5, duration: 0.5, type: "spring" }}
+                className="absolute -right-8 top-1/3 glass-panel p-4 rounded-2xl border-2 border-[var(--color-emerald-500)]/30 shadow-[0_0_30px_rgba(16,185,129,0.3)] flex items-center gap-4 z-20 backdrop-blur-2xl bg-[#1A120B]/80"
+              >
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-emerald-500)] to-[var(--color-emerald-700)] flex items-center justify-center shadow-inner relative overflow-hidden">
+                  <motion.div 
+                    animate={{ rotate: 360 }} 
+                    transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                    className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"
+                  />
+                  <BrainCircuit className="text-white relative z-10" size={24} />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-white mb-1 flex items-center gap-2">
+                    Maestro AI <span className="w-2 h-2 rounded-full bg-[var(--color-emerald-400)] animate-pulse"></span>
+                  </div>
+                  <div className="text-xs text-[var(--color-emerald-400)] font-medium">Auto-reconciled 5 invoices</div>
+                </div>
+              </motion.div>
+            </motion.div>
           </div>
         </main>
 
