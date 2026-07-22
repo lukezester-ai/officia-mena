@@ -97,7 +97,7 @@ export default function Home() {
                 <h3 className="text-2xl font-bold text-white mb-2">Starter</h3>
                 <p className="text-[var(--color-desert-300)] mb-6 h-12">للشركات الناشئة والمؤسسات الصغيرة.</p>
                 <div className="mb-8">
-                  <span className="text-4xl font-black text-white">$29</span>
+                  <span className="text-4xl font-black text-white">€29</span>
                   <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
                 </div>
                 <ul className="space-y-4 mb-8 text-gray-300">
@@ -127,7 +127,7 @@ export default function Home() {
                 <h3 className="text-2xl font-bold text-white mb-2">Pro</h3>
                 <p className="text-[var(--color-desert-300)] mb-6 h-12">للاحتياجات المتكاملة وإدارة الموارد الذكية.</p>
                 <div className="mb-8">
-                  <span className="text-4xl font-black text-white">$99</span>
+                  <span className="text-4xl font-black text-white">€99</span>
                   <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
                 </div>
                 <ul className="space-y-4 mb-8 text-gray-300">

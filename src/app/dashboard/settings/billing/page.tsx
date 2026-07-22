@@ -62,7 +62,7 @@ export default async function BillingPage() {
           <div className={`p-6 rounded-xl border-2 ${currentPlan === 'pro' ? 'border-[var(--color-gold-500)] bg-[var(--color-gold-50)]' : 'border-gray-200 hover:border-gray-300'}`}>
             <h4 className="font-bold text-xl mb-2">خطة Pro</h4>
             <div className="mb-4">
-              <span className="text-2xl font-black">$99</span> <span className="text-gray-500">/ شهرياً</span>
+              <span className="text-2xl font-black">€99</span> <span className="text-gray-500">/ شهرياً</span>
             </div>
             <ul className="space-y-2 mb-6">
               <li className="flex items-center gap-2 text-sm text-gray-700"><CheckCircle2 size={16} className="text-[var(--color-gold-500)]"/> الذكاء الاصطناعي (Maestro)</li>
