@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { login, signup } from './actions';
+import { login, signup, getGoogleOAuthUrl } from './actions';
 import { Loader2, User, Lock, Mail, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,14 +14,11 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
       setError(null);
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) throw error;
+      const result = await getGoogleOAuthUrl();
+      if (result.error) throw new Error(result.error);
+      if (result.url) {
+        window.location.href = result.url;
+      }
     } catch (err: any) {
       console.error(err);
       setError('Възникна грешка при свързването с Google.');
