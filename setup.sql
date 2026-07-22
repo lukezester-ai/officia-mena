@@ -335,3 +335,19 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- ==========================================
+-- SUBSCRIPTIONS TABLE
+-- ==========================================
+
+CREATE TABLE "subscriptions" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "tenant_id" uuid NOT NULL REFERENCES tenants(id),
+  "stripe_customer_id" varchar(255),
+  "stripe_subscription_id" varchar(255),
+  "plan_id" varchar(50) DEFAULT 'free' NOT NULL,
+  "status" varchar(50) DEFAULT 'active' NOT NULL,
+  "current_period_end" timestamp,
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
