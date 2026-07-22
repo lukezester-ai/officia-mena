@@ -35,7 +35,7 @@ export default function AiMaestroPage() {
           <div>
             <h3 className="font-bold text-rose-800">خطأ في الاتصال (Connection Error)</h3>
             <p className="text-sm text-rose-600">
-              يرجى التأكد من إضافة مفتاح <code>GOOGLE_GENERATIVE_AI_API_KEY</code> في ملف <code>.env</code> وتشغيل السيرفر من جديد.
+              يرجى التأكد من إضافة مفتاح <code>ANTHROPIC_API_KEY</code> في ملف <code>.env</code> أو Vercel.
               <br/>
               (Error: {error.message})
             </p>

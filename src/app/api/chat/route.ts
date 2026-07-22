@@ -1,19 +1,19 @@
 import { streamText } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { maestroTools } from '@/lib/ai/tools';
 
-// We configure the SDK to use the user's API key if available, otherwise it will fail gracefully.
-// Make sure to add GOOGLE_GENERATIVE_AI_API_KEY to your .env file
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || 'fake-key-to-allow-build',
+// We configure the SDK to use the user's API key if available
+// Make sure to add ANTHROPIC_API_KEY to your .env file
+const anthropic = createAnthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY || 'fake-key-to-allow-build',
 });
 
 export const maxDuration = 30; // Allow up to 30 seconds for the LLM to run tools
 
 export async function POST(req: Request) {
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return new Response(JSON.stringify({ 
-      error: 'لم يتم العثور على مفتاح API. يرجى إضافة GOOGLE_GENERATIVE_AI_API_KEY في ملف .env' 
+      error: 'لم يتم العثور على مفتاح API. يرجى إضافة ANTHROPIC_API_KEY في ملف .env أو Vercel' 
     }), { status: 400 });
   }
 
@@ -34,11 +34,12 @@ Remember: YOU MUST RESPOND ENTIRELY IN ARABIC. Always maintain a professional, h
 `;
 
   const result = streamText({
-    model: google('gemini-3.5-flash'), // Using a fast model capable of tool calling
+    model: anthropic('claude-3-5-sonnet-latest'), // Using Claude 3.5 Sonnet
     system: systemPrompt,
     messages,
     tools: maestroTools,
   });
+  
   // @ts-expect-error The method exists in runtime in newer AI SDKs but TS types might lag
   return result.toDataStreamResponse ? result.toDataStreamResponse() : result.toTextStreamResponse();
 }
