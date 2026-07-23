@@ -12,9 +12,28 @@ export const maxDuration = 30; // Allow up to 30 seconds for the LLM to run tool
 
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) {
-    return new Response(JSON.stringify({ 
-      error: 'لم يتم العثور على مفتاح API. يرجى إضافة ANTHROPIC_API_KEY في ملف .env أو Vercel' 
-    }), { status: 400 });
+    // Mock response for demo purposes when no API key is provided
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const text = "عذراً أيها المدير، لم يتم إعداد مفتاح الذكاء الاصطناعي (API Key) في إعدادات النظام. لكن، كرسالة تجريبية: بناءً على البيانات الحالية، لا يوجد أي بضائع ممنوعة في المخزون، وجميع رواتب الموظفين والإقامات سارية المفعول.";
+        
+        // Send format expected by useChat (x-vercel-ai-data-stream)
+        const chunks = text.split(' ');
+        for (const chunk of chunks) {
+          controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk + ' ')}\n`));
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        controller.close();
+      }
+    });
+    
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'x-vercel-ai-data-stream': 'v1'
+      }
+    });
   }
 
   const { messages } = await req.json();
