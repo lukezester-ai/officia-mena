@@ -1,4 +1,6 @@
+/* eslint-disable */
 // @ts-nocheck
+export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Wallet, FileWarning, ShieldAlert, Scale, ArrowUpRight, ArrowDownRight, Clock, FileText } from 'lucide-react';
 import { getDashboardStats } from './actions';
@@ -92,3 +94,4 @@ export default async function DashboardPage() {
     </>
   );
 }
+

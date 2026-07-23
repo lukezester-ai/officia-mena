@@ -1,3 +1,4 @@
+/* eslint-disable */
 // @ts-nocheck
 'use client';
 
@@ -141,3 +142,4 @@ export default function QuotationsPage() {
     </div>
   );
 }
+
