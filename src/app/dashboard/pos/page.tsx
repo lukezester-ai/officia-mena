@@ -3,8 +3,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Plus, Minus, CreditCard, Banknote, CheckCircle2, QrCode, Search, Tag } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, CreditCard, Banknote, CheckCircle2, QrCode, Search, Printer } from 'lucide-react';
 import { getPosProducts, checkoutPos } from './actions';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function POSPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -69,7 +70,7 @@ export default function POSPage() {
     
     if (res.success) {
       setCheckoutStatus('success');
-      setLastInvoice({ number: res.invoiceNumber, qr: res.qrCode, total: total.toFixed(2) });
+      setLastInvoice({ number: res.invoiceNumber, qr: res.qrCode, total: total.toFixed(2), items: [...cart] });
       setCart([]);
     } else {
       alert('خطأ أثناء الدفع: ' + res.error);
@@ -83,29 +84,90 @@ export default function POSPage() {
 
   if (checkoutStatus === 'success' && lastInvoice) {
     return (
-      <div className="max-w-2xl mx-auto mt-20 bg-white rounded-3xl p-12 text-center shadow-lg border border-[var(--color-desert-200)]" dir="rtl">
-        <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="text-emerald-500" size={60} />
-        </div>
-        <h1 className="text-4xl font-bold text-[var(--color-desert-900)] mb-2">تم الدفع بنجاح!</h1>
-        <p className="text-[var(--color-desert-500)] text-lg mb-8">تم إصدار فاتورة ضريبية مبسطة (B2C)</p>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] bg-white/50 print:bg-white print:min-h-0" dir="rtl">
         
-        <div className="bg-[var(--color-desert-50)] p-6 rounded-2xl border border-[var(--color-desert-200)] mb-8 inline-block text-left w-full max-w-sm mx-auto flex flex-col items-center">
-          <p className="text-[var(--color-desert-500)] mb-1">رقم الفاتورة</p>
-          <p className="font-mono font-bold text-xl mb-4">{lastInvoice.number}</p>
-          <p className="text-[var(--color-desert-500)] mb-1">الإجمالي (شامل الضريبة)</p>
-          <p className="font-mono font-bold text-3xl text-[var(--color-desert-900)] mb-6">{formatMoney(lastInvoice.total)}</p>
-          
-          <div className="bg-white p-2 rounded-xl shadow-sm border border-[var(--color-desert-200)]">
-             <QrCode size={150} className="text-black" />
+        {/* Screen UI only */}
+        <div className="print:hidden text-center mb-8">
+          <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="text-emerald-500" size={60} />
           </div>
-          <p className="text-xs text-[var(--color-desert-400)] mt-2">ZATCA QR Code</p>
+          <h1 className="text-4xl font-bold text-[var(--color-desert-900)] mb-2">تم الدفع بنجاح!</h1>
+          <p className="text-[var(--color-desert-500)] text-lg">تم إصدار فاتورة ضريبية مبسطة (B2C)</p>
+        </div>
+
+        {/* Thermal Receipt (Screen + Print) */}
+        <div className="bg-white p-6 rounded-2xl border border-[var(--color-desert-200)] shadow-lg print:shadow-none print:border-none print:p-0 w-[300px] print:w-auto mx-auto flex flex-col items-center">
+          
+          <h2 className="font-bold text-xl text-black mb-1">Officia MENA Corp</h2>
+          <p className="text-xs text-gray-500 font-mono mb-4">TRN: 310123456700003</p>
+          <div className="w-full border-b border-dashed border-gray-300 mb-4"></div>
+          
+          <div className="w-full text-sm text-left mb-4" dir="ltr">
+            <div className="flex justify-between mb-1">
+              <span className="text-gray-500">Invoice:</span>
+              <span className="font-mono font-bold">{lastInvoice.number}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Date:</span>
+              <span className="font-mono">{new Date().toLocaleDateString('en-GB')} {new Date().toLocaleTimeString('en-GB')}</span>
+            </div>
+          </div>
+          
+          <div className="w-full border-b border-dashed border-gray-300 mb-4"></div>
+
+          {/* Items (Thermal layout) */}
+          <div className="w-full text-sm mb-4">
+            {lastInvoice.items.map((item: any, idx: number) => (
+              <div key={idx} className="flex justify-between items-start mb-2" dir="ltr">
+                <div className="flex-1 pr-2">
+                  <p className="font-bold leading-tight text-gray-800">{item.name}</p>
+                  <p className="text-xs text-gray-500">{item.qty} x {item.unitPrice}</p>
+                </div>
+                <div className="font-mono font-bold">
+                  {(item.qty * parseFloat(item.unitPrice)).toFixed(2)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="w-full border-b border-dashed border-gray-300 mb-4"></div>
+          
+          <div className="w-full text-sm font-bold text-left mb-6" dir="ltr">
+            <div className="flex justify-between mb-1 text-gray-500">
+              <span>VAT 15%:</span>
+              <span className="font-mono">{(lastInvoice.total - (lastInvoice.total / 1.15)).toFixed(2)} SAR</span>
+            </div>
+            <div className="flex justify-between text-lg text-black mt-2">
+              <span>TOTAL:</span>
+              <span className="font-mono">{formatMoney(lastInvoice.total)}</span>
+            </div>
+          </div>
+          
+          {/* ZATCA QR Code */}
+          {lastInvoice.qr ? (
+             <QRCodeSVG value={lastInvoice.qr} size={160} />
+          ) : (
+            <div className="w-[160px] h-[160px] bg-gray-100 flex items-center justify-center text-xs text-gray-400">
+              No QR
+            </div>
+          )}
+          <p className="text-[10px] text-gray-400 mt-2 text-center w-full">Simplified Tax Invoice<br/>فاتورة ضريبية مبسطة</p>
         </div>
         
-        <div>
+        {/* Actions (Screen only) */}
+        <div className="print:hidden mt-8 flex gap-4">
+          <button 
+            onClick={() => {
+              if (typeof window !== 'undefined') window.print();
+            }}
+            className="bg-white border-2 border-[var(--color-desert-200)] hover:bg-[var(--color-desert-50)] text-[var(--color-desert-700)] font-bold py-3 px-6 rounded-xl transition-colors flex items-center gap-2"
+          >
+            <Printer size={20} /> طباعة الفاتورة
+          </button>
+          
           <button 
             onClick={() => setCheckoutStatus('idle')}
-            className="bg-[var(--color-gold-500)] hover:bg-[var(--color-gold-600)] text-black font-bold py-4 px-12 rounded-xl text-lg transition-colors"
+            className="bg-[var(--color-gold-500)] hover:bg-[var(--color-gold-600)] text-black font-bold py-3 px-8 rounded-xl transition-colors"
           >
             طلب جديد
           </button>
@@ -115,7 +177,7 @@ export default function POSPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-120px)] flex gap-6" dir="rtl">
+    <div className="h-[calc(100vh-120px)] flex gap-6 print:hidden" dir="rtl">
       
       {/* LEFT: Products Grid */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
