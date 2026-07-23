@@ -62,5 +62,5 @@ Remember: YOU MUST RESPOND ENTIRELY IN ARABIC. Always maintain a professional, h
   });
   
   // @ts-expect-error The method exists in runtime in newer AI SDKs but TS types might lag
-  return result.toUIMessageStreamResponse ? result.toUIMessageStreamResponse() : result.toTextStreamResponse();
+  return result.toDataStreamResponse ? result.toDataStreamResponse() : result.toTextStreamResponse();
 }

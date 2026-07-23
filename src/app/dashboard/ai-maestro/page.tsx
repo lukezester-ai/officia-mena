@@ -1,20 +1,80 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import { useChat } from '@ai-sdk/react';
+import React, { useRef, useEffect, useState } from 'react';
 import { BrainCircuit, Send, User, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function AiMaestroPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat({
-    maxSteps: 5,
-  }) as any;
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const append = async (message: { role: string; content: string }) => {
+    setIsLoading(true);
+    setError(null);
+    const newMessages = [...messages, { id: Date.now().toString(), ...message }];
+    setMessages(newMessages);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+
+      if (!response.body) throw new Error('No response body');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      
+      let assistantMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: '' };
+      setMessages((prev) => [...prev, assistantMessage]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        // Parse Vercel AI SDK stream format
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('0:')) {
+            try {
+              const text = JSON.parse(line.slice(2));
+              assistantMessage.content += text;
+              setMessages((prev) => prev.map(m => m.id === assistantMessage.id ? { ...assistantMessage } : m));
+            } catch (e) {
+              // Ignore parse errors on partial chunks
+            }
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!input.trim() || isLoading) return;
+    const currentInput = input;
+    setInput('');
+    append({ role: 'user', content: currentInput });
+  };
 
   return (
     <div className="max-w-5xl mx-auto h-[85vh] flex flex-col">
@@ -88,24 +148,10 @@ export default function AiMaestroPage() {
                     ? 'bg-[var(--color-desert-900)] text-white rounded-tr-none'
                     : 'bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] text-[var(--color-desert-900)] rounded-tl-none'
                 }`}>
-                  {/* Tool Call Indicators */}
-                  {m.toolInvocations && m.toolInvocations.length > 0 && (
-                    <div className="mb-3 space-y-1">
-                      {m.toolInvocations.map((invocation: any) => (
-                        <div key={invocation.toolCallId} className="flex items-center gap-2 text-[10px] font-mono text-[var(--color-desert-500)] bg-white px-2 py-1 rounded border border-[var(--color-desert-200)] w-max">
-                          <span className="animate-spin text-[var(--color-gold-500)]">⚙️</span>
-                          جاري استدعاء قسم: {invocation.toolName}...
-                          {'result' in invocation && <span className="text-emerald-500 ml-2">✓ تم الاستلام</span>}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
                   <div 
                     className="whitespace-pre-wrap text-sm leading-relaxed"
                     dangerouslySetInnerHTML={{ 
                       __html: m.content
-                        // Super basic markdown parsing for bolding
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
                         .replace(/- (.*?)\n/g, '<li class="ml-4 list-disc">$1</li>\n')
                     }} 
@@ -140,7 +186,7 @@ export default function AiMaestroPage() {
             <input
               type="text"
               value={input}
-              onChange={handleInputChange}
+              onChange={(e) => setInput(e.target.value)}
               disabled={isLoading}
               placeholder="اكتب طلبك للمايسترو هنا... (مثال: هل يوجد بضائع ممنوعة في المخزون؟)"
               className="w-full bg-[var(--color-desert-50)] text-[var(--color-desert-900)] placeholder:text-[var(--color-desert-400)] border border-[var(--color-desert-200)] rounded-2xl py-4 pr-4 pl-14 text-sm focus:outline-none focus:border-[var(--color-gold-500)] disabled:opacity-50"
