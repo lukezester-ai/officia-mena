@@ -132,7 +132,7 @@ export default function AiMaestroPage() {
               onChange={handleInputChange}
               disabled={isLoading}
               placeholder="اكتب طلبك للمايسترو هنا... (مثال: هل يوجد بضائع ممنوعة في المخزون؟)"
-              className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-2xl py-4 pr-4 pl-14 text-sm focus:outline-none focus:border-[var(--color-gold-500)] disabled:opacity-50"
+              className="w-full bg-[var(--color-desert-50)] text-[var(--color-desert-900)] placeholder:text-[var(--color-desert-400)] border border-[var(--color-desert-200)] rounded-2xl py-4 pr-4 pl-14 text-sm focus:outline-none focus:border-[var(--color-gold-500)] disabled:opacity-50"
               dir="rtl"
             />
             <button 
