@@ -3,7 +3,7 @@
 'use server';
 
 import { db } from '@/lib/db/db';
-import { products } from '@/lib/db/schema/inventory';
+import { products, inventoryLevels, warehouses, stockMovements } from '@/lib/db/schema/inventory';
 import { expenses } from '@/lib/db/schema/expenses';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
@@ -84,19 +84,47 @@ export async function confirmAndAutomateReceipt(data: {
       expenseDate: new Date(data.date || new Date())
     });
 
-    // 2. Cross-Department: Inventory (Create Products)
-    // In a real app we'd update inventoryLevels if SKU matches, 
-    // but here we just insert as new products for the demo.
+    // 2. Cross-Department: Inventory (Create Products & Stock)
+    let warehouse = await db.query.warehouses.findFirst({
+      where: (w, { eq }) => eq(w.tenantId, tenant.id)
+    });
+    
+    if (!warehouse) {
+      const wRes = await db.insert(warehouses).values({
+        tenantId: tenant.id,
+        name: 'المستودع الرئيسي (Main Warehouse)'
+      }).returning();
+      warehouse = wRes[0];
+    }
+
     for (const item of data.items) {
-      await db.insert(products).values({
+      const pRes = await db.insert(products).values({
         tenantId: tenant.id,
         name: item.name,
         sku: `AUTO-${Math.floor(Math.random() * 10000)}`,
         barcode: Math.floor(Math.random() * 1000000000000).toString(),
-        unitPrice: item.unitPrice.toString(), // We set unit price same as purchase price for simplicity
+        unitPrice: item.unitPrice.toString(),
         category: 'مشتريات آلية',
         isPetroleum: item.isPetroleum || false,
         isFertilizer: item.isFertilizer || false,
+      }).returning();
+      
+      // Add stock
+      await db.insert(inventoryLevels).values({
+        tenantId: tenant.id,
+        productId: pRes[0].id,
+        warehouseId: warehouse.id,
+        quantity: item.qty
+      });
+      
+      // Add stock movement
+      await db.insert(stockMovements).values({
+        tenantId: tenant.id,
+        productId: pRes[0].id,
+        warehouseId: warehouse.id,
+        type: 'IN',
+        quantity: item.qty,
+        notes: `استلام آلي عبر AI OCR (${data.supplierName})`
       });
     }
 

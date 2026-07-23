@@ -3,7 +3,7 @@
 'use server';
 
 import { db } from '@/lib/db/db';
-import { products, inventoryLevels } from '@/lib/db/schema/inventory';
+import { products, inventoryLevels, warehouses } from '@/lib/db/schema/inventory';
 import { eq, desc, and } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
@@ -14,19 +14,32 @@ export async function getProducts() {
   try {
     const tenant = await requireTenant();
     
-    // For simplicity, we just fetch products. In a real scenario we'd JOIN with inventoryLevels.
-    // We'll return a mock quantity for now, but save the product in the DB.
+    // Fetch products with their inventory levels
     const data = await db
-      .select()
+      .select({
+        id: products.id,
+        name: products.name,
+        sku: products.sku,
+        barcode: products.barcode,
+        unitPrice: products.unitPrice,
+        category: products.category,
+        isPetroleum: products.isPetroleum,
+        apiGravity: products.apiGravity,
+        isFertilizer: products.isFertilizer,
+        mewaRegistration: products.mewaRegistration,
+        securityClearanceExpiry: products.securityClearanceExpiry,
+        qty: inventoryLevels.quantity
+      })
       .from(products)
+      .leftJoin(inventoryLevels, eq(products.id, inventoryLevels.productId))
       .where(eq(products.tenantId, tenant.id))
       .orderBy(desc(products.createdAt));
       
-    // Map it to include a mock qty if inventoryLevels isn't fully implemented yet
+    // Map to handle missing inventory levels
     const mapped = data.map(p => ({
       ...p,
-      qty: Math.floor(Math.random() * 100) + 5, // Mock quantity for UI testing
-      status: 'متاح'
+      qty: p.qty || 0,
+      status: (p.qty || 0) > 0 ? 'متاح' : 'نفذت الكمية'
     }));
 
     return { success: true, data: mapped };
@@ -50,7 +63,21 @@ export async function createProduct(data: {
   try {
     const tenant = await requireTenant();
 
-    await db.insert(products).values({
+    // 1. Ensure a default warehouse exists
+    let warehouse = await db.query.warehouses.findFirst({
+      where: (w, { eq }) => eq(w.tenantId, tenant.id)
+    });
+    
+    if (!warehouse) {
+      const wRes = await db.insert(warehouses).values({
+        tenantId: tenant.id,
+        name: 'المستودع الرئيسي (Main Warehouse)'
+      }).returning();
+      warehouse = wRes[0];
+    }
+
+    // 2. Insert the product
+    const pRes = await db.insert(products).values({
       tenantId: tenant.id,
       name: data.name,
       sku: data.sku,
@@ -62,7 +89,16 @@ export async function createProduct(data: {
       isFertilizer: data.isFertilizer,
       mewaRegistration: data.mewaRegistration || null,
       securityClearanceExpiry: data.securityClearanceExpiry ? new Date(data.securityClearanceExpiry) : null,
+    }).returning();
+    
+    // 3. Add initial stock (e.g. 50 units for demo purposes so POS can sell them)
+    await db.insert(inventoryLevels).values({
+      tenantId: tenant.id,
+      productId: pRes[0].id,
+      warehouseId: warehouse.id,
+      quantity: 50 // Demo initial stock
     });
+    
     
     revalidatePath('/dashboard/inventory');
     revalidatePath('/dashboard/pos');

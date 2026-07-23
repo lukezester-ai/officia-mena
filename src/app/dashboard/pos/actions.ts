@@ -3,9 +3,9 @@
 'use server';
 
 import { db } from '@/lib/db/db';
-import { products } from '@/lib/db/schema/inventory';
+import { products, inventoryLevels, stockMovements } from '@/lib/db/schema/inventory';
 import { invoices } from '@/lib/db/schema/invoices';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { generateZatcaQrCode, ZatcaTags } from '@/lib/accounting/zatca-qr';
@@ -14,12 +14,25 @@ export async function getPosProducts() {
   try {
     const tenant = await requireTenant();
     
-    // Fetch all products for this tenant
+    // Fetch all products for this tenant with their quantities
     const data = await db
-      .select()
+      .select({
+        id: products.id,
+        name: products.name,
+        unitPrice: products.unitPrice,
+        category: products.category,
+        qty: inventoryLevels.quantity
+      })
       .from(products)
+      .leftJoin(inventoryLevels, eq(products.id, inventoryLevels.productId))
       .where(eq(products.tenantId, tenant.id))
       .limit(100); // Limit for POS performance
+      
+    // Map data to ensure no null quantities
+    const mapped = data.map(p => ({
+      ...p,
+      qty: p.qty || 0
+    }));
       
     // If no products exist, we can return some dummy ones for the UI demo
     if (data.length === 0) {
@@ -35,8 +48,7 @@ export async function getPosProducts() {
         ]
       };
     }
-      
-    return { success: true, data };
+    return { success: true, data: mapped };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -83,11 +95,34 @@ export async function checkoutPos(data: {
       zatcaQrCode: qrCode,
       isZatcaReported: true
     });
+    // 4. Cross-Department Automation: Deduct Inventory
+    for (const item of data.items) {
+      if (!item.id || item.id.length < 10) continue; // Skip dummy products without real UUIDs
+      
+      // Reduce inventory
+      await db.update(inventoryLevels)
+        .set({ quantity: sql`${inventoryLevels.quantity} - ${item.qty}` })
+        .where(eq(inventoryLevels.productId, item.id));
+        
+      // Record stock movement (optional but good for tracking)
+      // We assume warehouseId is the first one found for this product, for simplicity
+      const invLevel = await db.query.inventoryLevels.findFirst({
+        where: eq(inventoryLevels.productId, item.id)
+      });
+      if (invLevel) {
+        await db.insert(stockMovements).values({
+          tenantId: tenant.id,
+          productId: item.id,
+          warehouseId: invLevel.warehouseId,
+          type: 'OUT',
+          quantity: item.qty,
+          referenceId: invNumber,
+          notes: 'POS Sale'
+        });
+      }
+    }
     
-    // Note: In a full app, we would also deduct from `inventoryLevels` here.
-    
-    revalidatePath('/dashboard/pos');
-    revalidatePath('/dashboard/invoices');
+    revalidatePath('/dashboard/inventory');
     revalidatePath('/dashboard/taxes');
     
     return { success: true, invoiceNumber: invNumber, qrCode };
