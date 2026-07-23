@@ -58,12 +58,18 @@ export default function AiMaestroPage() {
                 </p>
               </div>
               <div className="flex flex-wrap justify-center gap-3 mt-8">
-                <span className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm">
+                <button 
+                  onClick={() => append({ role: 'user', content: 'حلل المخاطر القانونية اليوم' })}
+                  className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm hover:bg-[var(--color-gold-100)] transition-colors text-center"
+                >
                   &quot;حلل المخاطر القانونية اليوم&quot;
-                </span>
-                <span className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm">
+                </button>
+                <button 
+                  onClick={() => append({ role: 'user', content: 'ما هو وضع الرواتب والإقامات؟' })}
+                  className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm hover:bg-[var(--color-gold-100)] transition-colors text-center"
+                >
                   &quot;ما هو وضع الرواتب والإقامات؟&quot;
-                </span>
+                </button>
               </div>
             </div>
           ) : (
@@ -128,25 +134,7 @@ export default function AiMaestroPage() {
         {/* Input Area */}
         <div className="p-4 border-t border-[var(--color-desert-200)] bg-white">
           <form 
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!input.trim() || isLoading) return;
-              
-              const currentInput = input;
-              // Clear input immediately for better UX
-              handleInputChange({ target: { value: '' } } as any);
-              
-              try {
-                await messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-                // @ts-ignore - ai sdk types can be tricky
-                await append({ role: 'user', content: currentInput });
-              } catch (err: any) {
-                console.error("Chat append error:", err);
-                alert("възникна грешка при изпращането: " + err.message);
-                // Restore input on failure
-                handleInputChange({ target: { value: currentInput } } as any);
-              }
-            }} 
+            onSubmit={handleSubmit}
             className="relative flex items-center"
           >
             <input
