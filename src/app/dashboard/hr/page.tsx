@@ -1,12 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, FileWarning, Search, UserPlus, CreditCard, X } from 'lucide-react';
+import { Users, Search, UserPlus, CreditCard, X } from 'lucide-react';
 import Link from 'next/link';
+import type { InferSelectModel } from 'drizzle-orm';
+import type { employees as employeesTable } from '@/lib/db/schema/hr';
 import { getEmployees, createEmployee } from './hr-actions';
 
+type Employee = InferSelectModel<typeof employeesTable>;
+
 export default function HrPage() {
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Modal State

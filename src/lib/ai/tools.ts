@@ -5,7 +5,12 @@ import { z } from 'zod';
 import { db } from '@/lib/db/db';
 import { documentChunks } from '@/lib/db/schema/documents';
 import { google } from '@ai-sdk/google';
-import { sql, desc, eq, and } from 'drizzle-orm';
+import { sql, desc, eq } from 'drizzle-orm';
+import { getErrorMessage } from '@/lib/errors';
+
+type SearchInput = {
+  query: string;
+};
 
 export const hrTools = {
   getExpiringIqamas: tool({
@@ -68,7 +73,7 @@ export const documentTools = {
     parameters: z.object({
       query: z.string().describe('The search query or question'),
     }),
-    execute: async ({ query }) => {
+    execute: async ({ query }: SearchInput) => {
       try {
         // Embed the query
         const { embedding } = await embed({
@@ -93,8 +98,8 @@ export const documentTools = {
           department: 'Document Management',
           results: results.map(r => ({ fileName: r.fileName, excerpt: r.content, relevanceScore: r.similarity }))
         };
-      } catch (e: any) {
-        return { error: 'Failed to search documents: ' + e.message };
+      } catch (e: unknown) {
+        return { error: 'Failed to search documents: ' + getErrorMessage(e) };
       }
     }
   } as any),
@@ -104,7 +109,7 @@ export const documentTools = {
     parameters: z.object({
       query: z.string().describe('The tax or ZATCA related question'),
     }),
-    execute: async ({ query }) => {
+    execute: async ({ query }: SearchInput) => {
       try {
         const { embedding } = await embed({
           model: google.embedding('text-embedding-004'),
@@ -126,8 +131,8 @@ export const documentTools = {
           department: 'Tax & Compliance Advisor (ZATCA)',
           results: results.map(r => ({ rule: r.content, confidence: r.similarity }))
         };
-      } catch (e: any) {
-        return { error: 'Failed to query ZATCA regulations: ' + e.message };
+      } catch (e: unknown) {
+        return { error: 'Failed to query ZATCA regulations: ' + getErrorMessage(e) };
       }
     }
   } as any)

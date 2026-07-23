@@ -1,21 +1,13 @@
-// @ts-nocheck
 import React from 'react';
-import { createClient } from '@/utils/supabase/server';
 import { db } from '@/lib/db/db';
 import { subscriptions } from '@/lib/db/schema/subscriptions';
-import { tenants } from '@/lib/db/schema/tenants';
 import { eq } from 'drizzle-orm';
 import { CreditCard, CheckCircle2 } from 'lucide-react';
 import { createCheckoutSession, createPortalSession } from './actions';
+import { requireTenant } from '@/lib/auth/get-tenant';
 
 export default async function BillingPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const tenantResult = await db.select().from(tenants).where(eq(tenants.ownerId, user.id)).limit(1);
-  const tenant = tenantResult[0];
+  const tenant = await requireTenant();
 
   const subResult = await db.select().from(subscriptions).where(eq(subscriptions.tenantId, tenant.id)).limit(1);
   const subscription = subResult[0];

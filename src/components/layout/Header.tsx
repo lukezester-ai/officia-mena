@@ -4,9 +4,18 @@ import { Bell, Search, User, Loader2, FileText } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+type SearchResult = {
+  clientName: string;
+  invoiceNumber: string;
+  totalAmount: string;
+  currency: string;
+  status: string;
+  similarity: number;
+};
+
 export default function Header() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 

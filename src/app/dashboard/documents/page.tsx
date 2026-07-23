@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable react/no-unescaped-entities */
 import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -42,9 +43,9 @@ export default function DocumentsPage() {
         setStatus('error');
         setMessage(data.error || 'حدث خطأ أثناء رفع المستند.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('error');
-      setMessage(err.message || 'فشل الاتصال بالخادم.');
+      setMessage(err instanceof Error ? err.message : 'Upload failed.');
     }
   };
 

@@ -38,7 +38,7 @@ export default function AiMaestroPage() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       
-      let assistantMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: '' };
+      const assistantMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: '' };
       setMessages((prev) => [...prev, assistantMessage]);
 
       while (true) {
@@ -54,7 +54,7 @@ export default function AiMaestroPage() {
               const text = JSON.parse(line.slice(2));
               assistantMessage.content += text;
               setMessages((prev) => prev.map(m => m.id === assistantMessage.id ? { ...assistantMessage } : m));
-            } catch (e) {
+            } catch {
               // Ignore parse errors on partial chunks
             }
           }

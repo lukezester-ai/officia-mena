@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-export default function DashboardError({ error, reset }: { error: Error & { digest?: string }; reset: () => void; }) {
+export default function DashboardError({ error }: { error: Error & { digest?: string }; reset: () => void; }) {
   useEffect(() => { console.error('Dashboard Error Caught:', error); }, [error]);
   return (
     <div className="p-8 text-center" dir="ltr">

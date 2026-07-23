@@ -5,6 +5,7 @@ import { employees } from '@/lib/db/schema/hr';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { eq, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { getErrorMessage, isNextRedirectError } from '@/lib/errors';
 
 export async function getEmployees() {
   try {
@@ -16,14 +17,14 @@ export async function getEmployees() {
       .orderBy(desc(employees.createdAt));
     
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to get employees:', error);
     
-    if (error.message === 'NEXT_REDIRECT' || (error.digest && error.digest.startsWith('NEXT_REDIRECT'))) {
+    if (isNextRedirectError(error)) {
       throw error;
     }
     
-    return { success: false, error: error.message };
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 
@@ -60,13 +61,13 @@ export async function createEmployee(data: {
     revalidatePath('/dashboard/hr');
     revalidatePath('/dashboard/hr/payroll');
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to create employee:', error);
     
-    if (error.message === 'NEXT_REDIRECT' || (error.digest && error.digest.startsWith('NEXT_REDIRECT'))) {
+    if (isNextRedirectError(error)) {
       throw error;
     }
     
-    return { success: false, error: error.message };
+    return { success: false, error: getErrorMessage(error) };
   }
 }

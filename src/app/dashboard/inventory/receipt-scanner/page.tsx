@@ -1,16 +1,31 @@
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef } from 'react';
-import { UploadCloud, CheckCircle2, Package, Search, Bot, AlertTriangle, Building, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
+import { UploadCloud, CheckCircle2, Package, Bot, Building, CreditCard, Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { analyzeReceiptImage, confirmAndAutomateReceipt } from './actions';
 
+type ReceiptItem = {
+  name: string;
+  qty: number;
+  unitPrice: number;
+  isPetroleum?: boolean;
+  isFertilizer?: boolean;
+};
+
+type ReceiptScanResult = {
+  supplierName: string;
+  totalAmount: number;
+  date: string;
+  items: ReceiptItem[];
+};
+
 export default function ReceiptScannerPage() {
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState<any | null>(null);
+  const [scanResult, setScanResult] = useState<ReceiptScanResult | null>(null);
   
   const [isConfirming, setIsConfirming] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -20,7 +35,6 @@ export default function ReceiptScannerPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
@@ -81,7 +95,6 @@ export default function ReceiptScannerPage() {
           </Link>
           <button onClick={() => {
             setIsSuccess(false);
-            setImageFile(null);
             setImagePreview(null);
             setScanResult(null);
           }} className="bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-8 rounded-xl transition-colors border border-white/10">
@@ -142,7 +155,7 @@ export default function ReceiptScannerPage() {
                 </div>
                 <div className="flex gap-3">
                   <button 
-                    onClick={() => { setImageFile(null); setImagePreview(null); setScanResult(null); }}
+                    onClick={() => { setImagePreview(null); setScanResult(null); }}
                     className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl border border-white/10 transition-colors"
                   >
                     تغيير الصورة
@@ -212,7 +225,7 @@ export default function ReceiptScannerPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10">
-                      {scanResult.items.map((item: any, idx: number) => (
+                      {scanResult.items.map((item, idx) => (
                         <tr key={idx} className="text-white">
                           <td className="py-3 px-4 font-bold">{item.name}</td>
                           <td className="py-3 px-4 text-center font-mono bg-white/5">{item.qty}</td>

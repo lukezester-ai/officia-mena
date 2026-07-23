@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Package, ArrowLeftRight, Building2, MapPin, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Package, ArrowLeftRight, Building2, MapPin, Loader2 } from 'lucide-react';
 import { getWarehouses, getInventoryDistribution, transferStock } from '../warehouse-actions';
 
 interface Warehouse {

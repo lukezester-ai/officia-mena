@@ -5,16 +5,17 @@ import { invoices } from '@/lib/db/schema/invoices';
 import { generateText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { Resend } from 'resend';
+import { getErrorMessage } from '@/lib/errors';
 
 // Vercel CRON Jobs require authorization in production if configured, but for simplicity here we just run it.
-export async function GET(req: Request) {
+export async function GET() {
   try {
     // 1. Fetch Data
     const allExpenses = await db.select().from(expenses);
     const allInvoices = await db.select().from(invoices);
 
     const totalExpenses = allExpenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
-    const totalInvoices = allInvoices.reduce((sum, inv) => sum + Number(inv.total), 0);
+    const totalInvoices = allInvoices.reduce((sum, inv) => sum + Number(inv.totalAmount), 0);
     const unpaidInvoices = allInvoices.filter(i => i.status !== 'paid');
 
     const dataSummary = `
@@ -72,8 +73,8 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ success: true, message: 'Analysis generated and email queued.' });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Cron Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

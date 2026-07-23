@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode';
 import { X } from 'lucide-react';
 
@@ -11,7 +11,6 @@ interface BarcodeScannerProps {
 
 export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     // Create the scanner instance
@@ -36,7 +35,7 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
         }
         onScan(decodedText);
       },
-      (err) => {
+      () => {
         // Error callback (called frequently when no barcode is in frame)
         // We usually ignore this unless we want to show specific errors
       }
@@ -65,7 +64,6 @@ export default function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps)
           <p className="text-muted-foreground text-sm mt-4 text-center">
             قم بتوجيه الكاميرا نحو الباركود الخاص بالمنتج ليتم مسحه تلقائياً.
           </p>
-          {error && <p className="text-rose-500 text-sm mt-2">{error}</p>}
         </div>
       </div>
     </div>

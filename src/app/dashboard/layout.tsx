@@ -9,14 +9,12 @@ import {
   FileText, 
   FileSignature,
   Calculator, 
-  Users, 
   BarChart3, 
   UserCircle, 
   Building2,
   Search,
   Bell,
   User,
-  ClipboardList,
   ShoppingCart,
   ShieldCheck,
   BrainCircuit,
@@ -49,21 +47,26 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex h-screen w-full bg-background overflow-hidden text-foreground dark" dir="rtl">
+    <div className="executive-shell flex h-screen w-full overflow-hidden text-foreground dark" dir="rtl">
       {/* Sidebar (Fixed Right) */}
-      <aside className="w-[220px] h-full flex-shrink-0 bg-sidebar border-l border-white/5 flex flex-col z-20">
-        <div className="h-16 flex items-center px-6 border-b border-white/5">
+      <aside className="executive-sidebar w-[248px] h-full flex-shrink-0 border-l border-white/5 flex flex-col z-20">
+        <div className="h-20 flex items-center px-5 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-amber-400 flex items-center justify-center font-bold text-background text-lg shadow-[0_0_15px_rgba(245,197,24,0.3)]">
+            <div className="brand-mark w-10 h-10 rounded-lg flex items-center justify-center font-black text-background text-xl">
               O
             </div>
-            <div className="font-bold text-xl tracking-tight leading-none">
-              Officia <span className="text-primary">MENA</span>
+            <div className="leading-none">
+              <div className="font-black text-xl tracking-tight text-white">
+                Officia <span className="text-primary">MENA</span>
+              </div>
+              <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground">
+                Command ERP
+              </div>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 py-6 px-3 flex flex-col gap-1 overflow-y-auto">
+        <nav className="flex-1 py-5 px-3 flex flex-col gap-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.path || (item.path !== '/dashboard' && pathname.startsWith(item.path));
             const Icon = item.icon;
@@ -72,11 +75,12 @@ export default function DashboardLayout({
               <Link 
                 key={item.path} 
                 href={item.path}
+                data-active={isActive}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-sm font-medium",
+                  "nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group text-sm font-semibold",
                   isActive 
-                    ? "bg-primary/10 text-primary" 
-                    : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                    ? "text-primary shadow-[inset_-3px_0_0_hsl(var(--primary))]" 
+                    : "text-muted-foreground hover:text-white"
                 )}
               >
                 <Icon className={cn(
@@ -88,36 +92,48 @@ export default function DashboardLayout({
             );
           })}
         </nav>
+
+        <div className="p-3">
+          <div className="ambient-border rounded-lg border bg-white/[0.035] p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-xs font-bold text-white">Maestro AI</div>
+                <div className="mt-1 text-[10px] text-muted-foreground">RAG / Finance / ZATCA</div>
+              </div>
+              <div className="command-pulse h-2.5 w-2.5 rounded-full bg-[var(--color-oasis-500)] shadow-[0_0_14px_rgba(31,191,165,0.9)]" />
+            </div>
+          </div>
+        </div>
       </aside>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full">
         {/* Top Header */}
-        <header className="h-16 flex-shrink-0 border-b border-white/5 bg-background/50 backdrop-blur-md flex items-center justify-between px-6 z-10 sticky top-0">
+        <header className="h-20 flex-shrink-0 border-b border-white/5 bg-background/70 backdrop-blur-xl flex items-center justify-between px-6 z-10 sticky top-0">
           
           {/* Mock Search Panel for now */}
-          <div className="relative flex items-center w-full max-w-md">
+          <div className="relative flex items-center w-full max-w-xl">
             <Search className="w-4 h-4 absolute right-3 text-muted-foreground pointer-events-none z-10" />
             <input
               type="text"
               placeholder="بحث ذكي… فواتير، عروض، أوامر شراء"
-              className="pl-8 pr-10 bg-white/5 border border-white/10 rounded-full h-9 focus-visible:ring-1 focus-visible:ring-primary/50 text-sm w-full text-white"
+              className="top-command h-11 w-full rounded-lg pr-10 pl-8 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-primary/50"
               dir="rtl"
             />
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors relative text-muted-foreground hover:text-white">
+            <button className="top-command relative flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-white">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-background"></span>
             </button>
             <div className="h-5 w-px bg-white/10"></div>
-            <button className="flex items-center gap-2 hover:bg-white/5 p-1 pr-3 rounded-full transition-colors border border-white/5">
+            <button className="top-command flex items-center gap-3 rounded-lg p-1 pr-3 transition-colors hover:bg-white/10">
               <div className="flex flex-col items-end">
                 <span className="text-xs font-medium leading-tight text-white">أحمد عبدالله</span>
                 <span className="text-[10px] text-muted-foreground leading-tight">المدير المالي</span>
               </div>
-              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+              <div className="brand-mark w-9 h-9 rounded-lg text-background flex items-center justify-center">
                 <User className="w-4 h-4" />
               </div>
             </button>
@@ -125,7 +141,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Scrollable Content */}
-        <main className="flex-1 overflow-y-auto p-6 scroll-smooth bg-[#07070F]">
+        <main className="dashboard-canvas flex-1 overflow-y-auto p-6 scroll-smooth">
           <div className="max-w-7xl mx-auto pb-12">
             {children}
           </div>

@@ -1,6 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -9,8 +6,32 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { BrainCircuit, LineChart, Loader2, AlertCircle, ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react';
 import Link from 'next/link';
 
+type ForecastPoint = {
+  month: string;
+  income: number;
+  expense: number;
+  netCash: number;
+};
+
+type ForecastData = {
+  forecastData: ForecastPoint[];
+  insights: string[];
+};
+
+type TooltipEntry = {
+  color?: string;
+  name?: string;
+  value: number;
+};
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: TooltipEntry[];
+  label?: string;
+};
+
 export default function ForecastPage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<ForecastData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -24,7 +45,7 @@ export default function ForecastPage() {
     if (res.success) {
       setData(res.data);
     } else {
-      setError(res.error || 'Unknown error');
+      setError('error' in res && typeof res.error === 'string' ? res.error : 'Unknown error');
     }
     setLoading(false);
   };
@@ -33,12 +54,12 @@ export default function ForecastPage() {
     return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR', maximumFractionDigits: 0 }).format(val);
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-[#0f0f1a] border border-white/10 p-4 rounded-xl shadow-2xl" dir="rtl">
           <p className="text-white font-bold mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index) => (
             <div key={index} className="flex items-center justify-between gap-4 text-sm mb-1">
               <span style={{ color: entry.color }}>{entry.name}</span>
               <span className="font-mono text-white font-bold">{formatMoney(entry.value)}</span>

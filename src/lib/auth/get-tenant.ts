@@ -29,7 +29,7 @@ export async function requireTenant() {
     }
 
     return tenantRecord[0];
-  } catch (error) {
+  } catch {
     console.warn('Database error or missing tenant table, falling back to mock tenant');
     return {
       id: 'mock-tenant-id',
