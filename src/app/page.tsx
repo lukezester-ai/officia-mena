@@ -82,79 +82,112 @@ export default function Home() {
           {/* Right Side (Animated Graphic) */}
           <div className="w-full lg:w-[45%] relative hidden lg:block z-10" dir="ltr">
             <motion.div 
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ x: 50 }}
+              animate={{ x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative w-full h-[500px]"
             >
               {/* Main glowing backplate */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-gold-500)]/20 to-[var(--color-desert-600)]/10 rounded-3xl blur-xl transform rotate-3"></div>
+              <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_25%_20%,rgba(245,197,24,0.26),transparent_34%),radial-gradient(circle_at_80%_64%,rgba(16,185,129,0.22),transparent_32%)] blur-2xl"></div>
+              <div className="absolute inset-8 rounded-[2rem] border border-[var(--color-gold-500)]/15 bg-[linear-gradient(135deg,rgba(245,197,24,0.06),transparent_38%,rgba(16,185,129,0.06))] rotate-3"></div>
               
               {/* Main Dashboard Panel */}
               <motion.div 
                 animate={{ y: [-5, 5, -5] }}
                 transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                className="absolute inset-0 glass-panel rounded-3xl border border-[var(--color-gold-700)]/40 p-6 shadow-2xl flex flex-col gap-5 overflow-hidden backdrop-blur-xl bg-black/40"
+                className="absolute inset-0 overflow-hidden rounded-[2rem] border border-[var(--color-gold-500)]/35 bg-[#1b1108]/95 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
               >
                 {/* Header */}
-                <div className="flex justify-between items-center border-b border-gray-800/50 pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full gold-gradient shadow-[0_0_10px_rgba(212,175,55,0.3)]"></div>
-                    <div className="h-3 w-24 bg-gray-600/50 rounded-full"></div>
+                <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.08),transparent_35%),repeating-linear-gradient(90deg,rgba(255,255,255,0.025)_0_1px,transparent_1px_74px)] pointer-events-none"></div>
+                <div className="relative flex items-center justify-between border-b border-[var(--color-gold-500)]/10 pb-4">
+                  <div className="flex items-center gap-3 text-right" dir="rtl">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#f5c518,#b45309)] text-lg font-black text-[#1A120B] shadow-[0_0_24px_rgba(245,197,24,0.34)]">
+                      O
+                    </div>
+                    <div>
+                      <div className="text-sm font-black text-white">Officia MENA</div>
+                      <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-[var(--color-gold-500)]">Live finance cockpit</div>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-gray-700"></div>
-                    <div className="w-3 h-3 rounded-full bg-gray-700"></div>
-                    <div className="w-3 h-3 rounded-full bg-gray-700"></div>
+                  <div className="flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]"></span>
+                    <span className="text-[11px] font-bold text-emerald-300">Synced</span>
                   </div>
                 </div>
 
                 {/* KPI Cards */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-800/40 rounded-2xl p-4 border border-gray-700/50 hover:border-[var(--color-gold-500)]/50 transition-colors">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="h-3 w-16 bg-gray-600/50 rounded-full"></div>
+                <div className="relative mt-5 grid grid-cols-3 gap-3">
+                  <div className="rounded-2xl border border-[var(--color-gold-500)]/25 bg-white/[0.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    <div className="mb-4 flex items-center justify-between">
                       <Receipt className="text-[var(--color-gold-500)]" size={18} />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">Revenue</span>
                     </div>
-                    <div className="h-6 w-24 bg-white/80 rounded-full mb-2"></div>
-                    <div className="h-2 w-12 bg-emerald-500/80 rounded-full"></div>
+                    <div className="text-2xl font-black text-white">1.24M</div>
+                    <div className="mt-1 text-xs font-bold text-[var(--color-gold-500)]">SAR +18%</div>
                   </div>
-                  <div className="bg-gray-800/40 rounded-2xl p-4 border border-gray-700/50 hover:border-[var(--color-emerald-500)]/50 transition-colors">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="h-3 w-16 bg-gray-600/50 rounded-full"></div>
+                  <div className="rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    <div className="mb-4 flex items-center justify-between">
                       <Users className="text-[var(--color-emerald-500)]" size={18} />
+                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">Payroll</span>
                     </div>
-                    <div className="h-6 w-20 bg-white/80 rounded-full mb-2"></div>
-                    <div className="h-2 w-14 bg-emerald-500/80 rounded-full"></div>
+                    <div className="text-2xl font-black text-white">485K</div>
+                    <div className="mt-1 text-xs font-bold text-emerald-300">WPS ready</div>
+                  </div>
+                  <div className="rounded-2xl border border-white/15 bg-white/[0.06] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">ZATCA</div>
+                    <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[conic-gradient(from_180deg,#10b981_0_84%,rgba(255,255,255,0.08)_84%_100%)]">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#120d08] text-sm font-black text-white">98%</div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Chart Area */}
-                <div className="flex-1 bg-gray-800/30 rounded-2xl border border-gray-700/50 p-5 mt-2 relative overflow-hidden flex flex-col justify-end group">
-                   <div className="absolute top-4 left-4 h-3 w-24 bg-gray-600/50 rounded-full"></div>
+                <div className="relative mt-4 flex-1 overflow-hidden rounded-3xl border border-white/10 bg-black/25 p-4">
+                   <div className="mb-5 flex items-center justify-between">
+                     <div>
+                       <div className="text-xs font-bold uppercase tracking-[0.18em] text-white/40">Cashflow forecast</div>
+                       <div className="mt-1 text-base font-black text-white">Q3 liquidity path</div>
+                     </div>
+                     <div className="rounded-full border border-[var(--color-gold-500)]/25 bg-[var(--color-gold-500)]/10 px-3 py-1 text-xs font-bold text-[var(--color-gold-500)]">
+                       AI verified
+                     </div>
+                   </div>
                    
                    {/* Scanning laser effect */}
                    <motion.div 
-                     animate={{ y: [0, 100, 0], opacity: [0, 1, 0] }}
-                     transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                     className="absolute left-0 right-0 h-[2px] bg-[var(--color-emerald-500)] shadow-[0_0_15px_var(--color-emerald-500)] z-10"
+                     animate={{ x: ["-20%", "120%"], opacity: [0, 1, 0] }}
+                     transition={{ repeat: Infinity, duration: 4.2, ease: "easeInOut" }}
+                     className="absolute top-0 bottom-0 w-16 bg-[linear-gradient(90deg,transparent,rgba(16,185,129,0.18),transparent)] z-10"
                    />
 
-                   <div className="flex items-end justify-between gap-3 h-32 w-full z-0">
-                     {[40, 70, 45, 90, 60, 110, 80].map((height, i) => (
+                   <div className="absolute inset-x-5 bottom-5 top-24 rounded-2xl bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.01))]">
+                     <svg viewBox="0 0 520 170" className="absolute inset-0 h-full w-full overflow-visible">
+                       <defs>
+                         <linearGradient id="cashGlow" x1="0" y1="0" x2="0" y2="1">
+                           <stop offset="0%" stopColor="#f5c518" stopOpacity="0.42" />
+                           <stop offset="100%" stopColor="#f5c518" stopOpacity="0" />
+                         </linearGradient>
+                       </defs>
+                       <path d="M10 128 C70 100 102 112 150 82 C198 52 225 78 272 62 C330 42 355 74 410 45 C456 20 486 33 510 24 L510 170 L10 170 Z" fill="url(#cashGlow)" />
+                       <path d="M10 128 C70 100 102 112 150 82 C198 52 225 78 272 62 C330 42 355 74 410 45 C456 20 486 33 510 24" fill="none" stroke="#f5c518" strokeWidth="5" strokeLinecap="round" />
+                       <path d="M10 144 C82 138 125 150 176 128 C230 105 270 126 326 94 C372 68 428 88 510 58" fill="none" stroke="#10b981" strokeWidth="3" strokeDasharray="8 10" strokeLinecap="round" opacity="0.9" />
+                     </svg>
+                   </div>
+
+                   <div className="absolute bottom-4 left-7 right-7 flex items-end justify-between gap-3">
+                     {[18, 28, 38, 34, 46, 42, 30].map((height, i) => (
                        <motion.div 
                          key={i}
                          animate={{ 
-                           height: [`${height}px`, `${height * 1.2}px`, `${height * 0.8}px`, `${height}px`]
+                           height: [`${height}px`, `${height * 1.08}px`, `${height}px`]
                          }}
                          transition={{ 
                            repeat: Infinity, 
-                           duration: 3 + (i % 3), 
+                           duration: 4 + (i % 2), 
                            delay: i * 0.2,
                            ease: "easeInOut" 
                          }}
-                         whileHover={{ scaleY: 1.1, backgroundColor: "var(--color-gold-300)" }}
-                         className="w-full bg-gradient-to-t from-[var(--color-gold-600)] to-[var(--color-gold-400)] rounded-t-md opacity-80 shadow-[0_0_10px_rgba(212,175,55,0.2)] origin-bottom cursor-pointer"
+                         className="w-full rounded-t-xl border border-[var(--color-gold-500)]/20 bg-[linear-gradient(180deg,rgba(245,197,24,0.92),rgba(180,83,9,0.22))] shadow-[0_0_20px_rgba(245,158,11,0.16)]"
                        ></motion.div>
                      ))}
                    </div>
@@ -171,13 +204,13 @@ export default function Home() {
                   y: { repeat: Infinity, duration: 5, ease: "easeInOut" }
                 }}
                 whileHover={{ scale: 1.05, borderColor: "rgba(16,185,129,0.8)" }}
-                className="absolute -right-12 top-1/3 glass-panel p-4 rounded-2xl border-2 border-[var(--color-emerald-500)]/30 shadow-[0_0_40px_rgba(16,185,129,0.4)] flex items-center gap-4 z-20 backdrop-blur-2xl bg-[#1A120B]/90 cursor-pointer"
+                className="absolute -right-8 top-[44%] z-20 flex cursor-pointer items-center gap-4 rounded-2xl border border-emerald-400/30 bg-[#0f1712]/90 p-4 shadow-[0_0_48px_rgba(16,185,129,0.34)] backdrop-blur-2xl"
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-emerald-500)] to-[var(--color-emerald-700)] flex items-center justify-center shadow-inner relative overflow-hidden">
+                <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-emerald-500)] to-emerald-800 shadow-inner">
                   <motion.div 
                     animate={{ rotate: 360 }} 
                     transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-                    className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-50"
+                    className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.32),transparent)] opacity-70"
                   />
                   <BrainCircuit className="text-white relative z-10" size={24} />
                 </div>

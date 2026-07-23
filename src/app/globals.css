@@ -127,7 +127,7 @@
   --color-pearl-50: #fbf7ef;
   --color-oasis-500: #1fbfa5;
 
-  --app-font-sans: var(--font-cairo), 'Cairo', sans-serif;
+  --app-font-sans: 'Cairo', 'Noto Sans Arabic', Tahoma, Arial, sans-serif;
 }
 
 @layer base {
