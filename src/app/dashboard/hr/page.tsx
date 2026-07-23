@@ -1,16 +1,70 @@
-import React from 'react';
-import { Users, FileWarning, Search, UserPlus, CreditCard } from 'lucide-react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { Users, FileWarning, Search, UserPlus, CreditCard, X } from 'lucide-react';
 import Link from 'next/link';
+import { getEmployees, createEmployee } from './hr-actions';
 
 export default function HrPage() {
-  const mockEmployees = [
-    { id: 'EMP-001', name: 'أحمد محمد', nationality: 'مصري', role: 'محاسب', iqamaExpiry: '2026-08-15', status: 'ACTIVE' },
-    { id: 'EMP-002', name: 'John Smith', nationality: 'بريطاني', role: 'مدير مشروع', iqamaExpiry: '2026-07-22', status: 'EXPIRING_SOON' }, // Expiring in 4 days
-    { id: 'EMP-003', name: 'فاطمة علي', nationality: 'سعودية', role: 'مسؤول موارد بشرية', iqamaExpiry: 'N/A', status: 'ACTIVE' }, // Citizens don't have Iqama expiry
-    { id: 'EMP-004', name: 'Ravi Kumar', nationality: 'هندي', role: 'فني مستودع', iqamaExpiry: '2026-07-10', status: 'EXPIRED' }, // Expired
-  ];
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Modal State
+  const [showModal, setShowModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    nationality: '',
+    nationalIdNumber: '',
+    basicSalary: '',
+    housingAllowance: '0',
+    transportAllowance: '0'
+  });
 
-  const expiringCount = mockEmployees.filter(e => e.status === 'EXPIRING_SOON' || e.status === 'EXPIRED').length;
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    setLoading(true);
+    const res = await getEmployees();
+    if (res.success && res.data) {
+      setEmployees(res.data);
+    }
+    setLoading(false);
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    const res = await createEmployee({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      nationality: formData.nationality,
+      nationalIdNumber: formData.nationalIdNumber,
+      basicSalary: parseFloat(formData.basicSalary),
+      housingAllowance: parseFloat(formData.housingAllowance),
+      transportAllowance: parseFloat(formData.transportAllowance)
+    });
+
+    if (res.success) {
+      setShowModal(false);
+      setFormData({
+        firstName: '', lastName: '', nationality: '', nationalIdNumber: '',
+        basicSalary: '', housingAllowance: '0', transportAllowance: '0'
+      });
+      fetchEmployees();
+    } else {
+      alert('فشل في إضافة الموظف: ' + res.error);
+    }
+    setIsSubmitting(false);
+  };
+
+  const formatMoney = (val: string | number) => {
+    return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(Number(val));
+  };
 
   return (
     <div className="space-y-6">
@@ -28,27 +82,15 @@ export default function HrPage() {
             <CreditCard size={18} />
             الرواتب (Payroll)
           </Link>
-          <button className="bg-[var(--color-desert-900)] text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-black transition-colors shadow-sm">
+          <button 
+            onClick={() => setShowModal(true)}
+            className="bg-[var(--color-desert-900)] text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-black transition-colors shadow-sm"
+          >
             <UserPlus size={18} />
             إضافة موظف
           </button>
         </div>
       </div>
-
-      {expiringCount > 0 && (
-        <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-6 shadow-sm flex items-start gap-4">
-          <div className="bg-rose-100 p-3 rounded-full text-rose-600 shrink-0">
-            <FileWarning size={24} />
-          </div>
-          <div>
-            <h3 className="text-rose-800 font-bold text-lg mb-1">تحذير الإقامات (Iqama Expiry Alert)</h3>
-            <p className="text-rose-600 text-sm">
-              يوجد <span className="font-bold text-lg">{expiringCount}</span> إقامات منتهية أو تقترب من الانتهاء. 
-              عدم التجديد يعرض الشركة لغرامات مالية وإيقاف الخدمات الحكومية.
-            </p>
-          </div>
-        </div>
-      )}
 
       <div className="bg-white border border-[var(--color-desert-200)] rounded-2xl shadow-sm overflow-hidden">
         <div className="p-4 border-b border-[var(--color-desert-200)] flex justify-between items-center bg-[var(--color-desert-50)]">
@@ -62,55 +104,157 @@ export default function HrPage() {
           </div>
         </div>
         
-        <table className="w-full text-right text-sm">
-          <thead className="bg-[var(--color-desert-50)]/50 text-[var(--color-desert-600)] border-b border-[var(--color-desert-200)]">
-            <tr>
-              <th className="py-3 px-6 font-medium">الرقم</th>
-              <th className="py-3 px-6 font-medium">الاسم</th>
-              <th className="py-3 px-6 font-medium">الجنسية</th>
-              <th className="py-3 px-6 font-medium">المنصب</th>
-              <th className="py-3 px-6 font-medium">صلاحية الإقامة (Iqama)</th>
-              <th className="py-3 px-6 font-medium">الحالة</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--color-desert-100)] text-[var(--color-desert-900)]">
-            {mockEmployees.map((emp) => (
-              <tr key={emp.id} className="hover:bg-[var(--color-desert-50)]/50 transition-colors">
-                <td className="py-4 px-6 font-mono text-[var(--color-desert-500)]">{emp.id}</td>
-                <td className="py-4 px-6 font-bold">{emp.name}</td>
-                <td className="py-4 px-6">{emp.nationality}</td>
-                <td className="py-4 px-6">{emp.role}</td>
-                <td className="py-4 px-6" dir="ltr">
-                  <span className={`font-mono font-bold ${
-                    emp.status === 'EXPIRED' ? 'text-rose-600' :
-                    emp.status === 'EXPIRING_SOON' ? 'text-amber-600' :
-                    'text-[var(--color-desert-700)]'
-                  }`}>
-                    {emp.iqamaExpiry}
-                  </span>
-                </td>
-                <td className="py-4 px-6">
-                  {emp.status === 'EXPIRED' && (
-                    <span className="bg-rose-100 text-rose-800 px-2 py-1 rounded text-xs font-bold border border-rose-200 flex items-center gap-1 w-max">
-                      <FileWarning size={12} /> منتهية
-                    </span>
-                  )}
-                  {emp.status === 'EXPIRING_SOON' && (
-                    <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-bold border border-amber-200">
-                      قريباً
-                    </span>
-                  )}
-                  {emp.status === 'ACTIVE' && (
-                    <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold border border-emerald-200">
-                      سارية
-                    </span>
-                  )}
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-right text-sm whitespace-nowrap">
+            <thead className="bg-[var(--color-desert-50)]/50 text-[var(--color-desert-600)] border-b border-[var(--color-desert-200)]">
+              <tr>
+                <th className="py-3 px-6 font-medium">الرقم</th>
+                <th className="py-3 px-6 font-medium">الاسم</th>
+                <th className="py-3 px-6 font-medium">الجنسية</th>
+                <th className="py-3 px-6 font-medium">رقم الإقامة/الهوية</th>
+                <th className="py-3 px-6 font-medium">الراتب الأساسي</th>
+                <th className="py-3 px-6 font-medium">الحالة</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[var(--color-desert-100)] text-[var(--color-desert-900)]">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">جاري التحميل...</td>
+                </tr>
+              ) : employees.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">لا يوجد موظفين مسجلين. أضف موظفاً جديداً.</td>
+                </tr>
+              ) : (
+                employees.map((emp) => (
+                  <tr key={emp.id} className="hover:bg-[var(--color-desert-50)]/50 transition-colors">
+                    <td className="py-4 px-6 font-mono text-[var(--color-desert-500)]">{emp.employeeId}</td>
+                    <td className="py-4 px-6 font-bold">{emp.firstName} {emp.lastName}</td>
+                    <td className="py-4 px-6">{emp.nationality}</td>
+                    <td className="py-4 px-6 font-mono">{emp.nationalIdNumber}</td>
+                    <td className="py-4 px-6 font-mono font-bold text-[var(--color-desert-900)]">
+                      {formatMoney(emp.basicSalary)}
+                    </td>
+                    <td className="py-4 px-6">
+                      {emp.status === 'ACTIVE' && (
+                        <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold border border-emerald-200">
+                          نشط (سارية)
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200" dir="rtl">
+            <div className="p-6 border-b border-[var(--color-desert-200)] bg-[var(--color-desert-50)] flex justify-between items-center">
+              <h2 className="text-xl font-bold text-[var(--color-desert-900)]">إضافة موظف جديد</h2>
+              <button onClick={() => setShowModal(false)} className="text-[var(--color-desert-500)] hover:text-black">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleCreate} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">الاسم الأول</label>
+                  <input 
+                    type="text" 
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                    className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">اسم العائلة</label>
+                  <input 
+                    type="text" 
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                    className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">الجنسية</label>
+                  <input 
+                    type="text" 
+                    value={formData.nationality}
+                    onChange={(e) => setFormData({...formData, nationality: e.target.value})}
+                    className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">رقم الهوية / الإقامة</label>
+                  <input 
+                    type="text" 
+                    value={formData.nationalIdNumber}
+                    onChange={(e) => setFormData({...formData, nationalIdNumber: e.target.value})}
+                    className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <h3 className="font-bold text-[var(--color-desert-900)] mb-4 border-b border-[var(--color-desert-200)] pb-2">بيانات الراتب (بالريال السعودي)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">الراتب الأساسي</label>
+                  <input 
+                    type="number" 
+                    value={formData.basicSalary}
+                    onChange={(e) => setFormData({...formData, basicSalary: e.target.value})}
+                    className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">بدل السكن</label>
+                  <input 
+                    type="number" 
+                    value={formData.housingAllowance}
+                    onChange={(e) => setFormData({...formData, housingAllowance: e.target.value})}
+                    className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">بدل النقل</label>
+                  <input 
+                    type="number" 
+                    value={formData.transportAllowance}
+                    onChange={(e) => setFormData({...formData, transportAllowance: e.target.value})}
+                    className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-[var(--color-desert-200)]">
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="flex-1 bg-[var(--color-desert-900)] hover:bg-black text-white font-bold py-3 rounded-xl disabled:opacity-50"
+                >
+                  {isSubmitting ? 'جاري الحفظ...' : 'حفظ بيانات الموظف'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowModal(false)}
+                  className="bg-white border border-[var(--color-desert-200)] hover:bg-[var(--color-desert-50)] text-[var(--color-desert-700)] font-bold py-3 px-8 rounded-xl"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

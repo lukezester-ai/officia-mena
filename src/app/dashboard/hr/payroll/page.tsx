@@ -5,16 +5,36 @@ import { CreditCard, Download, Calculator, FileText, ArrowRight, CheckCircle2 } 
 import Link from 'next/link';
 import { calculateEOSB, formatSaudiRiyal } from '@/lib/hr/eosb-calc';
 import { downloadWpsSif } from './payroll-actions';
+import { getEmployees } from '../hr-actions';
 
 export default function PayrollPage() {
   const [eosbYears, setEosbYears] = useState<number>(6);
   const [eosbSalary, setEosbSalary] = useState<number>(10000);
   
   const [wpsGenerated, setWpsGenerated] = useState(false);
-
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Stats State
+  const [empCount, setEmpCount] = useState(0);
+  const [totalPayroll, setTotalPayroll] = useState(0);
+
   const eosbAmount = calculateEOSB(eosbSalary, eosbYears);
+
+  React.useEffect(() => {
+    async function loadStats() {
+      const res = await getEmployees();
+      if (res.success && res.data) {
+        setEmpCount(res.data.length);
+        const total = res.data.reduce((acc, emp) => {
+          return acc + parseFloat(emp.basicSalary as string) + 
+                 parseFloat(emp.housingAllowance as string) + 
+                 parseFloat(emp.transportAllowance as string);
+        }, 0);
+        setTotalPayroll(total);
+      }
+    }
+    loadStats();
+  }, []);
 
   const handleGenerateWPS = async () => {
     setIsGenerating(true);
@@ -78,11 +98,11 @@ export default function PayrollPage() {
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-bold text-[var(--color-desert-700)]">عدد الموظفين</span>
-                <span className="font-mono text-[var(--color-desert-900)] font-bold">45</span>
+                <span className="font-mono text-[var(--color-desert-900)] font-bold">{empCount}</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-[var(--color-desert-200)]">
                 <span className="text-sm font-bold text-[var(--color-desert-700)]">الإجمالي للملف</span>
-                <span className="font-mono text-[var(--color-gold-600)] font-bold">485,200.00 SAR</span>
+                <span className="font-mono text-[var(--color-gold-600)] font-bold">{new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(totalPayroll)}</span>
               </div>
             </div>
 
