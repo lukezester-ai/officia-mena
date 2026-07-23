@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db/db';
 import { documentChunks } from '@/lib/db/schema/documents';
 import { google } from '@ai-sdk/google';
-import { sql, desc } from 'drizzle-orm';
+import { sql, desc, eq, and } from 'drizzle-orm';
 
 export const hrTools = {
   getExpiringIqamas: tool({
@@ -85,6 +85,7 @@ export const documentTools = {
           similarity: similarity,
         })
         .from(documentChunks)
+        .where(eq(documentChunks.docType, 'user_document'))
         .orderBy(desc(similarity))
         .limit(3); // Get top 3 chunks
 
@@ -94,6 +95,39 @@ export const documentTools = {
         };
       } catch (e: any) {
         return { error: 'Failed to search documents: ' + e.message };
+      }
+    }
+  } as any),
+  
+  searchZatcaRegulations: tool({
+    description: 'Search the official Saudi ZATCA (Zakat, Tax and Customs Authority) regulations and tax laws. Use this whenever the user asks about tax rules, E-Invoicing requirements (FATOORAH Phase 2), VAT rates, or compliance.',
+    parameters: z.object({
+      query: z.string().describe('The tax or ZATCA related question'),
+    }),
+    execute: async ({ query }) => {
+      try {
+        const { embedding } = await embed({
+          model: google.embedding('text-embedding-004'),
+          value: query,
+        });
+
+        const similarity = sql<number>`1 - (${documentChunks.embedding} <=> ${JSON.stringify(embedding)})`;
+        
+        const results = await db.select({
+          content: documentChunks.content,
+          similarity: similarity,
+        })
+        .from(documentChunks)
+        .where(eq(documentChunks.docType, 'zatca_regulation'))
+        .orderBy(desc(similarity))
+        .limit(2);
+
+        return {
+          department: 'Tax & Compliance Advisor (ZATCA)',
+          results: results.map(r => ({ rule: r.content, confidence: r.similarity }))
+        };
+      } catch (e: any) {
+        return { error: 'Failed to query ZATCA regulations: ' + e.message };
       }
     }
   } as any)
