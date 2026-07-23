@@ -36,12 +36,7 @@ export default function Home() {
           </nav>
           
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => alert("English translation is coming soon!")}
-              className="text-sm font-bold text-gray-300 hover:text-white transition-colors uppercase tracking-widest"
-            >
-              EN
-            </button>
+
             <Link href="/login" className="px-6 py-2.5 rounded-full gold-gradient text-[#1A120B] font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.6)] transition-all">
               تسجيل الدخول
             </Link>
