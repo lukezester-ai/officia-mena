@@ -70,6 +70,12 @@ export async function getDashboardStats() {
     };
   } catch (error: any) {
     console.error('Error fetching dashboard stats:', error);
+    
+    // IMPORTANT: Let Next.js handle redirect errors (thrown by requireTenant)
+    if (error.message === 'NEXT_REDIRECT' || (error.digest && error.digest.startsWith('NEXT_REDIRECT'))) {
+      throw error;
+    }
+    
     return {
       success: false,
       error: error.message
