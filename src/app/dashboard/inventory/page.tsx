@@ -3,9 +3,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Package, Plus, Search, ScanBarcode, ArrowUpDown, AlertTriangle, FileScan, MessageCircle, Fuel, Sprout, X, Sparkles, Loader2 } from 'lucide-react';
+import { Package, Plus, Search, ScanBarcode, ArrowUpDown, AlertTriangle, FileScan, MessageCircle, Fuel, Sprout, X, Sparkles, Loader2, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { getProducts, createProduct, generateProductWithAi } from './inventory-actions';
+import BarcodeScanner from '@/components/inventory/BarcodeScanner';
 
 export default function InventoryPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -16,6 +17,11 @@ export default function InventoryPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
+  
+  // Scanner State
+  const [isScanningGlobal, setIsScanningGlobal] = useState(false);
+  const [isScanningForm, setIsScanningForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Form State
   const [productType, setProductType] = useState<'general' | 'petroleum' | 'fertilizer'>('general');
@@ -114,6 +120,13 @@ export default function InventoryPage() {
         </div>
         
         <div className="flex gap-3">
+          <button 
+            onClick={() => setIsScanningGlobal(true)}
+            className="bg-card border border-white/10 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-white/5 transition-colors shadow-sm"
+          >
+            <Camera size={18} />
+            مسح باركود
+          </button>
           <Link href="/dashboard/inventory/receipt-scanner" className="bg-primary/10 border border-primary/20 text-primary px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-primary/20 transition-colors shadow-sm">
             <FileScan size={18} />
             AI قراءة فاتورة
@@ -154,6 +167,8 @@ export default function InventoryPage() {
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="البحث بالاسم، SKU، أو الباركود..." 
               className="w-full bg-black/20 border border-white/10 rounded-lg py-2 pr-10 pl-4 text-sm text-white focus:outline-none focus:border-primary"
             />
@@ -183,7 +198,11 @@ export default function InventoryPage() {
                   <td colSpan={7} className="p-8 text-center text-muted-foreground">لا توجد منتجات. ابدأ بإضافة منتج جديد.</td>
                 </tr>
               ) : (
-                products.map((p) => (
+                products.filter(p => 
+                  p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                  p.sku?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  p.barcode?.includes(searchQuery)
+                ).map((p) => (
                   <tr key={p.id} className="hover:bg-white/5 transition-colors">
                     <td className="py-4 px-6 font-bold">{p.name}</td>
                     <td className="py-4 px-6 font-mono text-muted-foreground">{p.sku}</td>
@@ -285,6 +304,15 @@ export default function InventoryPage() {
                     <input required type="number" step="0.01" value={formData.unitPrice} onChange={e => setFormData({...formData, unitPrice: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
                   <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">الباركود (Barcode)</label>
+                    <div className="flex gap-2">
+                      <input type="text" value={formData.barcode} onChange={e => setFormData({...formData, barcode: e.target.value})} placeholder="اتركه فارغاً للتوليد" className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
+                      <button type="button" onClick={() => setIsScanningForm(true)} className="bg-white/10 hover:bg-white/20 text-white px-3 rounded-lg border border-white/10 transition-colors">
+                        <Camera size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div>
                     <label className="block text-xs font-bold text-muted-foreground mb-1">رمز SKU (اختياري)</label>
                     <input type="text" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
@@ -344,6 +372,27 @@ export default function InventoryPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Barcode Scanners */}
+      {isScanningGlobal && (
+        <BarcodeScanner 
+          onScan={(text) => {
+            setSearchQuery(text);
+            setIsScanningGlobal(false);
+          }} 
+          onClose={() => setIsScanningGlobal(false)} 
+        />
+      )}
+
+      {isScanningForm && (
+        <BarcodeScanner 
+          onScan={(text) => {
+            setFormData({ ...formData, barcode: text });
+            setIsScanningForm(false);
+          }} 
+          onClose={() => setIsScanningForm(false)} 
+        />
       )}
     </div>
   );
