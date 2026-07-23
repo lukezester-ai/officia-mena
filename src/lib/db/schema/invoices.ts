@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar, text, timestamp, numeric, boolean } from 'drizzle-orm/pg-core';
+import { vector } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const invoices = pgTable('invoices', {
@@ -28,6 +29,9 @@ export const invoices = pgTable('invoices', {
   
   status: varchar('status', { length: 20 }).default('draft'), // draft, issued, paid, overdue, cancelled
   notes: text('notes'),
+  
+  // Semantic Search Embedding
+  embedding: vector('embedding', { dimensions: 768 }),
   
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
