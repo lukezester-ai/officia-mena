@@ -224,6 +224,7 @@ export default function Home() {
                 <div className="mb-8">
                   <span className="text-4xl font-black text-white">SAR 99</span>
                   <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
+                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو (ما يعادل €29 تقريباً)</div>
                 </div>
                 <ul className="space-y-4 mb-8 text-gray-300">
                   <li className="flex items-center gap-3">
@@ -254,6 +255,7 @@ export default function Home() {
                 <div className="mb-8">
                   <span className="text-4xl font-black text-white">SAR 399</span>
                   <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
+                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو (ما يعادل €99 تقريباً)</div>
                 </div>
                 <ul className="space-y-4 mb-8 text-gray-300">
                   <li className="flex items-center gap-3">
