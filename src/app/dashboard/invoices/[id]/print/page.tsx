@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { getInvoiceById } from '../../invoice-actions';
 import { Printer, Loader2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface InvoiceData {
   id: string;
@@ -188,8 +188,12 @@ export default function PrintInvoicePage() {
           {/* ZATCA QR Code */}
           <div className="w-40 h-40 bg-gray-50 border-2 border-gray-200 rounded-xl p-2 flex items-center justify-center">
             {invoice.zatcaQrCode ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={invoice.zatcaQrCode} alt="ZATCA QR Code" className="w-full h-full object-contain" />
+              <QRCodeSVG 
+                value={invoice.zatcaQrCode} 
+                size={135}
+                level="M"
+                includeMargin={false}
+              />
             ) : (
               <div className="text-center text-xs text-gray-400">No QR Code<br/>(Draft)</div>
             )}
