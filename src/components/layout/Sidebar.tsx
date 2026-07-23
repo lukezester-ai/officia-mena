@@ -11,7 +11,8 @@ import {
   Settings,
   Scale,
   Package,
-  Users
+  Users,
+  Files
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -26,6 +27,7 @@ export default function Sidebar() {
     { icon: CreditCard, label: 'النفقات', href: '/dashboard/expenses' }, // Expenses
     { icon: Landmark, label: 'البنك', href: '/dashboard/bank' }, // Bank
     { icon: Scale, label: 'الزكاة والضرائب', href: '/dashboard/taxes' }, // Zakat & Taxes
+    { icon: Files, label: 'المستندات الذكية', href: '/dashboard/documents' }, // Documents (RAG)
   ];
 
   return (
