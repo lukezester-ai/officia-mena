@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -6,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { getInvoiceById } from '../../invoice-actions';
 import { Printer, Loader2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 interface InvoiceData {
   id: string;
@@ -14,10 +12,10 @@ interface InvoiceData {
   clientName: string;
   clientTrn: string | null;
   subtotal: string;
-  vatRate: string;
+  vatRate: string | null;
   vatAmount: string;
   totalAmount: string;
-  issueDate: string;
+  issueDate: string | Date;
   zatcaQrCode: string | null;
   notes: string | null;
 }
@@ -206,7 +204,7 @@ export default function PrintInvoicePage() {
             </div>
             <div className="flex justify-between py-2 border-b border-gray-200">
               <div className="text-sm font-bold text-gray-600">
-                <div>VAT ({(parseFloat(invoice.vatRate)).toString()}%)</div>
+                <div>VAT ({(parseFloat(invoice.vatRate ?? '0')).toString()}%)</div>
                 <div className="font-arabic text-xs" dir="rtl">ضريبة القيمة المضافة</div>
               </div>
               <div className="font-mono">{formatMoney(invoice.vatAmount)}</div>

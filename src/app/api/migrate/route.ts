@@ -4,8 +4,21 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import path from 'path';
 
-export async function GET() {
+function isAuthorized(req: Request) {
+  const migrationSecret = process.env.MIGRATION_SECRET;
+  if (!migrationSecret) return false;
+
+  const bearerToken = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+  const headerToken = req.headers.get('x-migration-secret');
+  return bearerToken === migrationSecret || headerToken === migrationSecret;
+}
+
+export async function POST(req: Request) {
   try {
+    if (!isAuthorized(req)) {
+      return NextResponse.json({ error: 'Unauthorized migration request' }, { status: 401 });
+    }
+
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
       return NextResponse.json({ error: 'DATABASE_URL is not set' }, { status: 500 });
@@ -24,15 +37,18 @@ export async function GET() {
     await migrationClient.end();
 
     return NextResponse.json({ success: true, message: 'Database migrated successfully! All tables created.' });
-  } catch (error: any) {
-    const cause = error.cause || {};
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error('Unknown migration error');
+    const cause = err.cause && typeof err.cause === 'object'
+      ? err.cause as { message?: string; code?: string; detail?: string }
+      : {};
     return NextResponse.json({ 
       success: false, 
-      error: error.message,
+      error: err.message,
       causeMsg: cause.message,
       causeCode: cause.code,
       causeDetail: cause.detail,
-      stack: error.stack 
+      stack: err.stack 
     }, { status: 500 });
   }
 }

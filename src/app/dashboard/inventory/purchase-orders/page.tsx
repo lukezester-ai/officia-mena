@@ -1,8 +1,7 @@
-// @ts-nocheck
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ShoppingCart, Plus, CheckCircle, PackageOpen, ArrowRight, Loader2, Warehouse } from 'lucide-react';
+import { ShoppingCart, Plus, CheckCircle, PackageOpen, Loader2, Warehouse } from 'lucide-react';
 import Link from 'next/link';
 import { getPOs, receivePO } from './po-actions';
 import { getWarehouses } from '../warehouse-actions';
@@ -12,8 +11,8 @@ interface PO {
   poNumber: string;
   supplierName: string;
   totalAmount: string;
-  status: string;
-  createdAt: string;
+  status: string | null;
+  createdAt: string | Date | null;
 }
 
 interface Warehouse {
@@ -114,7 +113,7 @@ export default function PurchaseOrdersPage() {
                     <td className="px-6 py-4 font-mono font-medium text-white">{po.poNumber}</td>
                     <td className="px-6 py-4 font-bold text-white">{po.supplierName}</td>
                     <td className="px-6 py-4 text-muted-foreground">
-                      {new Date(po.createdAt).toLocaleDateString('ar-SA')}
+                      {po.createdAt ? new Date(po.createdAt).toLocaleDateString('ar-SA') : '-'}
                     </td>
                     <td className="px-6 py-4 font-mono text-primary font-bold">
                       {formatMoney(po.totalAmount)}

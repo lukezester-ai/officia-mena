@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { FileText, Calendar, CheckCircle2, AlertCircle, ArrowRight, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -20,11 +20,7 @@ export default function InvoiceDetailPage() {
   const [splitCount, setSplitCount] = useState(3);
   const [isSplitting, setIsSplitting] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [invoiceId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     // Find the invoice
     const invRes = await getInvoices();
@@ -39,7 +35,11 @@ export default function InvoiceDetailPage() {
       setInstallments(instRes.data);
     }
     setLoading(false);
-  };
+  }, [invoiceId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleCreatePlan = async () => {
     setIsSplitting(true);

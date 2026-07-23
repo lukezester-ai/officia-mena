@@ -5,6 +5,7 @@
 import React, { useState, useRef } from 'react';
 import { Camera, UploadCloud, FileText, CheckCircle2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { processReceiptImage } from './actions';
 
 export default function OCRScannerPage() {
@@ -75,7 +76,7 @@ export default function OCRScannerPage() {
           
           {imagePreview ? (
             <div className="relative w-full h-full min-h-[300px] rounded-xl overflow-hidden shadow-inner">
-              <img src={imagePreview} alt="Receipt" className="object-contain w-full h-full absolute inset-0" />
+              <Image src={imagePreview} alt="Receipt" fill unoptimized className="object-contain" />
             </div>
           ) : (
             <>

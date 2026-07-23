@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -22,7 +21,7 @@ export default function AnomaliesPage() {
     if (res.success) {
       setAnomalies(res.data || []);
     } else {
-      setError(res.error || 'Unknown error');
+      setError('error' in res && typeof res.error === 'string' ? res.error : 'Unknown error');
     }
     setLoading(false);
   };
