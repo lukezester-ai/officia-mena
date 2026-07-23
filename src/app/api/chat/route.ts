@@ -53,10 +53,11 @@ Remember: YOU MUST RESPOND ENTIRELY IN ARABIC. Always maintain a professional, h
 `;
 
   const result = streamText({
-    model: anthropic('claude-3-5-sonnet-latest'), // Using Claude 3.5 Sonnet
+    model: anthropic('claude-3-5-sonnet-20240620'), // Using stable Claude 3.5 Sonnet
     system: systemPrompt,
     messages,
     tools: maestroTools,
+    maxSteps: 5, // CRITICAL: This allows the LLM to call a tool, get the result, and continue responding
   });
   
   // @ts-expect-error The method exists in runtime in newer AI SDKs but TS types might lag

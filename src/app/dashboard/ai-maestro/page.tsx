@@ -6,7 +6,9 @@ import { useChat } from '@ai-sdk/react';
 import { BrainCircuit, Send, User, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function AiMaestroPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat() as any;
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat({
+    maxSteps: 5,
+  }) as any;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
