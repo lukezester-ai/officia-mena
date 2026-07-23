@@ -6,7 +6,7 @@ import { useChat } from '@ai-sdk/react';
 import { BrainCircuit, Send, User, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function AiMaestroPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat() as any;
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error, append } = useChat() as any;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -125,7 +125,28 @@ export default function AiMaestroPage() {
 
         {/* Input Area */}
         <div className="p-4 border-t border-[var(--color-desert-200)] bg-white">
-          <form onSubmit={handleSubmit} className="relative flex items-center">
+          <form 
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!input.trim() || isLoading) return;
+              
+              const currentInput = input;
+              // Clear input immediately for better UX
+              handleInputChange({ target: { value: '' } } as any);
+              
+              try {
+                await messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                // @ts-ignore - ai sdk types can be tricky
+                await append({ role: 'user', content: currentInput });
+              } catch (err: any) {
+                console.error("Chat append error:", err);
+                alert("възникна грешка при изпращането: " + err.message);
+                // Restore input on failure
+                handleInputChange({ target: { value: currentInput } } as any);
+              }
+            }} 
+            className="relative flex items-center"
+          >
             <input
               type="text"
               value={input}
