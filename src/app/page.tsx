@@ -135,16 +135,31 @@ export default function Home() {
                 </div>
 
                 {/* Chart Area */}
-                <div className="flex-1 bg-gray-800/30 rounded-2xl border border-gray-700/50 p-5 mt-2 relative overflow-hidden flex flex-col justify-end">
+                <div className="flex-1 bg-gray-800/30 rounded-2xl border border-gray-700/50 p-5 mt-2 relative overflow-hidden flex flex-col justify-end group">
                    <div className="absolute top-4 left-4 h-3 w-24 bg-gray-600/50 rounded-full"></div>
-                   <div className="flex items-end justify-between gap-3 h-32 w-full">
+                   
+                   {/* Scanning laser effect */}
+                   <motion.div 
+                     animate={{ y: [0, 100, 0], opacity: [0, 1, 0] }}
+                     transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                     className="absolute left-0 right-0 h-[2px] bg-[var(--color-emerald-500)] shadow-[0_0_15px_var(--color-emerald-500)] z-10"
+                   />
+
+                   <div className="flex items-end justify-between gap-3 h-32 w-full z-0">
                      {[40, 70, 45, 90, 60, 110, 80].map((height, i) => (
                        <motion.div 
                          key={i}
-                         initial={{ height: 0 }}
-                         animate={{ height: `${height}px` }}
-                         transition={{ duration: 1, delay: i * 0.1 + 0.5 }}
-                         className="w-full bg-gradient-to-t from-[var(--color-gold-600)] to-[var(--color-gold-400)] rounded-t-md opacity-80 shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+                         animate={{ 
+                           height: [`${height}px`, `${height * 1.2}px`, `${height * 0.8}px`, `${height}px`]
+                         }}
+                         transition={{ 
+                           repeat: Infinity, 
+                           duration: 3 + (i % 3), 
+                           delay: i * 0.2,
+                           ease: "easeInOut" 
+                         }}
+                         whileHover={{ scaleY: 1.1, backgroundColor: "var(--color-gold-300)" }}
+                         className="w-full bg-gradient-to-t from-[var(--color-gold-600)] to-[var(--color-gold-400)] rounded-t-md opacity-80 shadow-[0_0_10px_rgba(212,175,55,0.2)] origin-bottom cursor-pointer"
                        ></motion.div>
                      ))}
                    </div>
@@ -153,24 +168,37 @@ export default function Home() {
 
               {/* Floating AI Notification */}
               <motion.div 
-                initial={{ opacity: 0, x: 20, scale: 0.9 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                transition={{ delay: 1.5, duration: 0.5, type: "spring" }}
-                className="absolute -right-8 top-1/3 glass-panel p-4 rounded-2xl border-2 border-[var(--color-emerald-500)]/30 shadow-[0_0_30px_rgba(16,185,129,0.3)] flex items-center gap-4 z-20 backdrop-blur-2xl bg-[#1A120B]/80"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1, y: [-15, 15, -15] }}
+                transition={{ 
+                  opacity: { duration: 0.5 },
+                  scale: { duration: 0.5, type: "spring" },
+                  y: { repeat: Infinity, duration: 5, ease: "easeInOut" }
+                }}
+                whileHover={{ scale: 1.05, borderColor: "rgba(16,185,129,0.8)" }}
+                className="absolute -right-12 top-1/3 glass-panel p-4 rounded-2xl border-2 border-[var(--color-emerald-500)]/30 shadow-[0_0_40px_rgba(16,185,129,0.4)] flex items-center gap-4 z-20 backdrop-blur-2xl bg-[#1A120B]/90 cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-emerald-500)] to-[var(--color-emerald-700)] flex items-center justify-center shadow-inner relative overflow-hidden">
                   <motion.div 
                     animate={{ rotate: 360 }} 
-                    transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-                    className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"
+                    transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                    className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-50"
                   />
                   <BrainCircuit className="text-white relative z-10" size={24} />
                 </div>
                 <div>
                   <div className="text-sm font-black text-white mb-1 flex items-center gap-2">
-                    Maestro AI <span className="w-2 h-2 rounded-full bg-[var(--color-emerald-400)] animate-pulse"></span>
+                    Maestro AI <span className="w-2 h-2 rounded-full bg-[var(--color-emerald-400)] shadow-[0_0_8px_var(--color-emerald-400)] animate-pulse"></span>
                   </div>
-                  <div className="text-xs text-[var(--color-emerald-400)] font-medium">Auto-reconciled 5 invoices</div>
+                  <motion.div 
+                    key="typing"
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ repeat: Infinity, duration: 4, repeatDelay: 2 }}
+                    className="text-xs text-[var(--color-emerald-400)] font-medium overflow-hidden whitespace-nowrap"
+                  >
+                    Processing live data...
+                  </motion.div>
                 </div>
               </motion.div>
             </motion.div>
