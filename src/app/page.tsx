@@ -19,17 +19,17 @@ export default function Home() {
       <div className="relative z-10 w-full flex flex-col">
         {/* Navbar */}
         <header className="max-w-7xl mx-auto px-6 w-full py-8 flex justify-between items-center">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity">
             <div className="w-10 h-10 rounded-lg gold-gradient flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(212,175,55,0.4)]">
               O
             </div>
             <span className="text-2xl font-bold tracking-wider text-white">
               Officia <span className="gold-text">MENA</span>
             </span>
-          </div>
+          </Link>
           
           <nav className="hidden md:flex gap-8 items-center">
-            <Link href="#" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الرئيسية</Link>
+            <Link href="/" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الرئيسية</Link>
             <Link href="#pricing" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الحلول</Link>
             <Link href="#pricing" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الأسعار</Link>
             <Link href="mailto:sales@officia-mena.com" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">تواصل معنا</Link>
