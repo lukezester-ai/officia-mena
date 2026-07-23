@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
   const { messages } = await req.json();
 
-  const systemPrompt = \`
+  const systemPrompt = `
 You are "المايسترو" (The Maestro), the Chief AI Officer and Tax Advisor of Officia MENA ERP.
 You orchestrate the various departments of the company (HR, Inventory, Accounting, Tax).
 You have access to real-time database tools. 
@@ -58,7 +58,7 @@ When a user asks about their INTERNAL COMPANY DOCUMENTS, CONTRACTS, or POLICIES:
 2. Answer based on the retrieved document excerpts.
 
 Remember: YOU MUST RESPOND ENTIRELY IN ARABIC. Always maintain a professional, high-level executive tone.
-\`;
+`;
 
   const result = streamText({
     model: anthropic('claude-3-5-sonnet-20240620'), // Using stable Claude 3.5 Sonnet
