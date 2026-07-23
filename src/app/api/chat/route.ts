@@ -11,8 +11,9 @@ const anthropic = createAnthropic({
 export const maxDuration = 30; // Allow up to 30 seconds for the LLM to run tools
 
 export async function POST(req: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    // Mock response for demo purposes when no API key is provided
+  // Fallback to mock response if API key is missing or invalid
+  if (!process.env.ANTHROPIC_API_KEY || !process.env.ANTHROPIC_API_KEY.startsWith('sk-ant')) {
+    // Mock response for demo purposes
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
