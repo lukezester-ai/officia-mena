@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { CreditCard, Plus, Filter, FileText, CheckCircle2, Clock, ScanLine, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CreditCard, Plus, Filter, FileText, CheckCircle2, Clock, ScanLine } from 'lucide-react';
+import Link from 'next/link';
 import { getExpenses, createExpense } from './expenses-actions';
 
 export default function ExpensesPage() {
@@ -16,10 +17,6 @@ export default function ExpensesPage() {
   const [amount, setAmount] = useState('');
   const [cat, setCat] = useState('office');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // AI OCR State
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
     fetchExpenses();
@@ -55,43 +52,6 @@ export default function ExpensesPage() {
     setIsSubmitting(false);
   };
 
-  const handleScanReceipt = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsScanning(true);
-    try {
-      const formData = new FormData();
-      formData.append('receipt', file);
-
-      const res = await fetch('/api/ocr', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const json = await res.json();
-      
-      if (json.success && json.data) {
-        // Auto-fill the form and open it for review
-        setDesc(json.data.description);
-        setAmount(json.data.amount.toString());
-        setCat(json.data.category);
-        setShowModal(true);
-      } else {
-        alert('Failed to scan receipt: ' + (json.error || 'Unknown error'));
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error scanning receipt');
-    }
-    
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    setIsScanning(false);
-  };
-
   const formatMoney = (val: string) => {
     return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(Number(val));
   };
@@ -107,22 +67,13 @@ export default function ExpensesPage() {
           <p className="text-[var(--color-desert-600)] text-sm">سجل وتتبع جميع مصاريف الشركة</p>
         </div>
         <div className="flex gap-3">
-          <input 
-            type="file" 
-            accept="image/*" 
-            capture="environment" 
-            className="hidden" 
-            ref={fileInputRef}
-            onChange={handleScanReceipt}
-          />
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isScanning}
-            className="bg-white border-2 border-[var(--color-gold-500)] hover:bg-[var(--color-gold-50)] text-[var(--color-gold-700)] font-bold py-3 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
+          <Link 
+            href="/dashboard/expenses/ocr"
+            className="bg-white border-2 border-[var(--color-gold-500)] hover:bg-[var(--color-gold-50)] text-[var(--color-gold-700)] font-bold py-3 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2"
           >
-            {isScanning ? <Loader2 size={20} className="animate-spin" /> : <ScanLine size={20} />} 
-            {isScanning ? 'جاري المسح...' : 'مسح إيصال 📸'}
-          </button>
+            <ScanLine size={20} /> 
+            مسح إيصال 📸
+          </Link>
           
           <button 
             onClick={() => {
