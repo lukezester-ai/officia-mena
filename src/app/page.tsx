@@ -54,9 +54,14 @@ export default function Home() {
               مستقبل <span className="gold-text">المحاسبة</span><br/> في الشرق الأوسط
             </h1>
             
-            <p className="text-lg md:text-xl text-[var(--color-desert-200)] mb-10 leading-relaxed font-light">
-              منصة Officia MENA تقدم الحل الأمثل لإدارة الشؤون المالية، مدعومة بالذكاء الاصطناعي، ومصممة خصيصاً لتتوافق مع أنظمة الضرائب والزكاة في العالم العربي.
-            </p>
+            <div className="text-lg md:text-xl text-[var(--color-desert-200)] mb-10 font-light space-y-3">
+              <p>منصة محاسبية ذكية لرواد الأعمال والشركات. الحل الأمثل لإدارة الشؤون المالية بثقة.</p>
+              <ul className="space-y-2 mt-4 text-base">
+                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[var(--color-gold-500)] rounded-full"></div> <span>مدعومة بالذكاء الاصطناعي (Maestro AI)</span></li>
+                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[var(--color-gold-500)] rounded-full"></div> <span>أتمتة كاملة لإدارة النفقات والمخزون</span></li>
+                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[var(--color-gold-500)] rounded-full"></div> <span>متوافقة 100% مع أنظمة الضرائب العربية</span></li>
+              </ul>
+            </div>
             
             <div className="flex flex-wrap gap-4 items-center">
               <Link href="/login" className="px-8 py-4 rounded-xl gold-gradient text-[#1A120B] text-lg font-bold hover:scale-105 hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all flex items-center gap-2">
@@ -301,8 +306,103 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="w-full py-20 relative z-10 bg-black/50 border-t border-gray-800">
+          <div className="max-w-4xl mx-auto px-6">
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-10 text-center">الأسئلة <span className="gold-text">الشائعة</span></h2>
+            
+            <div className="space-y-6">
+              <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
+                <h3 className="text-xl font-bold text-white mb-2">هل يدعم النظام الفوترة الإلكترونية (ZATCA) في السعودية؟</h3>
+                <p className="text-[var(--color-desert-300)]">نعم، نظامنا متوافق بالكامل مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA) للمرحلة الثانية للفوترة الإلكترونية، ويقوم بتوليد رموز QR مشفرة.</p>
+              </div>
+              <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
+                <h3 className="text-xl font-bold text-white mb-2">هل يوجد ذكاء اصطناعي (AI) في النظام؟</h3>
+                <p className="text-[var(--color-desert-300)]">بالتأكيد. يتضمن النظام "المايسترو" (Maestro AI) الذي يقوم بقراءة الفواتير آلياً عبر الكاميرا (OCR)، تحليل النفقات، وتقديم استشارات ضريبية ذكية بناءً على القوانين المحلية.</p>
+              </div>
+              <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
+                <h3 className="text-xl font-bold text-white mb-2">هل يمكنني تتبع المخزون والمنتجات الزراعية/البترولية؟</h3>
+                <p className="text-[var(--color-desert-300)]">نعم، نوفر وحدة مخزون متقدمة تدعم التصنيفات الخاصة مثل البترول (مع حسابات API Gravity) والأسمدة الزراعية مع تنبيهات لتواريخ انتهاء التصاريح الأمنية.</p>
+              </div>
+            </div>
           </div>
         </section>
+
+        {/* Footer with Compliance & Author Links */}
+        <footer className="w-full py-10 bg-black border-t border-gray-900 z-10 relative">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-center md:text-right">
+              <Link href="/" className="text-xl font-bold tracking-wider text-white mb-2 block">
+                Officia <span className="gold-text">MENA</span>
+              </Link>
+              <p className="text-sm text-gray-500">© 2026 Officia MENA. جميع الحقوق محفوظة.</p>
+              <p className="text-xs text-gray-600 mt-1">
+                Developed by <a href="https://officia-mena.com" className="hover:text-[var(--color-gold-500)] transition-colors">Officia MENA AI Team</a>
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-6 text-sm font-medium text-gray-400">
+              <Link href="/privacy" className="hover:text-[var(--color-gold-500)] transition-colors">سياسة الخصوصية (Privacy Policy)</Link>
+              <Link href="/terms" className="hover:text-[var(--color-gold-500)] transition-colors">الشروط والأحكام (Terms)</Link>
+              <a href="https://zatca.gov.sa" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-emerald-500)] transition-colors flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-[var(--color-emerald-500)]"></div>
+                معتمد من ZATCA
+              </a>
+            </div>
+          </div>
+        </footer>
+
+        {/* JSON-LD Structured Data for FAQ and SoftwareApplication */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "SoftwareApplication",
+                  "name": "Officia MENA",
+                  "operatingSystem": "Web",
+                  "applicationCategory": "BusinessApplication",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "99.00",
+                    "priceCurrency": "SAR"
+                  },
+                  "author": {
+                    "@type": "Organization",
+                    "name": "Officia MENA AI Team",
+                    "url": "https://officia-mena.com"
+                  }
+                },
+                {
+                  "@type": "FAQPage",
+                  "mainEntity": [
+                    {
+                      "@type": "Question",
+                      "name": "هل يدعم النظام الفوترة الإلكترونية (ZATCA) في السعودية؟",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "نعم، نظامنا متوافق بالكامل مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA) للمرحلة الثانية للفوترة الإلكترونية، ويقوم بتوليد رموز QR مشفرة."
+                      }
+                    },
+                    {
+                      "@type": "Question",
+                      "name": "هل يوجد ذكاء اصطناعي (AI) في النظام؟",
+                      "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "بالتأكيد. يتضمن النظام المايسترو (Maestro AI) الذي يقوم بقراءة الفواتير آلياً عبر الكاميرا (OCR)، تحليل النفقات، وتقديم استشارات ضريبية ذكية بناءً على القوانين المحلية."
+                      }
+                    }
+                  ]
+                }
+              ]
+            })
+          }}
+        />
+
       </div>
     </div>
   );

@@ -9,8 +9,10 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "Officia MENA | Enterprise Accounting",
-  description: "Next Generation Accounting & ERP for the MENA Region",
+  title: "Officia MENA | Enterprise Accounting & ERP",
+  description: "Next Generation AI-powered Accounting & ERP for the MENA Region. Fully compliant with ZATCA phase 2 invoicing regulations.",
+  keywords: ["Accounting", "ERP", "ZATCA", "MENA", "AI", "Invoicing", "Tax"],
+  authors: [{ name: "Officia MENA AI Team", url: "https://officia-mena.com" }],
 };
 
 export default function RootLayout({
