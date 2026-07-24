@@ -8,6 +8,7 @@ import { eq, desc, and } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { generateZatcaQrCode, ZatcaTags } from '@/lib/accounting/zatca-qr';
+import { postIssuedInvoice, postInvoicePayment } from '@/lib/accounting/postings';
 
 export async function getInvoices() {
   try {
@@ -60,7 +61,7 @@ export async function createInvoice(data: {
     // Generate an invoice number (INV-YYYYMMDD-Random)
     const invNumber = `INV-${new Date().toISOString().slice(0,10).replace(/-/g, '')}-${Math.floor(Math.random() * 10000)}`;
 
-    await db.insert(invoices).values({
+    const [invoice] = await db.insert(invoices).values({
       tenantId: tenant.id,
       invoiceNumber: invNumber,
       clientName: data.clientName,
@@ -74,9 +75,24 @@ export async function createInvoice(data: {
       zatcaQrCode: qrCode,
       isZatcaReported: !data.isDraft, // simplified: if issued, we consider it reported/compliant
       notes: data.notes
-    });
+    }).returning();
+
+    if (status === 'issued') {
+      await postIssuedInvoice({
+        tenantId: tenant.id,
+        invoiceId: invoice.id,
+        invoiceNumber: invNumber,
+        clientName: data.clientName,
+        subtotal,
+        vatAmount,
+        totalAmount,
+        currency: invoice.currency,
+        entryDate: invoice.issueDate,
+      });
+    }
     
     revalidatePath('/dashboard/invoices');
+    revalidatePath('/dashboard/accounting');
     return { success: true, invoiceNumber: invNumber };
   } catch (error: any) {
     console.error('Invoice creation error:', error);
@@ -100,7 +116,7 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
     let isReported = invoice.isZatcaReported;
     
     // If transitioning from draft to issued, generate QR code if it doesn't exist
-    if (newStatus === 'issued' && !qrCode) {
+    if ((newStatus === 'issued' || newStatus === 'paid') && !qrCode) {
       const zatcaData: ZatcaTags = {
         sellerName: 'Officia MENA Corp',
         vatNumber: '310123456700003',
@@ -118,8 +134,34 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
       isZatcaReported: isReported,
       updatedAt: new Date()
     }).where(and(eq(invoices.id, id), eq(invoices.tenantId, tenant.id)));
+
+    if ((newStatus === 'issued' || newStatus === 'paid') && !invoice.invoiceNumber.startsWith('POS-')) {
+      await postIssuedInvoice({
+        tenantId: tenant.id,
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        clientName: invoice.clientName,
+        subtotal: invoice.subtotal,
+        vatAmount: invoice.vatAmount,
+        totalAmount: invoice.totalAmount,
+        currency: invoice.currency,
+        entryDate: invoice.issueDate,
+      });
+    }
+
+    if (newStatus === 'paid' && !invoice.invoiceNumber.startsWith('POS-')) {
+      await postInvoicePayment({
+        tenantId: tenant.id,
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        clientName: invoice.clientName,
+        amount: invoice.totalAmount,
+        currency: invoice.currency,
+      });
+    }
     
     revalidatePath('/dashboard/invoices');
+    revalidatePath('/dashboard/accounting');
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

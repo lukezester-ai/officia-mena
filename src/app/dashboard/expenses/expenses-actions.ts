@@ -4,9 +4,10 @@
 
 import { db } from '@/lib/db/db';
 import { expenses } from '@/lib/db/schema/expenses';
-import { eq, desc } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
+import { postApprovedExpense } from '@/lib/accounting/postings';
 
 export async function getExpenses() {
   try {
@@ -52,6 +53,43 @@ export async function createExpense(data: {
     });
     
     revalidatePath('/dashboard/expenses');
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function approveExpense(id: string) {
+  try {
+    const tenant = await requireTenant();
+
+    const [expense] = await db
+      .select()
+      .from(expenses)
+      .where(and(eq(expenses.id, id), eq(expenses.tenantId, tenant.id)))
+      .limit(1);
+
+    if (!expense) {
+      return { success: false, error: 'Expense not found' };
+    }
+
+    await db
+      .update(expenses)
+      .set({ status: 'approved', updatedAt: new Date() })
+      .where(and(eq(expenses.id, id), eq(expenses.tenantId, tenant.id)));
+
+    await postApprovedExpense({
+      tenantId: tenant.id,
+      expenseId: expense.id,
+      description: expense.description,
+      amount: expense.amount,
+      category: expense.category,
+      currency: expense.currency,
+      entryDate: expense.expenseDate,
+    });
+
+    revalidatePath('/dashboard/expenses');
+    revalidatePath('/dashboard/accounting');
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

@@ -11,16 +11,7 @@ import { revalidatePath } from 'next/cache';
 export async function getWarehouses() {
   try {
     const tenant = await requireTenant();
-    let data = await db.select().from(warehouses).where(eq(warehouses.tenantId, tenant.id));
-    
-    // Seed dummy warehouses if none exist for testing purposes
-    if (data.length === 0) {
-      await db.insert(warehouses).values([
-        { tenantId: tenant.id, name: 'مستودع الرياض الرئيسي', location: 'الرياض, المنطقة الصناعية', managerName: 'أحمد صالح' },
-        { tenantId: tenant.id, name: 'مستودع جدة الإقليمي', location: 'جدة, الخمرة', managerName: 'خالد الغامدي' }
-      ]);
-      data = await db.select().from(warehouses).where(eq(warehouses.tenantId, tenant.id));
-    }
+    const data = await db.select().from(warehouses).where(eq(warehouses.tenantId, tenant.id));
     
     return { success: true, data };
   } catch (error: any) {
@@ -46,29 +37,11 @@ export async function getInventoryDistribution() {
       const whData: Record<string, number> = {};
       let total = 0;
       
-      // If we have warehouses but no levels for this product, let's inject dummy stock for testing
-      if (productLevels.length === 0 && allWarehouses.length > 0) {
-        allWarehouses.forEach(wh => {
-          // Add random dummy stock between 50 and 200
-          const dummyQty = Math.floor(Math.random() * 150) + 50;
-          whData[wh.id] = dummyQty;
-          total += dummyQty;
-          
-          // Silently create the level in DB so transfer works later
-          db.insert(inventoryLevels).values({
-            tenantId: tenant.id,
-            productId: product.id,
-            warehouseId: wh.id,
-            quantity: dummyQty
-          }).catch(console.error);
-        });
-      } else {
-        allWarehouses.forEach(wh => {
-          const level = productLevels.find(l => l.warehouseId === wh.id);
-          whData[wh.id] = level ? level.quantity : 0;
-          total += whData[wh.id];
-        });
-      }
+      allWarehouses.forEach(wh => {
+        const level = productLevels.find(l => l.warehouseId === wh.id);
+        whData[wh.id] = level ? level.quantity : 0;
+        total += whData[wh.id];
+      });
       
       return {
         product: { id: product.id, name: product.name, sku: product.sku },
@@ -85,64 +58,62 @@ export async function getInventoryDistribution() {
 
 export async function transferStock(productId: string, fromWarehouseId: string, toWarehouseId: string, quantity: number) {
   try {
-    if (quantity <= 0) return { success: false, error: 'الكمية يجب أن تكون أكبر من صفر' };
+    if (!Number.isInteger(quantity) || quantity <= 0) return { success: false, error: 'الكمية يجب أن تكون رقماً صحيحاً أكبر من صفر' };
     if (fromWarehouseId === toWarehouseId) return { success: false, error: 'لا يمكن النقل لنفس المستودع' };
     
     const tenant = await requireTenant();
-    
-    // Fetch current levels
-    const fromLevelData = await db.select().from(inventoryLevels)
-      .where(and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, productId), eq(inventoryLevels.warehouseId, fromWarehouseId)))
-      .limit(1);
+
+    await db.transaction(async (tx) => {
+      const fromLevelData = await tx.select().from(inventoryLevels)
+        .where(and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, productId), eq(inventoryLevels.warehouseId, fromWarehouseId)))
+        .limit(1);
       
-    if (fromLevelData.length === 0 || fromLevelData[0].quantity < quantity) {
-      return { success: false, error: 'الكمية المتوفرة في المستودع المصدر غير كافية' };
-    }
-    
-    const toLevelData = await db.select().from(inventoryLevels)
-      .where(and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, productId), eq(inventoryLevels.warehouseId, toWarehouseId)))
-      .limit(1);
-      
-    // Execute transfer (In a real production app, this should be wrapped in a database transaction)
-    
-    // 1. Deduct from source
-    await db.update(inventoryLevels)
-      .set({ quantity: fromLevelData[0].quantity - quantity, lastUpdated: new Date() })
-      .where(eq(inventoryLevels.id, fromLevelData[0].id));
-      
-    // 2. Add to destination (create if doesn't exist)
-    if (toLevelData.length > 0) {
-      await db.update(inventoryLevels)
-        .set({ quantity: toLevelData[0].quantity + quantity, lastUpdated: new Date() })
-        .where(eq(inventoryLevels.id, toLevelData[0].id));
-    } else {
-      await db.insert(inventoryLevels).values({
-        tenantId: tenant.id,
-        productId,
-        warehouseId: toWarehouseId,
-        quantity: quantity
-      });
-    }
-    
-    // 3. Record movements
-    await db.insert(stockMovements).values([
-      {
-        tenantId: tenant.id,
-        productId,
-        warehouseId: fromWarehouseId,
-        type: 'OUT',
-        quantity: quantity,
-        notes: `نقل إلى مستودع آخر (${toWarehouseId})`
-      },
-      {
-        tenantId: tenant.id,
-        productId,
-        warehouseId: toWarehouseId,
-        type: 'IN',
-        quantity: quantity,
-        notes: `استلام من مستودع آخر (${fromWarehouseId})`
+      if (fromLevelData.length === 0 || fromLevelData[0].quantity < quantity) {
+        throw new Error('الكمية المتوفرة في المستودع المصدر غير كافية');
       }
-    ]);
+    
+      const toLevelData = await tx.select().from(inventoryLevels)
+        .where(and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, productId), eq(inventoryLevels.warehouseId, toWarehouseId)))
+        .limit(1);
+    
+      await tx.update(inventoryLevels)
+        .set({ quantity: fromLevelData[0].quantity - quantity, lastUpdated: new Date() })
+        .where(and(eq(inventoryLevels.id, fromLevelData[0].id), eq(inventoryLevels.tenantId, tenant.id)));
+      
+      if (toLevelData.length > 0) {
+        await tx.update(inventoryLevels)
+          .set({ quantity: toLevelData[0].quantity + quantity, lastUpdated: new Date() })
+          .where(and(eq(inventoryLevels.id, toLevelData[0].id), eq(inventoryLevels.tenantId, tenant.id)));
+      } else {
+        await tx.insert(inventoryLevels).values({
+          tenantId: tenant.id,
+          productId,
+          warehouseId: toWarehouseId,
+          quantity,
+        });
+      }
+    
+      await tx.insert(stockMovements).values([
+        {
+          tenantId: tenant.id,
+          productId,
+          warehouseId: fromWarehouseId,
+          type: 'OUT',
+          quantity,
+          referenceId: toWarehouseId,
+          notes: `نقل إلى مستودع آخر (${toWarehouseId})`,
+        },
+        {
+          tenantId: tenant.id,
+          productId,
+          warehouseId: toWarehouseId,
+          type: 'IN',
+          quantity,
+          referenceId: fromWarehouseId,
+          notes: `استلام من مستودع آخر (${fromWarehouseId})`,
+        },
+      ]);
+    });
     
     revalidatePath('/dashboard/inventory/warehouses');
     return { success: true };

@@ -30,6 +30,9 @@ export default function InventoryPage() {
     sku: '',
     barcode: '',
     unitPrice: '',
+    costPrice: '',
+    initialQuantity: '',
+    initialStockReference: '',
     category: '',
     apiGravity: '',
     mewaRegistration: '',
@@ -65,6 +68,9 @@ export default function InventoryPage() {
         name: data.name || '',
         sku: data.sku || '',
         unitPrice: data.unitPrice?.toString() || '',
+        costPrice: data.costPrice?.toString() || '',
+        initialQuantity: '',
+        initialStockReference: '',
         category: data.category || '',
         apiGravity: data.apiGravity?.toString() || '',
         barcode: Math.floor(Math.random() * 1000000000000).toString() // Generate random barcode
@@ -86,6 +92,9 @@ export default function InventoryPage() {
       sku: formData.sku || `SKU-${Math.floor(Math.random() * 10000)}`,
       barcode: formData.barcode || Math.floor(Math.random() * 1000000000000).toString(),
       unitPrice: parseFloat(formData.unitPrice) || 0,
+      costPrice: parseFloat(formData.costPrice) || undefined,
+      initialQuantity: parseInt(formData.initialQuantity, 10) || 0,
+      initialStockReference: formData.initialStockReference || undefined,
       category: formData.category || 'عام',
       isPetroleum: productType === 'petroleum',
       apiGravity: productType === 'petroleum' && formData.apiGravity ? parseFloat(formData.apiGravity) : undefined,
@@ -96,7 +105,7 @@ export default function InventoryPage() {
     
     if (res.success) {
       setIsModalOpen(false);
-      setFormData({ name: '', sku: '', barcode: '', unitPrice: '', category: '', apiGravity: '', mewaRegistration: '', securityClearanceExpiry: '' });
+      setFormData({ name: '', sku: '', barcode: '', unitPrice: '', costPrice: '', initialQuantity: '', initialStockReference: '', category: '', apiGravity: '', mewaRegistration: '', securityClearanceExpiry: '' });
       fetchData();
     } else {
       alert('حدث خطأ أثناء الحفظ');
@@ -104,9 +113,14 @@ export default function InventoryPage() {
     setIsSubmitting(false);
   };
 
-  const formatMoney = (val: string) => {
+  const formatMoney = (val: string | number | null | undefined) => {
     return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(Number(val));
   };
+
+  const inventoryValue = products.reduce((sum, product) => {
+    return sum + (Number(product.costPrice || 0) * Number(product.qty || 0));
+  }, 0);
+  const reorderCount = products.filter((product) => Number(product.qty || 0) <= Number(product.minStockLevel || 5)).length;
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -145,7 +159,7 @@ export default function InventoryPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-card rounded-2xl border border-white/5 p-6 shadow-sm">
           <h3 className="text-muted-foreground text-sm font-medium mb-1">إجمالي قيمة المخزون</h3>
-          <p className="text-2xl font-bold text-white">SAR 123,550.00</p>
+          <p className="text-2xl font-bold text-white">{formatMoney(inventoryValue)}</p>
         </div>
         <div className="bg-card rounded-2xl border border-white/5 p-6 shadow-sm">
           <h3 className="text-muted-foreground text-sm font-medium mb-1">إجمالي المنتجات</h3>
@@ -156,7 +170,7 @@ export default function InventoryPage() {
             <AlertTriangle size={16} />
             منتجات بحاجة للطلب
           </h3>
-          <p className="text-2xl font-bold text-rose-500">0 منتج</p>
+          <p className="text-2xl font-bold text-rose-500">{reorderCount} منتج</p>
         </div>
       </div>
 
@@ -302,6 +316,18 @@ export default function InventoryPage() {
                   <div>
                     <label className="block text-xs font-bold text-muted-foreground mb-1">السعر (SAR) *</label>
                     <input required type="number" step="0.01" value={formData.unitPrice} onChange={e => setFormData({...formData, unitPrice: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">Cost Price (COGS)</label>
+                    <input type="number" step="0.01" value={formData.costPrice} onChange={e => setFormData({...formData, costPrice: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">الرصيد الافتتاحي</label>
+                    <input type="number" min="0" step="1" value={formData.initialQuantity} onChange={e => setFormData({...formData, initialQuantity: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">مرجع الرصيد الافتتاحي</label>
+                    <input type="text" value={formData.initialStockReference} onChange={e => setFormData({...formData, initialStockReference: e.target.value})} placeholder="مثال: INV-2026-001" className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-muted-foreground mb-1">الباركود (Barcode)</label>

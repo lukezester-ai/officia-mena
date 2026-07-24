@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard, Plus, Filter, FileText, CheckCircle2, Clock, ScanLine } from 'lucide-react';
 import Link from 'next/link';
-import { getExpenses, createExpense } from './expenses-actions';
+import { approveExpense, createExpense, getExpenses } from './expenses-actions';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<any[]>([]);
@@ -50,6 +50,15 @@ export default function ExpensesPage() {
       alert('Failed to add expense');
     }
     setIsSubmitting(false);
+  };
+
+  const handleApprove = async (id: string) => {
+    const res = await approveExpense(id);
+    if (res.success) {
+      fetchExpenses();
+    } else {
+      alert(res.error || 'Failed to approve expense');
+    }
   };
 
   const formatMoney = (val: string) => {
@@ -140,9 +149,18 @@ export default function ExpensesPage() {
                     </td>
                     <td className="px-6 py-4">
                       {exp.status === 'pending' ? (
-                        <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg w-max text-xs font-bold border border-amber-200">
-                          <Clock size={14} /> بانتظار التسوية
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg w-max text-xs font-bold border border-amber-200">
+                            <Clock size={14} /> بانتظار التسوية
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleApprove(exp.id)}
+                            className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-lg text-xs font-bold"
+                          >
+                            Approve
+                          </button>
+                        </div>
                       ) : (
                         <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg w-max text-xs font-bold border border-emerald-200">
                           <CheckCircle2 size={14} /> تمت التسوية

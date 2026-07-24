@@ -1,80 +1,101 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
-import { invoices } from '@/lib/db/schema/invoices';
-import { expenses } from '@/lib/db/schema/expenses';
-import { eq, and } from 'drizzle-orm';
+import { accounts, journalEntries, journalLines } from '@/lib/db/schema/accounting';
+import { and, eq, gte, inArray, lt } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
+
+type MoneyInput = string | number | null | undefined;
+
+function moneyToCents(value: MoneyInput) {
+  if (value === null || value === undefined || value === '') {
+    return 0;
+  }
+
+  return Math.round(Number(value) * 100);
+}
+
+function centsToNumber(cents: number) {
+  return Number((cents / 100).toFixed(2));
+}
+
+function monthRange(month: number, year: number) {
+  const start = new Date(year, month - 1, 1);
+  const end = new Date(year, month, 1);
+  return { start, end };
+}
 
 export async function generateVatReturn(month: number, year: number) {
   try {
     const tenant = await requireTenant();
+    const { start, end } = monthRange(month, year);
 
-    // In a real app we would filter by month/year using dates.
-    // For this demo, we'll fetch all issued invoices and all expenses for the tenant to show the calculation.
-    
-    // 1. Get Sales (Invoices) - Outbound VAT
-    const allInvoices = await db
-      .select()
-      .from(invoices)
+    const vatLines = await db
+      .select({
+        accountCode: accounts.code,
+        debit: journalLines.debit,
+        credit: journalLines.credit,
+      })
+      .from(journalLines)
+      .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+      .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
       .where(
         and(
-          eq(invoices.tenantId, tenant.id),
-          eq(invoices.status, 'issued')
+          eq(journalLines.tenantId, tenant.id),
+          eq(journalEntries.status, 'posted'),
+          inArray(accounts.code, ['1300', '2100']),
+          gte(journalEntries.entryDate, start),
+          lt(journalEntries.entryDate, end)
         )
       );
 
-    let totalSales = 0;
-    let totalSalesVat = 0;
-    
-    allInvoices.forEach(inv => {
-      totalSales += parseFloat(inv.subtotal || '0');
-      totalSalesVat += parseFloat(inv.vatAmount || '0');
-    });
+    let outputVatCents = 0;
+    let inputVatCents = 0;
 
-    // 2. Get Purchases (Expenses) - Inbound VAT
-    const allExpenses = await db
-      .select()
-      .from(expenses)
-      .where(eq(expenses.tenantId, tenant.id));
+    for (const line of vatLines) {
+      const debitCents = moneyToCents(line.debit);
+      const creditCents = moneyToCents(line.credit);
 
-    let totalPurchases = 0;
-    let totalPurchasesVat = 0;
+      if (line.accountCode === '2100') {
+        outputVatCents += creditCents - debitCents;
+      }
 
-    allExpenses.forEach(exp => {
-      const totalAmount = parseFloat(exp.amount || '0');
-      // Assuming expenses are 15% VAT inclusive for this MENA demo
-      const subtotal = totalAmount / 1.15;
-      const vat = totalAmount - subtotal;
-      
-      totalPurchases += subtotal;
-      totalPurchasesVat += vat;
-    });
+      if (line.accountCode === '1300') {
+        inputVatCents += debitCents - creditCents;
+      }
+    }
 
-    // 3. Calculate VAT Liability
-    // VAT Due = Output VAT (Sales) - Input VAT (Purchases)
-    const netVatDue = totalSalesVat - totalPurchasesVat;
+    const netVatCents = outputVatCents - inputVatCents;
+    const standardRate = 0.15;
+    const position = netVatCents >= 0 ? 'payable' : 'recoverable';
 
     return {
       success: true,
       data: {
+        tenant: {
+          name: tenant.name,
+          crn: tenant.crn,
+          trn: tenant.trn || '',
+          country: tenant.country || 'SA',
+        },
         period: `${year}-${month.toString().padStart(2, '0')}`,
+        periodLabel: start.toLocaleDateString('ar-SA-u-ca-gregory', { month: 'long', year: 'numeric' }),
         sales: {
-          total: totalSales,
-          vat: totalSalesVat
+          taxableAmount: centsToNumber(Math.round(outputVatCents / standardRate)),
+          vat: centsToNumber(outputVatCents),
         },
         purchases: {
-          total: totalPurchases,
-          vat: totalPurchasesVat
+          taxableAmount: centsToNumber(Math.round(inputVatCents / standardRate)),
+          vat: centsToNumber(inputVatCents),
         },
-        netVatDue: netVatDue
-      }
+        netVatDue: centsToNumber(netVatCents),
+        position,
+        generatedAt: new Date().toISOString(),
+      },
     };
-
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unable to generate VAT return.';
     console.error('VAT Return Error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: message };
   }
 }

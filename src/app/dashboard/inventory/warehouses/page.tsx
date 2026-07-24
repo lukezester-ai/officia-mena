@@ -32,7 +32,7 @@ export default function AdvancedWarehousePage() {
 
   const fetchData = async () => {
     setLoading(true);
-    await getWarehouses(); // Ensure dummy warehouses are seeded if empty
+    await getWarehouses();
     const distRes = await getInventoryDistribution();
     if (distRes.success && distRes.data && distRes.warehousesList) {
       setWarehouses(distRes.warehousesList);

@@ -9,6 +9,7 @@ import { eq, desc, and } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { generateZatcaQrCode, ZatcaTags } from '@/lib/accounting/zatca-qr';
+import { postIssuedInvoice } from '@/lib/accounting/postings';
 
 export async function getQuotations() {
   try {
@@ -94,7 +95,7 @@ export async function convertToInvoice(quotationId: string) {
     const invNumber = `INV-${new Date().toISOString().slice(0,10).replace(/-/g, '')}-${Math.floor(Math.random() * 10000)}`;
 
     // Insert Invoice
-    await db.insert(invoices).values({
+    const [invoice] = await db.insert(invoices).values({
       tenantId: tenant.id,
       invoiceNumber: invNumber,
       clientName: quote.clientName,
@@ -108,6 +109,18 @@ export async function convertToInvoice(quotationId: string) {
       zatcaQrCode: qrCode,
       isZatcaReported: true,
       notes: quote.notes // Pass the items along
+    }).returning();
+
+    await postIssuedInvoice({
+      tenantId: tenant.id,
+      invoiceId: invoice.id,
+      invoiceNumber: invNumber,
+      clientName: quote.clientName,
+      subtotal: quote.subtotal,
+      vatAmount: quote.vatAmount,
+      totalAmount: quote.totalAmount,
+      currency: invoice.currency,
+      entryDate: invoice.issueDate,
     });
 
     // Mark quotation as converted
@@ -118,6 +131,7 @@ export async function convertToInvoice(quotationId: string) {
     
     revalidatePath('/dashboard/quotations');
     revalidatePath('/dashboard/invoices');
+    revalidatePath('/dashboard/accounting');
     return { success: true, invoiceNumber: invNumber };
   } catch (error: any) {
     return { success: false, error: error.message };

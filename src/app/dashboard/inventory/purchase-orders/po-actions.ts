@@ -73,11 +73,7 @@ export async function receivePO(id: string, warehouseId: string) {
     // 2. Parse items from notes
     const notes = po.notes || '';
     if (!notes.includes('المنتجات:\n')) {
-      // If no items, just mark received
-      await db.update(purchaseOrders).set({ status: 'received', updatedAt: new Date() }).where(eq(purchaseOrders.id, id));
-      revalidatePath('/dashboard/inventory/purchase-orders');
-      revalidatePath('/dashboard/inventory/warehouses');
-      return { success: true };
+      return { success: false, error: 'لا يمكن استلام أمر شراء بدون بنود منتجات موثقة' };
     }
     
     const lines = notes.split('\n').filter(l => l.startsWith('- '));
@@ -89,61 +85,66 @@ export async function receivePO(id: string, warehouseId: string) {
       return null;
     }).filter(Boolean) as {name: string, quantity: number, price: number}[];
 
-    // 3. Process each item (Find/Create Product -> Update Inventory -> Record Movement)
-    // Note: In production, this should be a transaction.
-    for (const item of items) {
-      // Find product by name
-      let prodId: string;
-      const existingProduct = await db.select().from(products).where(and(eq(products.tenantId, tenant.id), eq(products.name, item.name))).limit(1);
-      
-      if (existingProduct.length > 0) {
-        prodId = existingProduct[0].id;
-      } else {
-        // Create product if it doesn't exist
-        const sku = `SKU-${Math.floor(Math.random() * 100000)}`;
-        const inserted = await db.insert(products).values({
-          tenantId: tenant.id,
-          name: item.name,
-          sku: sku,
-          unitPrice: item.price.toString(),
-          costPrice: item.price.toString(),
-          description: `Auto-created from ${po.poNumber}`
-        }).returning({ id: products.id });
-        prodId = inserted[0].id;
-      }
-      
-      // Update inventory level
-      const existingLevel = await db.select().from(inventoryLevels)
-        .where(and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, prodId), eq(inventoryLevels.warehouseId, warehouseId)))
-        .limit(1);
-        
-      if (existingLevel.length > 0) {
-        await db.update(inventoryLevels)
-          .set({ quantity: existingLevel[0].quantity + item.quantity, lastUpdated: new Date() })
-          .where(eq(inventoryLevels.id, existingLevel[0].id));
-      } else {
-        await db.insert(inventoryLevels).values({
-          tenantId: tenant.id,
-          productId: prodId,
-          warehouseId: warehouseId,
-          quantity: item.quantity
-        });
-      }
-      
-      // Record movement
-      await db.insert(stockMovements).values({
-        tenantId: tenant.id,
-        productId: prodId,
-        warehouseId: warehouseId,
-        type: 'IN',
-        quantity: item.quantity,
-        referenceId: po.poNumber,
-        notes: `استلام من أمر شراء ${po.poNumber}`
-      });
+    if (items.length === 0) {
+      return { success: false, error: 'لا يمكن استلام أمر شراء بدون كميات وأسعار واضحة' };
     }
 
-    // 4. Update PO status
-    await db.update(purchaseOrders).set({ status: 'received', updatedAt: new Date() }).where(eq(purchaseOrders.id, id));
+    await db.transaction(async (tx) => {
+      for (const item of items) {
+        if (!Number.isInteger(item.quantity) || item.quantity <= 0 || item.price < 0) {
+          throw new Error('بنود أمر الشراء يجب أن تحتوي على كمية صحيحة وسعر صالح');
+        }
+
+        let prodId: string;
+        const existingProduct = await tx.select().from(products).where(and(eq(products.tenantId, tenant.id), eq(products.name, item.name))).limit(1);
+      
+        if (existingProduct.length > 0) {
+          prodId = existingProduct[0].id;
+        } else {
+          const sku = `PO-${po.poNumber}-${items.indexOf(item) + 1}`;
+          const inserted = await tx.insert(products).values({
+            tenantId: tenant.id,
+            name: item.name,
+            sku,
+            unitPrice: item.price.toString(),
+            costPrice: item.price.toString(),
+            description: `Auto-created from ${po.poNumber}`
+          }).returning({ id: products.id });
+          prodId = inserted[0].id;
+        }
+      
+        const existingLevel = await tx.select().from(inventoryLevels)
+          .where(and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, prodId), eq(inventoryLevels.warehouseId, warehouseId)))
+          .limit(1);
+        
+        if (existingLevel.length > 0) {
+          await tx.update(inventoryLevels)
+            .set({ quantity: existingLevel[0].quantity + item.quantity, lastUpdated: new Date() })
+            .where(and(eq(inventoryLevels.id, existingLevel[0].id), eq(inventoryLevels.tenantId, tenant.id)));
+        } else {
+          await tx.insert(inventoryLevels).values({
+            tenantId: tenant.id,
+            productId: prodId,
+            warehouseId,
+            quantity: item.quantity
+          });
+        }
+        
+        await tx.insert(stockMovements).values({
+          tenantId: tenant.id,
+          productId: prodId,
+          warehouseId,
+          type: 'IN',
+          quantity: item.quantity,
+          referenceId: po.poNumber,
+          notes: `استلام من أمر شراء ${po.poNumber}`
+        });
+      }
+
+      await tx.update(purchaseOrders)
+        .set({ status: 'received', updatedAt: new Date() })
+        .where(and(eq(purchaseOrders.id, id), eq(purchaseOrders.tenantId, tenant.id)));
+    });
     
     revalidatePath('/dashboard/inventory/purchase-orders');
     revalidatePath('/dashboard/inventory/warehouses');

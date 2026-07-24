@@ -3,10 +3,24 @@
 'use server';
 
 import { db } from '@/lib/db/db';
-import { employees } from '@/lib/db/schema/hr';
+import { employees, payrollRuns } from '@/lib/db/schema/hr';
 import { eq, and } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { generateSifCsv, WPSEmployee } from '@/lib/hr/wps-generator';
+import { postPayrollAccrual } from '@/lib/accounting/postings';
+import { revalidatePath } from 'next/cache';
+
+function employeePayrollTotal(employee: {
+  basicSalary: string;
+  housingAllowance: string | null;
+  transportAllowance: string | null;
+}) {
+  return (
+    Number(employee.basicSalary || 0) +
+    Number(employee.housingAllowance || 0) +
+    Number(employee.transportAllowance || 0)
+  );
+}
 
 export async function downloadWpsSif(month: number, year: number): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
@@ -41,6 +55,51 @@ export async function downloadWpsSif(month: number, year: number): Promise<{ suc
     
     // The DB returns decimal types as strings, which maps perfectly to our WPSEmployee interface
     const csvData = generateSifCsv(activeEmployees as WPSEmployee[], establishmentId, month, year);
+    const totalPayroll = activeEmployees.reduce((sum, employee) => sum + employeePayrollTotal(employee), 0);
+
+    const existingRun = await db
+      .select()
+      .from(payrollRuns)
+      .where(
+        and(
+          eq(payrollRuns.tenantId, tenant.id),
+          eq(payrollRuns.periodMonth, month.toString()),
+          eq(payrollRuns.periodYear, year.toString())
+        )
+      )
+      .limit(1);
+
+    const [payrollRun] = existingRun.length > 0
+      ? await db
+          .update(payrollRuns)
+          .set({
+            totalAmount: totalPayroll.toFixed(2),
+            wpsStatus: 'GENERATED',
+          })
+          .where(eq(payrollRuns.id, existingRun[0].id))
+          .returning()
+      : await db
+          .insert(payrollRuns)
+          .values({
+            tenantId: tenant.id,
+            periodMonth: month.toString(),
+            periodYear: year.toString(),
+            totalAmount: totalPayroll.toFixed(2),
+            wpsStatus: 'GENERATED',
+          })
+          .returning();
+
+    await postPayrollAccrual({
+      tenantId: tenant.id,
+      payrollRunId: payrollRun.id,
+      periodMonth: month,
+      periodYear: year,
+      amount: payrollRun.totalAmount,
+      entryDate: new Date(year, month - 1, 1),
+    });
+
+    revalidatePath('/dashboard/accounting');
+    revalidatePath('/dashboard/hr/payroll');
 
     return { success: true, data: csvData };
   } catch (error: any) {

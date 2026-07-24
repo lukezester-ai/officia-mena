@@ -5,10 +5,11 @@
 import { db } from '@/lib/db/db';
 import { products, inventoryLevels, stockMovements } from '@/lib/db/schema/inventory';
 import { invoices } from '@/lib/db/schema/invoices';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { generateZatcaQrCode, ZatcaTags } from '@/lib/accounting/zatca-qr';
+import { postInventoryCogs, postPosSale } from '@/lib/accounting/postings';
 
 export async function getPosProducts() {
   try {
@@ -81,7 +82,7 @@ export async function checkoutPos(data: {
     const invNumber = `POS-${new Date().toISOString().slice(0,10).replace(/-/g, '')}-${Math.floor(Math.random() * 10000)}`;
 
     // 3. Insert into Invoices Table (B2C Cash Customer)
-    await db.insert(invoices).values({
+    const [invoice] = await db.insert(invoices).values({
       tenantId: tenant.id,
       invoiceNumber: invNumber,
       clientName: 'Cash Customer (B2C)',
@@ -94,20 +95,57 @@ export async function checkoutPos(data: {
       status: 'issued',
       zatcaQrCode: qrCode,
       isZatcaReported: true
+    }).returning();
+
+    await postPosSale({
+      tenantId: tenant.id,
+      invoiceId: invoice.id,
+      invoiceNumber: invNumber,
+      subtotal,
+      vatAmount,
+      totalAmount,
+      currency: invoice.currency,
+      entryDate: invoice.issueDate,
     });
+
+    const realItems = data.items.filter((item) => item.id && item.id.length >= 10);
+    const productIds = realItems.map((item) => item.id);
+    const productCosts = productIds.length > 0
+      ? await db
+          .select({
+            id: products.id,
+            costPrice: products.costPrice,
+          })
+          .from(products)
+          .where(and(eq(products.tenantId, tenant.id), inArray(products.id, productIds)))
+      : [];
+    const costByProductId = new Map(productCosts.map((product) => [product.id, Number(product.costPrice || 0)]));
+    const cogsAmount = realItems.reduce((sum, item) => {
+      const unitCost = costByProductId.get(item.id) || 0;
+      return sum + unitCost * Number(item.qty || 0);
+    }, 0);
+
+    await postInventoryCogs({
+      tenantId: tenant.id,
+      sourceId: invoice.id,
+      referenceNumber: invNumber,
+      amount: cogsAmount.toFixed(2),
+      currency: invoice.currency,
+      entryDate: invoice.issueDate,
+    });
+
     // 4. Cross-Department Automation: Deduct Inventory
-    for (const item of data.items) {
-      if (!item.id || item.id.length < 10) continue; // Skip dummy products without real UUIDs
+    for (const item of realItems) {
       
       // Reduce inventory
       await db.update(inventoryLevels)
         .set({ quantity: sql`${inventoryLevels.quantity} - ${item.qty}` })
-        .where(eq(inventoryLevels.productId, item.id));
+        .where(and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, item.id)));
         
       // Record stock movement (optional but good for tracking)
       // We assume warehouseId is the first one found for this product, for simplicity
       const invLevel = await db.query.inventoryLevels.findFirst({
-        where: eq(inventoryLevels.productId, item.id)
+        where: and(eq(inventoryLevels.tenantId, tenant.id), eq(inventoryLevels.productId, item.id))
       });
       if (invLevel) {
         await db.insert(stockMovements).values({
@@ -124,6 +162,7 @@ export async function checkoutPos(data: {
     
     revalidatePath('/dashboard/inventory');
     revalidatePath('/dashboard/taxes');
+    revalidatePath('/dashboard/accounting');
     
     return { success: true, invoiceNumber: invNumber, qrCode };
   } catch (error: any) {

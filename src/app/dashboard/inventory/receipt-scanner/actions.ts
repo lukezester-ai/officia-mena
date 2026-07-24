@@ -10,6 +10,11 @@ import { revalidatePath } from 'next/cache';
 import { generateObject } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
+import { postApprovedExpense } from '@/lib/accounting/postings';
+
+function netVatInclusiveAmount(amount: number, vatRate = 15) {
+  return amount / (1 + vatRate / 100);
+}
 
 export async function analyzeReceiptImage(base64Image: string) {
   try {
@@ -75,13 +80,23 @@ export async function confirmAndAutomateReceipt(data: {
     const tenant = await requireTenant();
 
     // 1. Cross-Department: Accounting (Create Expense)
-    await db.insert(expenses).values({
+    const [expense] = await db.insert(expenses).values({
       tenantId: tenant.id,
       description: `مشتريات بضاعة من ${data.supplierName} (مضافة تلقائياً عبر AI)`,
       amount: data.totalAmount.toString(),
       category: 'inventory_purchase',
       status: 'approved',
       expenseDate: new Date(data.date || new Date())
+    }).returning();
+
+    await postApprovedExpense({
+      tenantId: tenant.id,
+      expenseId: expense.id,
+      description: expense.description,
+      amount: expense.amount,
+      category: expense.category,
+      currency: expense.currency,
+      entryDate: expense.expenseDate,
     });
 
     // 2. Cross-Department: Inventory (Create Products & Stock)
@@ -104,6 +119,7 @@ export async function confirmAndAutomateReceipt(data: {
         sku: `AUTO-${Math.floor(Math.random() * 10000)}`,
         barcode: Math.floor(Math.random() * 1000000000000).toString(),
         unitPrice: item.unitPrice.toString(),
+        costPrice: netVatInclusiveAmount(item.unitPrice).toFixed(2),
         category: 'مشتريات آلية',
         isPetroleum: item.isPetroleum || false,
         isFertilizer: item.isFertilizer || false,
@@ -130,6 +146,7 @@ export async function confirmAndAutomateReceipt(data: {
 
     revalidatePath('/dashboard/inventory');
     revalidatePath('/dashboard/expenses'); // if exists
+    revalidatePath('/dashboard/accounting');
     
     return { success: true };
   } catch (error: any) {

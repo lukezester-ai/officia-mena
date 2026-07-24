@@ -1,4 +1,5 @@
 export * from './ai_inbox';
+export * from './accounting';
 export * from './approvals';
 export * from './bank';
 export * from './documents';
