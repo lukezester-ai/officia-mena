@@ -1,6 +1,14 @@
 // Utility for ZATCA Phase 2 E-Invoicing QR Code generation
 // Saudi Arabia requires a specific TLV (Tag-Length-Value) Base64 format for QR codes
 
+export function validateTrn(trn: string): boolean {
+  // Saudi TRN (VAT Registration Number): 15 digits, starts with 3
+  const saudiTrn = /^3\d{14}$/;
+  // UAE TRN: 15 digits
+  const uaeTrn = /^\d{15}$/;
+  return saudiTrn.test(trn) || uaeTrn.test(trn);
+}
+
 export function generateZatcaQr(
   sellerName: string,
   vatNumber: string,
@@ -8,6 +16,10 @@ export function generateZatcaQr(
   invoiceTotal: string,
   vatTotal: string
 ): string {
+  if (!validateTrn(vatNumber)) {
+    throw new Error(`Invalid TRN format: ${vatNumber}. Saudi TRN must be 15 digits starting with 3.`);
+  }
+
   const getTlvBuffer = (tag: number, value: string): Buffer => {
     const valueBuffer = Buffer.from(value, 'utf8');
     const tlvBuffer = Buffer.alloc(2 + valueBuffer.length);

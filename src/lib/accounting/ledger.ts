@@ -134,6 +134,12 @@ export async function createJournalEntry(input: CreateJournalEntryInput) {
     };
   });
 
+  const currency = input.currency || 'SAR';
+  const SUPPORTED_CURRENCIES = ['SAR', 'AED', 'BHD', 'QAR', 'OMR', 'KWD', 'USD', 'EUR'];
+  if (!SUPPORTED_CURRENCIES.includes(currency)) {
+    throw new Error(`Unsupported currency: ${currency}. Supported: ${SUPPORTED_CURRENCIES.join(', ')}.`);
+  }
+
   const totalDebit = normalizedLines.reduce((sum, line) => sum + line.debitCents, 0);
   const totalCredit = normalizedLines.reduce((sum, line) => sum + line.creditCents, 0);
 
@@ -142,7 +148,6 @@ export async function createJournalEntry(input: CreateJournalEntryInput) {
   }
 
   const entryNumber = nextEntryNumber();
-  const currency = input.currency || 'SAR';
   const status = input.status || 'posted';
   const [entry] = await db.transaction(async (tx) => {
     const insertedEntries = await tx

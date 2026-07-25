@@ -7,6 +7,6 @@ export default {
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/officia_mena',
+    url: process.env.DATABASE_URL || '',
   },
 } satisfies Config;

@@ -351,3 +351,104 @@ CREATE TABLE "subscriptions" (
   "created_at" timestamp DEFAULT now(),
   "updated_at" timestamp DEFAULT now()
 );
+
+-- ==========================================
+-- INDEXES for multi-tenant performance
+-- ==========================================
+CREATE INDEX IF NOT EXISTS idx_ai_inbox_items_tenant_id ON ai_inbox_items(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_expenses_tenant_id ON expenses(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_tenant_id ON invoices(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_tenant_status ON invoices(tenant_id, status);
+CREATE INDEX IF NOT EXISTS idx_products_tenant_id ON products(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_levels_tenant_id ON inventory_levels(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_tenant_id ON stock_movements(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_warehouses_tenant_id ON warehouses(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_employees_tenant_id ON employees(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_employee_documents_tenant_id ON employee_documents(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_payroll_runs_tenant_id ON payroll_runs(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_approvals_tenant_id ON approvals(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_bank_accounts_tenant_id ON bank_accounts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_tenant_id ON bank_transactions(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_tenant_status ON bank_transactions(tenant_id, status);
+CREATE INDEX IF NOT EXISTS idx_installments_tenant_id ON installments(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_tenant_id ON purchase_orders(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_quotations_tenant_id ON quotations(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_users_tenant_id ON users(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_roles_tenant_id ON roles(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_tenant_id ON subscriptions(tenant_id);
+
+-- ==========================================
+-- ACCOUNTING TABLES (accounts, journal_entries, journal_lines)
+-- ==========================================
+
+CREATE TABLE "accounts" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "tenant_id" uuid NOT NULL REFERENCES tenants(id),
+  "code" varchar(32) NOT NULL,
+  "name" varchar(255) NOT NULL,
+  "type" varchar(24) NOT NULL,
+  "normal_balance" varchar(6) NOT NULL,
+  "parent_account_id" uuid,
+  "currency" varchar(3) DEFAULT 'SAR',
+  "description" text,
+  "is_system" boolean DEFAULT false NOT NULL,
+  "is_active" boolean DEFAULT true NOT NULL,
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS accounts_tenant_code_unique ON accounts(tenant_id, code);
+CREATE INDEX IF NOT EXISTS accounts_tenant_type_idx ON accounts(tenant_id, type);
+
+CREATE TABLE "journal_entries" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "tenant_id" uuid NOT NULL REFERENCES tenants(id),
+  "entry_number" varchar(64) NOT NULL,
+  "entry_date" timestamp NOT NULL,
+  "memo" text,
+  "source_type" varchar(64),
+  "source_id" uuid,
+  "status" varchar(20) DEFAULT 'posted' NOT NULL,
+  "currency" varchar(3) DEFAULT 'SAR',
+  "total_debit" numeric(15, 2) NOT NULL,
+  "total_credit" numeric(15, 2) NOT NULL,
+  "posted_at" timestamp,
+  "created_by" varchar(255),
+  "created_at" timestamp DEFAULT now(),
+  "updated_at" timestamp DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS journal_entries_tenant_number_unique ON journal_entries(tenant_id, entry_number);
+CREATE INDEX IF NOT EXISTS journal_entries_tenant_date_idx ON journal_entries(tenant_id, entry_date);
+CREATE INDEX IF NOT EXISTS journal_entries_source_idx ON journal_entries(tenant_id, source_type, source_id);
+
+CREATE TABLE "journal_lines" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "tenant_id" uuid NOT NULL,
+  "journal_entry_id" uuid NOT NULL REFERENCES journal_entries(id),
+  "account_id" uuid NOT NULL REFERENCES accounts(id),
+  "line_number" integer NOT NULL,
+  "description" text,
+  "debit" numeric(15, 2) DEFAULT '0' NOT NULL,
+  "credit" numeric(15, 2) DEFAULT '0' NOT NULL,
+  "currency" varchar(3) DEFAULT 'SAR',
+  "entity_type" varchar(64),
+  "entity_id" uuid,
+  "created_at" timestamp DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS journal_lines_entry_idx ON journal_lines(journal_entry_id);
+CREATE INDEX IF NOT EXISTS journal_lines_account_idx ON journal_lines(tenant_id, account_id);
+
+-- ==========================================
+-- DOCUMENT CHUNKS TABLE (for AI RAG search)
+-- ==========================================
+
+CREATE TABLE "document_chunks" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "tenant_id" uuid REFERENCES tenants(id),
+  "doc_type" varchar(50) NOT NULL DEFAULT 'user_document',
+  "file_name" varchar(255) NOT NULL,
+  "content" text NOT NULL,
+  "embedding" vector(768),
+  "created_at" timestamp DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_document_chunks_tenant_id ON document_chunks(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_document_chunks_doc_type ON document_chunks(doc_type);

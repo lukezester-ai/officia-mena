@@ -11,8 +11,11 @@ export async function updateSession(request: NextRequest) {
 
   if (!supabaseUrl || !supabaseKey) {
     console.error('Missing Supabase environment variables');
-    // Don't crash, let the route handle it or just return a dummy response
-    return NextResponse.next({ request });
+
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('error', 'missing-supabase-config');
+    return NextResponse.redirect(url);
   }
 
   const supabase = createServerClient(

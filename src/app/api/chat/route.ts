@@ -5,7 +5,7 @@ import { maestroTools } from '@/lib/ai/tools';
 // We configure the SDK to use the user's API key if available
 // Make sure to add ANTHROPIC_API_KEY to your .env file
 const anthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'fake-key-to-allow-build',
+  apiKey: process.env.ANTHROPIC_API_KEY || undefined,
 });
 
 export const maxDuration = 30; // Allow up to 30 seconds for the LLM to run tools
