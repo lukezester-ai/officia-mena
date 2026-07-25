@@ -12,6 +12,20 @@ export async function getDashboardStats() {
   try {
     const tenant = await requireTenant();
 
+    // Check if using mock tenant (demo mode)
+    if (tenant.id === 'mock-tenant-id') {
+      return {
+        success: true,
+        data: {
+          cashBalance: 125000,
+          totalRevenue: 250000,
+          totalVat: 37500,
+          totalExpenses: 125000,
+          alertsCount: 3
+        }
+      };
+    }
+
     // 1. Total Revenue (from issued invoices)
     const revenueQuery = await db
       .select({ total: sum(invoices.totalAmount) })
@@ -30,7 +44,7 @@ export async function getDashboardStats() {
       .where(
         eq(invoices.tenantId, tenant.id)
       );
-      
+
     const rawVat = vatQuery[0]?.total || '0';
     const totalVat = parseFloat(rawVat as string);
 
@@ -41,7 +55,7 @@ export async function getDashboardStats() {
       .where(
         eq(expenses.tenantId, tenant.id)
       );
-      
+
     const rawExpenses = expensesQuery[0]?.total || '0';
     const totalExpenses = parseFloat(rawExpenses as string);
 
@@ -52,7 +66,7 @@ export async function getDashboardStats() {
       .where(
         eq(aiInboxItems.tenantId, tenant.id)
       );
-      
+
     const alertsCount = alertsQuery[0]?.count || 0;
 
     // Calculate Cash Balance (Revenue - Expenses)
@@ -71,12 +85,12 @@ export async function getDashboardStats() {
     };
   } catch (error: unknown) {
     console.error('Error fetching dashboard stats:', error);
-    
+
     // IMPORTANT: Let Next.js handle redirect errors (thrown by requireTenant)
     if (isNextRedirectError(error)) {
       throw error;
     }
-    
+
     return {
       success: false,
       error: getErrorMessage(error)
