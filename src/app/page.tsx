@@ -30,9 +30,10 @@ export default function Home() {
           
           <nav className="hidden md:flex gap-8 items-center">
             <Link href="/" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الرئيسية</Link>
+            <Link href="/about" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">عن المنصة</Link>
             <Link href="#pricing" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الحلول</Link>
             <Link href="#pricing" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الأسعار</Link>
-            <Link href="mailto:sales@officia-mena.com" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">تواصل معنا</Link>
+            <Link href="/contact" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">تواصل معنا</Link>
           </nav>
           
           <div className="flex items-center gap-4">
@@ -205,6 +206,22 @@ export default function Home() {
           </div>
         </main>
 
+        {/* Early Access Banner */}
+        <section className="w-full py-6 relative z-10 bg-gradient-to-r from-[var(--color-gold-700)]/20 via-[var(--color-gold-500)]/10 to-[var(--color-gold-700)]/20 border-y border-[var(--color-gold-700)]/30">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <div className="glass-panel inline-flex items-center gap-3 px-6 py-3 rounded-full border border-[var(--color-gold-500)]/30">
+              <div className="w-2 h-2 rounded-full bg-[var(--color-emerald-500)] animate-pulse"></div>
+              <span className="text-sm md:text-base text-[var(--color-desert-200)]">
+                <strong className="text-white">مرحلة الوصول المبكر (Early Access)</strong> — 
+                المنصة قيد التطوير. سجّل الآن لتحصل على أولوية الوصول وتجربة مجانية ممتدة.
+              </span>
+              <Link href="/login" className="px-4 py-1.5 rounded-lg gold-gradient text-[#1A120B] text-sm font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all shrink-0">
+                سجّل الآن
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Pricing Section */}
         <section id="pricing" className="w-full py-24 relative">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0"></div>
@@ -224,7 +241,7 @@ export default function Home() {
                 <div className="mb-8">
                   <span className="text-4xl font-black text-white">SAR 99</span>
                   <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
-                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو (ما يعادل €29 تقريباً)</div>
+                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو عبر Stripe (≈€29). نقبل Visa, Mastercard, MADA.</div>
                 </div>
                 <ul className="space-y-4 mb-8 text-gray-300">
                   <li className="flex items-center gap-3">
@@ -255,7 +272,7 @@ export default function Home() {
                 <div className="mb-8">
                   <span className="text-4xl font-black text-white">SAR 399</span>
                   <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
-                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو (ما يعادل €99 تقريباً)</div>
+                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو عبر Stripe (≈€99). نقبل Visa, Mastercard, MADA.</div>
                 </div>
                 <ul className="space-y-4 mb-8 text-gray-300">
                   <li className="flex items-center gap-3">
@@ -331,26 +348,95 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer with Compliance & Author Links */}
-        <footer className="w-full py-10 bg-black border-t border-gray-900 z-10 relative">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="text-center md:text-right">
-              <Link href="/" className="text-xl font-bold tracking-wider text-white mb-2 block">
-                Officia <span className="gold-text">MENA</span>
-              </Link>
-              <p className="text-sm text-gray-500">© 2026 Officia MENA. جميع الحقوق محفوظة.</p>
-              <p className="text-xs text-gray-600 mt-1">
-                Developed by <a href="https://officia-mena.com" className="hover:text-[var(--color-gold-500)] transition-colors">Officia MENA AI Team</a>
-              </p>
+        {/* Social Proof / Trust Badges */}
+        <section className="w-full py-16 relative z-10 border-t border-gray-800">
+          <div className="max-w-5xl mx-auto px-6 text-center">
+            <p className="text-sm text-[var(--color-desert-400)] mb-6 tracking-widest uppercase">موثوق من قبل</p>
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+                <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                <span className="text-sm">LinkedIn</span>
+              </div>
+              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+                <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                <span className="text-sm">ZATCA Compliant</span>
+              </div>
+              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+                <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <span className="text-sm">Open Source</span>
+              </div>
+              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+                <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span className="text-sm">Trustpilot</span>
+              </div>
             </div>
-            
-            <div className="flex flex-wrap gap-6 text-sm font-medium text-gray-400">
-              <Link href="/privacy" className="hover:text-[var(--color-gold-500)] transition-colors">سياسة الخصوصية (Privacy Policy)</Link>
-              <Link href="/terms" className="hover:text-[var(--color-gold-500)] transition-colors">الشروط والأحكام (Terms)</Link>
-              <a href="https://zatca.gov.sa" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-emerald-500)] transition-colors flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-[var(--color-emerald-500)]"></div>
-                معتمد من ZATCA
-              </a>
+          </div>
+        </section>
+
+        {/* Footer with Compliance & Author Links */}
+        <footer className="w-full py-12 bg-black border-t border-gray-900 z-10 relative">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid md:grid-cols-4 gap-10 mb-10">
+              {/* Brand */}
+              <div className="text-center md:text-right">
+                <Link href="/" className="text-xl font-bold tracking-wider text-white mb-3 block">
+                  Officia <span className="gold-text">MENA</span>
+                </Link>
+                <p className="text-sm text-[var(--color-desert-400)] mb-4 leading-relaxed">
+                  منصة محاسبية ذكية للشركات في منطقة الشرق الأوسط وشمال أفريقيا.
+                </p>
+                <div className="flex justify-center md:justify-start gap-3">
+                  <a href="https://linkedin.com/company/officia-mena" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-[var(--color-gold-500)]/20 border border-gray-700 flex items-center justify-center transition-all" title="LinkedIn">
+                    <span className="text-xs font-bold text-[var(--color-gold-500)]">in</span>
+                  </a>
+                  <a href="https://twitter.com/officiamena" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-800 hover:bg-[var(--color-gold-500)]/20 border border-gray-700 flex items-center justify-center transition-all" title="Twitter / X">
+                    <span className="text-xs font-bold text-[var(--color-gold-500)]">X</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Quick Links */}
+              <div className="text-center md:text-right">
+                <h4 className="text-white font-bold mb-4">روابط سريعة</h4>
+                <ul className="space-y-2">
+                  <li><Link href="/" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">الرئيسية</Link></li>
+                  <li><Link href="/about" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">عن المنصة</Link></li>
+                  <li><Link href="/contact" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">تواصل معنا</Link></li>
+                  <li><Link href="/login" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">تسجيل الدخول</Link></li>
+                </ul>
+              </div>
+
+              {/* Legal */}
+              <div className="text-center md:text-right">
+                <h4 className="text-white font-bold mb-4">قانوني</h4>
+                <ul className="space-y-2">
+                  <li><Link href="/privacy" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">سياسة الخصوصية</Link></li>
+                  <li><Link href="/terms" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">الشروط والأحكام</Link></li>
+                </ul>
+              </div>
+
+              {/* Company Info */}
+              <div className="text-center md:text-right">
+                <h4 className="text-white font-bold mb-4">الشركة</h4>
+                <ul className="space-y-2 text-sm text-[var(--color-desert-400)]">
+                  <li>Officia MENA for Financial Technology</li>
+                  <li>الرياض، المملكة العربية السعودية</li>
+                  <li><a href="mailto:info@officia-mena.com" className="hover:text-[var(--color-gold-500)] transition-colors">info@officia-mena.com</a></li>
+                  <li><a href="tel:+966112345678" className="hover:text-[var(--color-gold-500)] transition-colors">+966 11 234 5678</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-[var(--color-desert-500)]">© 2026 Officia MENA. جميع الحقوق محفوظة.</p>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <a href="https://zatca.gov.sa" target="_blank" rel="noopener noreferrer" className="text-[var(--color-desert-400)] hover:text-[var(--color-emerald-500)] transition-colors flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-[var(--color-emerald-500)]"></div>
+                  معتمد من ZATCA
+                </a>
+                <span className="text-[var(--color-desert-600)]">|</span>
+                <span className="text-[var(--color-desert-500)]">السجل التجاري: 1010765432</span>
+              </div>
             </div>
           </div>
         </footer>

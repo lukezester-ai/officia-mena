@@ -8,11 +8,37 @@ const cairo = Cairo({
   weight: ["300", "400", "500", "600", "700", "800"],
 });
 
+const siteUrl = "https://officia-mena.com";
+
 export const metadata: Metadata = {
-  title: "Officia MENA | Enterprise Accounting & ERP",
-  description: "Next Generation AI-powered Accounting & ERP for the MENA Region. Fully compliant with ZATCA phase 2 invoicing regulations.",
-  keywords: ["Accounting", "ERP", "ZATCA", "MENA", "AI", "Invoicing", "Tax"],
-  authors: [{ name: "Officia MENA AI Team", url: "https://officia-mena.com" }],
+  title: {
+    default: "Officia MENA | منصة محاسبية ذكية للشركات في الشرق الأوسط",
+    template: "%s | Officia MENA",
+  },
+  description: "منصة محاسبية متكاملة مدعومة بالذكاء الاصطناعي للشركات في منطقة الشرق الأوسط. متوافقة مع ZATCA، إدارة الفواتير، المصروفات، المخزون، والرواتب.",
+  keywords: ["محاسبة", "ERP", "ZATCA", "الشرق الأوسط", "ذكاء اصطناعي", "فوترة إلكترونية", "إدارة مالية", "السعودية", "برنامج محاسبة"],
+  authors: [{ name: "Officia MENA", url: siteUrl }],
+  metadataBase: new URL(siteUrl),
+  openGraph: {
+    title: "Officia MENA | منصة محاسبية ذكية للشركات في الشرق الأوسط",
+    description: "منصة محاسبية متكاملة مدعومة بالذكاء الاصطناعي. متوافقة مع ZATCA.",
+    url: siteUrl,
+    siteName: "Officia MENA",
+    locale: "ar_SA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Officia MENA | منصة محاسبية ذكية",
+    description: "منصة محاسبية متكاملة مدعومة بالذكاء الاصطناعي. متوافقة مع ZATCA.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
 };
 
 export default function RootLayout({
