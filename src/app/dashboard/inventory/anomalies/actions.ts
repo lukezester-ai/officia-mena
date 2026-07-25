@@ -62,7 +62,8 @@ export async function detectStockAnomalies() {
           severity: z.enum(['high', 'medium', 'low']).describe('Risk severity'),
           issueType: z.string().describe('Short title of the anomaly (e.g. نفاذ المخزون)'),
           description: z.string().describe('Detailed explanation of why this is an anomaly and what to do (in Arabic)'),
-          capitalTiedUp: z.number().optional().describe('Estimated capital tied up or at risk in SAR')
+          capitalTiedUp: z.number().optional().describe('Estimated capital tied up or at risk in SAR'),
+          quantity: z.number().optional().describe('Current stock quantity')
         })).describe('List of detected anomalies, return max 5 most critical ones')
       }),
       prompt: systemPrompt,
@@ -89,7 +90,8 @@ export async function detectStockAnomalies() {
           severity: 'medium',
           issueType: 'مخزون منخفض (Low Stock)',
           description: 'متبقي 3 قطع فقط ومعدل الطلب الأسبوعي هو 5 قطع. قد تفقد مبيعات محتملة قريباً.',
-          capitalTiedUp: 0
+          capitalTiedUp: 0,
+          quantity: 3
         },
         {
           sku: 'SFT-004',

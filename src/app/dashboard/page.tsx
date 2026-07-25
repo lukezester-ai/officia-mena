@@ -14,6 +14,17 @@ export default async function DashboardPage() {
     return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(amount);
   };
 
+  if (!statsRes.success) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] text-center">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">فشل تحميل البيانات</h2>
+          <p className="text-red-700">{statsRes.error || 'حدث خطأ غير متوقع أثناء تحميل البيانات'}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="mb-8">

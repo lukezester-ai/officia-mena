@@ -17,7 +17,7 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-[var(--color-desert-200)] leading-relaxed">
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">1. المقدمة</h2>
-            <p>نحن في <strong>Agri Nexus Ltd</strong> (المشار إليها فيما يلي بـ &ldquo;نحن&rdquo; أو &ldquo;المنصة&rdquo;) نلتزم بحماية خصوصية مستخدمينا. توضح سياسة الخصوصية هذه كيفية جمع، استخدام، الكشف، وحماية معلوماتك عندما تستخدم منصتنا المحاسبية.</p>
+            <p>نحن في <strong>Agri Nexus Ltd</strong> (المشار إليها فيما يلي بـ &quot;نحن&quot; أو &quot;المنصة&quot;) نلتزم بحماية خصوصية مستخدمينا. توضح سياسة الخصوصية هذه كيفية جمع، استخدام، الكشف، وحماية معلوماتك عندما تستخدم منصتنا المحاسبية.</p>
             <p className="mt-2">باستخدامك للمنصة، فإنك توافق على جمع واستخدام المعلومات وفقاً لهذه السياسة.</p>
           </section>
 
