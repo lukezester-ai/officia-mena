@@ -20,7 +20,7 @@ export default function ContactPage() {
     };
 
     // Send via mailto as fallback
-    const mailto = `mailto:sales@officia-mena.com?subject=${encodeURIComponent(`استفسار من ${data.name} - ${data.company}`)}&body=${encodeURIComponent(data.message as string + '\n\n---\n' + data.name + '\n' + data.email)}`;
+            const mailto = `mailto:info@agrinexus.eu?subject=${encodeURIComponent(`استفسار من ${data.name} - ${data.company}`)}&body=${encodeURIComponent(data.message as string + '\n\n---\n' + data.name + '\n' + data.email)}`;
     window.location.href = mailto;
     setLoading(false);
     setSubmitted(true);
@@ -81,7 +81,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white">البريد الإلكتروني</h3>
-                    <a href="mailto:sales@officia-mena.com" className="text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">sales@officia-mena.com</a>
+                    <a href="mailto:info@agrinexus.eu" className="text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">info@agrinexus.eu</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -99,7 +99,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white">العنوان</h3>
-                    <p className="text-[var(--color-desert-300)]">الرياض، حي الملقا<br/>المملكة العربية السعودية</p>
+                    <p className="text-[var(--color-desert-300)]">صوفيا، بلغاريا</p>
                   </div>
                 </div>
               </div>

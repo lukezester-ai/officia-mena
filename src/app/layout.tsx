@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   },
   description: "منصة محاسبية متكاملة مدعومة بالذكاء الاصطناعي للشركات في منطقة الشرق الأوسط. متوافقة مع ZATCA، إدارة الفواتير، المصروفات، المخزون، والرواتب.",
   keywords: ["محاسبة", "ERP", "ZATCA", "الشرق الأوسط", "ذكاء اصطناعي", "فوترة إلكترونية", "إدارة مالية", "السعودية", "برنامج محاسبة"],
-  authors: [{ name: "Officia MENA", url: siteUrl }],
+  authors: [{ name: "Agri Nexus Ltd", url: "https://agrinexus.eu" }],
   metadataBase: new URL(siteUrl),
   openGraph: {
     title: "Officia MENA | منصة محاسبية ذكية للشركات في الشرق الأوسط",

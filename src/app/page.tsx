@@ -351,8 +351,8 @@ export default function Home() {
                     ربط API مخصص (Custom Integrations)
                   </li>
                 </ul>
-                <Link href="mailto:sales@officia-mena.com" className="block w-full py-3 rounded-xl border border-[var(--color-gold-700)] text-center text-[var(--color-gold-500)] font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
-                  اتصل بالمبيعات
+                <Link href="mailto:info@agrinexus.eu" className="block w-full py-3 rounded-xl border border-[var(--color-gold-700)] text-center text-[var(--color-gold-500)] font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
+                  اتصل بنا
                 </Link>
               </div>
             </div>
@@ -452,10 +452,9 @@ export default function Home() {
               <div className="text-center md:text-right">
                 <h4 className="text-white font-bold mb-4">الشركة</h4>
                 <ul className="space-y-2 text-sm text-[var(--color-desert-400)]">
-                  <li>Officia MENA for Financial Technology</li>
-                  <li>الرياض، المملكة العربية السعودية</li>
-                  <li><a href="mailto:info@officia-mena.com" className="hover:text-[var(--color-gold-500)] transition-colors">info@officia-mena.com</a></li>
-                  <li><a href="tel:+966112345678" className="hover:text-[var(--color-gold-500)] transition-colors">+966 11 234 5678</a></li>
+                  <li>Agri Nexus Ltd</li>
+                  <li>صوفيا، بلغاريا</li>
+                  <li><a href="mailto:info@agrinexus.eu" className="hover:text-[var(--color-gold-500)] transition-colors">info@agrinexus.eu</a></li>
                 </ul>
               </div>
             </div>
@@ -468,7 +467,7 @@ export default function Home() {
                   معتمد من ZATCA
                 </a>
                 <span className="text-[var(--color-desert-600)]">|</span>
-                <span className="text-[var(--color-desert-500)]">السجل التجاري: 1010765432</span>
+                <span className="text-[var(--color-desert-500)]">السجل التجاري: 208692862</span>
               </div>
             </div>
           </div>
@@ -493,8 +492,8 @@ export default function Home() {
                   },
                   "author": {
                     "@type": "Organization",
-                    "name": "Officia MENA AI Team",
-                    "url": "https://officia-mena.com"
+                    "name": "Agri Nexus Ltd",
+                    "url": "https://agrinexus.eu"
                   }
                 },
                 {

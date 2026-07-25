@@ -59,7 +59,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">6. الملكية الفكرية</h2>
-            <p>جميع الحقوق الفكرية للمنصة، بما في ذلك الكود البرمجي، التصميم، العلامات التجارية، والمحتوى، مملوكة لـ Officia MENA. لا يجوز نسخ أو توزيع أو تعديل أي جزء من المنصة دون إذن خطي مسبق.</p>
+            <p>جميع الحقوق الفكرية للمنصة، بما في ذلك الكود البرمجي، التصميم، العلامات التجارية، والمحتوى، مملوكة لـ Agri Nexus Ltd. لا يجوز نسخ أو توزيع أو تعديل أي جزء من المنصة دون إذن خطي مسبق.</p>
           </section>
 
           <section>
@@ -97,15 +97,15 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold text-white mb-4">12. اتصل بنا</h2>
             <p>للاستفسارات المتعلقة بهذه الشروط:</p>
             <ul className="list-none space-y-2 mt-2">
-              <li><strong>البريد الإلكتروني:</strong> legal@officia-mena.com</li>
-              <li><strong>العنوان:</strong> الرياض، المملكة العربية السعودية</li>
+              <li><strong>البريد الإلكتروني:</strong> info@agrinexus.eu</li>
+              <li><strong>العنوان:</strong> صوفيا، بلغاريا</li>
             </ul>
           </section>
         </div>
 
         <div className="mt-16 p-6 rounded-2xl border border-gray-800 bg-gray-900/50">
           <p className="text-sm text-[var(--color-desert-400)]">
-            <strong>ملاحظة:</strong> هذه مسودة شروط وأحكام. يوصى بمراجعتها من قبل مستشار قانوني مختص في المملكة العربية السعودية قبل النشر الرسمي.
+            <strong>ملاحظة:</strong> هذه مسودة شروط وأحكام. يوصى بمراجعتها من قبل مستشار قانوني مختص قبل النشر الرسمي.
           </p>
         </div>
       </div>

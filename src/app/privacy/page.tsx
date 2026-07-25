@@ -17,7 +17,7 @@ export default function PrivacyPage() {
         <div className="space-y-8 text-[var(--color-desert-200)] leading-relaxed">
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">1. المقدمة</h2>
-            <p>نحن في <strong>Officia MENA</strong> (المشار إليها فيما يلي بـ "نحن" أو "المنصة") نلتزم بحماية خصوصية مستخدمينا. توضح سياسة الخصوصية هذه كيفية جمع، استخدام، الكشف، وحماية معلوماتك عندما تستخدم منصتنا المحاسبية.</p>
+            <p>نحن في <strong>Agri Nexus Ltd</strong> (المشار إليها فيما يلي بـ "نحن" أو "المنصة") نلتزم بحماية خصوصية مستخدمينا. توضح سياسة الخصوصية هذه كيفية جمع، استخدام، الكشف، وحماية معلوماتك عندما تستخدم منصتنا المحاسبية.</p>
             <p className="mt-2">باستخدامك للمنصة، فإنك توافق على جمع واستخدام المعلومات وفقاً لهذه السياسة.</p>
           </section>
 
@@ -108,16 +108,15 @@ export default function PrivacyPage() {
             <h2 className="text-2xl font-bold text-white mb-4">10. اتصل بنا</h2>
             <p>للاستفسارات المتعلقة بهذه السياسة أو ممارسات الخصوصية لدينا، يرجى التواصل معنا:</p>
             <ul className="list-none space-y-2 mt-2">
-              <li><strong>البريد الإلكتروني:</strong> privacy@officia-mena.com</li>
-              <li><strong>العنوان:</strong> الرياض، المملكة العربية السعودية</li>
-              <li><strong>هاتف:</strong> +966 11 234 5678</li>
+              <li><strong>البريد الإلكتروني:</strong> info@agrinexus.eu</li>
+              <li><strong>العنوان:</strong> صوفيا، بلغاريا</li>
             </ul>
           </section>
         </div>
 
         <div className="mt-16 p-6 rounded-2xl border border-gray-800 bg-gray-900/50">
           <p className="text-sm text-[var(--color-desert-400)]">
-            <strong>ملاحظة:</strong> هذه المسودة تستند إلى أفضل الممارسات. يوصى بمراجعة هذه السياسة من قبل مستشار قانوني مختص في المملكة العربية السعودية قبل النشر الرسمي.
+            <strong>ملاحظة:</strong> هذه المسودة تستند إلى أفضل الممارسات. يوصى بمراجعة هذه السياسة من قبل مستشار قانوني مختص قبل النشر الرسمي.
           </p>
         </div>
       </div>

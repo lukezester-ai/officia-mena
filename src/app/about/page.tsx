@@ -65,23 +65,19 @@ export default function AboutPage() {
           <dl className="space-y-4 text-[var(--color-desert-200)]">
             <div className="flex flex-col md:flex-row md:gap-4">
               <dt className="text-white font-semibold min-w-[180px]">الاسم التجاري:</dt>
-              <dd>Officia MENA for Financial Technology</dd>
+              <dd>Agri Nexus Ltd</dd>
             </div>
             <div className="flex flex-col md:flex-row md:gap-4">
               <dt className="text-white font-semibold min-w-[180px]">المقر الرئيسي:</dt>
-              <dd>الرياض، المملكة العربية السعودية</dd>
+              <dd>صوفيا، بلغاريا</dd>
             </div>
             <div className="flex flex-col md:flex-row md:gap-4">
               <dt className="text-white font-semibold min-w-[180px]">السجل التجاري:</dt>
-              <dd>1010765432</dd>
-            </div>
-            <div className="flex flex-col md:flex-row md:gap-4">
-              <dt className="text-white font-semibold min-w-[180px]">الرقم الضريبي:</dt>
-              <dd>310987654300003</dd>
+              <dd>208692862</dd>
             </div>
             <div className="flex flex-col md:flex-row md:gap-4">
               <dt className="text-white font-semibold min-w-[180px]">البريد الإلكتروني:</dt>
-              <dd>info@officia-mena.com</dd>
+              <dd>info@agrinexus.eu</dd>
             </div>
           </dl>
         </div>
