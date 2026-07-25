@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'لوحة القيادة', icon: LayoutDashboard },
-  { path: '/dashboard/accounting', label: 'Accounting Core', icon: BookOpen },
+  { path: '/dashboard/accounting', label: 'المحاسبة الأساسية', icon: BookOpen },
   { path: '/dashboard/approvals', label: 'سير الموافقات', icon: ShieldCheck },
   { path: '/dashboard/inventory', label: 'المستودع', icon: Package },
   { path: '/dashboard/inventory/purchase-orders', label: 'أوامر الشراء (PO)', icon: ShoppingCart },
