@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
+import { Mail, MapPin, Send, Loader2 } from 'lucide-react';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -84,15 +84,7 @@ export default function ContactPage() {
                     <a href="mailto:info@agrinexus.eu" className="text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">info@agrinexus.eu</a>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl gold-gradient/20 border border-[var(--color-gold-500)]/30 flex items-center justify-center shrink-0">
-                    <Phone className="text-[var(--color-gold-500)]" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white">الهاتف</h3>
-                    <a href="tel:+966112345678" className="text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">+966 11 234 5678</a>
-                  </div>
-                </div>
+
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl gold-gradient/20 border border-[var(--color-gold-500)]/30 flex items-center justify-center shrink-0">
                     <MapPin className="text-[var(--color-gold-500)]" size={20} />
@@ -105,24 +97,11 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="glass-panel p-8 rounded-3xl border border-gray-800">
-              <h2 className="text-xl font-bold text-white mb-4">ساعات العمل</h2>
-              <div className="space-y-2 text-[var(--color-desert-300)]">
-                <p><span className="text-white">الأحد - الخميس:</span> 9:00 ص - 6:00 م</p>
-                <p><span className="text-white">الجمعة - السبت:</span> إجازة أسبوعية</p>
-              </div>
-            </div>
+
 
             <div className="glass-panel p-8 rounded-3xl border border-gray-800">
-              <h2 className="text-xl font-bold text-white mb-4">تابعنا</h2>
-              <div className="flex gap-4">
-                <a href="https://linkedin.com/company/officia-mena" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-gray-800 hover:bg-[var(--color-gold-500)]/20 border border-gray-700 flex items-center justify-center transition-all">
-                  <span className="text-sm font-bold text-[var(--color-gold-500)]">in</span>
-                </a>
-                <a href="https://twitter.com/officiamena" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-gray-800 hover:bg-[var(--color-gold-500)]/20 border border-gray-700 flex items-center justify-center transition-all">
-                  <span className="text-sm font-bold text-[var(--color-gold-500)]">X</span>
-                </a>
-              </div>
+              <h2 className="text-xl font-bold text-white mb-4">راسلنا</h2>
+              <p className="text-[var(--color-desert-300)] text-sm">يمكنك مراسلتنا عبر البريد الإلكتروني وسنرد في أقرب وقت ممكن.</p>
             </div>
           </div>
         </div>
