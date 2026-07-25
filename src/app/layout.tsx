@@ -41,9 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" className="dark">
-      <body
-        className="antialiased bg-background text-foreground"
-      >
+      <body className="antialiased bg-background text-foreground">
         {children}
       </body>
     </html>
