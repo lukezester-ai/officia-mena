@@ -12,6 +12,7 @@ type StockAnomaly = {
   issueType: string;
   description: string;
   capitalTiedUp?: number;
+  quantity?: number;
 };
 
 export default function AnomaliesPage() {
@@ -129,6 +130,16 @@ export default function AnomaliesPage() {
                     <p className="text-sm leading-relaxed mb-4 text-white/90">
                       {anomaly.description}
                     </p>
+
+                    {anomaly.quantity !== undefined && (
+                      <div className="bg-black/30 border border-white/5 rounded-lg p-3 inline-flex items-center gap-3 mb-4">
+                        <PackageX className="w-5 h-5 opacity-70" />
+                        <div>
+                          <p className="text-[10px] opacity-70 uppercase tracking-wide">الكمية الحالية</p>
+                          <p className="font-mono font-bold text-xl">{anomaly.quantity}</p>
+                        </div>
+                      </div>
+                    )}
                     
                     {anomaly.capitalTiedUp && anomaly.capitalTiedUp > 0 && (
                       <div className="bg-black/30 border border-white/5 rounded-lg p-3 inline-flex items-center gap-3">
