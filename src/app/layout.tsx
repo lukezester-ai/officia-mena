@@ -34,6 +34,7 @@ export const metadata: Metadata = {
   },
 };
 
+// Cache-bust: clean redeploy
 export default function RootLayout({
   children,
 }: Readonly<{
