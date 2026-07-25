@@ -35,13 +35,7 @@ export function listTools(): ToolMeta[] {
   return toolMeta.filter(t => t.requiredEnvVars.every(v => process.env[v]));
 }
 
-export function getToolSet(): ToolSet {
-  return Object.fromEntries(
-    Object.entries(dynamicTools).filter(([name]) =>
-      toolMeta.find(t => t.name === name)?.requiredEnvVars.every(v => process.env[v]),
-    ),
-  );
-}
+export const maestroTools = { ...dynamicTools } as ToolSet;
 
 register('getExpiringIqamas', [], {
   description: 'Fetch a list of employees whose Iqama is expiring soon.',
@@ -148,5 +142,3 @@ register('searchZatcaRegulations', ['GOOGLE_GENERATIVE_AI_API_KEY'], {
     }
   },
 });
-
-export const maestroTools = getToolSet();
