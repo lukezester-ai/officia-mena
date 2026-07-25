@@ -53,7 +53,7 @@ export default function DashboardLayout({
       {/* Sidebar (Fixed Right) */}
       <aside className="executive-sidebar w-[248px] h-full flex-shrink-0 border-l border-white/5 flex flex-col z-20">
         <div className="h-20 flex items-center px-5 border-b border-white/5">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="brand-mark w-10 h-10 rounded-lg flex items-center justify-center font-black text-background text-xl">
               O
             </div>
@@ -65,7 +65,7 @@ export default function DashboardLayout({
                 Command ERP
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         <nav className="flex-1 py-5 px-3 flex flex-col gap-1 overflow-y-auto">
