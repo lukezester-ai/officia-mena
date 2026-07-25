@@ -1,6 +1,4 @@
-import { type NextRequest } from 'next/server';
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   const baseUrl = 'https://officia-mena.com';
 
   const robotsTxt = `# robots.txt - Officia MENA

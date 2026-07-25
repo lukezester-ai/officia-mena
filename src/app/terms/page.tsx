@@ -64,7 +64,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">7. حدود المسؤولية</h2>
-            <p>تُقدم المنصة "كما هي" دون أي ضمانات صريحة أو ضمنية. نحن لسنا مسؤولين عن:</p>
+            <p>تُقدم المنصة &quot;كما هي&quot; دون أي ضمانات صريحة أو ضمنية. نحن لسنا مسؤولين عن:</p>
             <ul className="list-disc list-inside space-y-1 pr-4 mt-2">
               <li>الأضرار المباشرة أو غير المباشرة الناتجة عن استخدام المنصة</li>
               <li>فقدان البيانات أو الأرباح</li>
