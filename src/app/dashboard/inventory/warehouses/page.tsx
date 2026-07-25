@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Package, ArrowLeftRight, Building2, MapPin, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Package, ArrowLeftRight, Building2, MapPin, Loader2 } from 'lucide-react';
 import { getWarehouses, getInventoryDistribution, transferStock } from '../warehouse-actions';
 
 interface Warehouse {
@@ -32,7 +32,7 @@ export default function AdvancedWarehousePage() {
 
   const fetchData = async () => {
     setLoading(true);
-    await getWarehouses(); // Ensure dummy warehouses are seeded if empty
+    await getWarehouses();
     const distRes = await getInventoryDistribution();
     if (distRes.success && distRes.data && distRes.warehousesList) {
       setWarehouses(distRes.warehousesList);

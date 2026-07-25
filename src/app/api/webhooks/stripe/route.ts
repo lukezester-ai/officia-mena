@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/server';
@@ -8,12 +7,22 @@ import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 import { generateZatcaQr } from '@/lib/billing/generate-zatca-invoice';
 import { Resend } from 'resend';
+import { getErrorMessage } from '@/lib/errors';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
+function getCurrentPeriodEnd(subscription: Stripe.Subscription) {
+  const currentPeriodEnd = subscription.items.data[0]?.current_period_end;
+  return currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null;
+}
+
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = headers().get('Stripe-Signature') as string;
+  const signature = (await headers()).get('Stripe-Signature');
+
+  if (!signature) {
+    return new NextResponse('Missing Stripe signature', { status: 400 });
+  }
 
   let event: Stripe.Event;
 
@@ -23,8 +32,8 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (error: any) {
-    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
+  } catch (error: unknown) {
+    return new NextResponse(`Webhook Error: ${getErrorMessage(error)}`, { status: 400 });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
@@ -46,7 +55,7 @@ export async function POST(req: Request) {
             stripeCustomerId: subscription.customer as string,
             planId: planId,
             status: subscription.status,
-            currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            currentPeriodEnd: getCurrentPeriodEnd(subscription),
             updatedAt: new Date()
           })
           .where(eq(subscriptions.tenantId, tenantId));
@@ -57,7 +66,7 @@ export async function POST(req: Request) {
           stripeCustomerId: subscription.customer as string,
           planId: planId,
           status: subscription.status,
-          currentPeriodEnd: new Date(subscription.current_period_end * 1000)
+          currentPeriodEnd: getCurrentPeriodEnd(subscription)
         });
       }
 
@@ -150,7 +159,7 @@ export async function POST(req: Request) {
       await db.update(subscriptions)
         .set({
           status: subscription.status,
-          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          currentPeriodEnd: getCurrentPeriodEnd(subscription),
           updatedAt: new Date()
         })
         .where(eq(subscriptions.stripeCustomerId, subscription.customer as string));

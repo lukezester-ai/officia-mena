@@ -1,4 +1,4 @@
-import { streamText } from 'ai';
+import { stepCountIs, streamText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { maestroTools } from '@/lib/ai/tools';
 
@@ -65,7 +65,7 @@ Remember: YOU MUST RESPOND ENTIRELY IN ARABIC. Always maintain a professional, h
     system: systemPrompt,
     messages,
     tools: maestroTools,
-    maxSteps: 5, // CRITICAL: This allows the LLM to call a tool, get the result, and continue responding
+    stopWhen: stepCountIs(5), // Allows the LLM to call a tool, get the result, and continue responding
   });
   
   // @ts-expect-error The method exists in runtime in newer AI SDKs but TS types might lag

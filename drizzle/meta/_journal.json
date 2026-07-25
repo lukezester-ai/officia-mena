@@ -43,6 +43,13 @@
       "when": 1784624840735,
       "tag": "0005_foamy_absorbing_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784844491463,
+      "tag": "0006_small_the_phantom",
+      "breakpoints": true
     }
   ]
 }

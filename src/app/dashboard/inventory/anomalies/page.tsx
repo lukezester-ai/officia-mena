@@ -1,6 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,8 +5,17 @@ import { detectStockAnomalies } from './actions';
 import { ShieldAlert, Loader2, AlertTriangle, AlertOctagon, Info, PackageX, TrendingDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
+type StockAnomaly = {
+  sku: string;
+  productName: string;
+  severity: string;
+  issueType: string;
+  description: string;
+  capitalTiedUp?: number;
+};
+
 export default function AnomaliesPage() {
-  const [anomalies, setAnomalies] = useState<any[]>([]);
+  const [anomalies, setAnomalies] = useState<StockAnomaly[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -23,7 +29,7 @@ export default function AnomaliesPage() {
     if (res.success) {
       setAnomalies(res.data || []);
     } else {
-      setError(res.error || 'Unknown error');
+      setError('error' in res && typeof res.error === 'string' ? res.error : 'Unknown error');
     }
     setLoading(false);
   };

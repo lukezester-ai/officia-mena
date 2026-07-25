@@ -1,23 +1,14 @@
-// @ts-nocheck
 'use server';
 
 import { stripe } from '@/lib/stripe/server';
-import { createClient } from '@/utils/supabase/server';
 import { db } from '@/lib/db/db';
 import { subscriptions } from '@/lib/db/schema/subscriptions';
-import { tenants } from '@/lib/db/schema/tenants';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
+import { requireTenant } from '@/lib/auth/get-tenant';
 
 export async function createCheckoutSession(planId: string) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  // Find user's tenant
-  const tenantResult = await db.select().from(tenants).where(eq(tenants.ownerId, user.id)).limit(1);
-  if (!tenantResult.length) throw new Error('No tenant found');
-  const tenant = tenantResult[0];
+  const tenant = await requireTenant();
 
   const prices: Record<string, string> = {
     'pro': process.env.STRIPE_PRO_PRICE_ID!,
@@ -33,7 +24,6 @@ export async function createCheckoutSession(planId: string) {
 
   if (!customerId) {
     const customer = await stripe.customers.create({
-      email: user.email,
       name: tenant.name,
       metadata: { tenantId: tenant.id }
     });
@@ -56,13 +46,7 @@ export async function createCheckoutSession(planId: string) {
 }
 
 export async function createPortalSession() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-
-  const tenantResult = await db.select().from(tenants).where(eq(tenants.ownerId, user.id)).limit(1);
-  if (!tenantResult.length) throw new Error('No tenant found');
-  const tenant = tenantResult[0];
+  const tenant = await requireTenant();
 
   const subResult = await db.select().from(subscriptions).where(eq(subscriptions.tenantId, tenant.id)).limit(1);
   const customerId = subResult[0]?.stripeCustomerId;

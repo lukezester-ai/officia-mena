@@ -3,6 +3,7 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import path from 'path';
+import { getErrorCause, getErrorMessage, getErrorStack } from '@/lib/errors';
 
 export async function GET() {
   try {
@@ -24,15 +25,15 @@ export async function GET() {
     await migrationClient.end();
 
     return NextResponse.json({ success: true, message: 'Database migrated successfully! All tables created.' });
-  } catch (error: any) {
-    const cause = error.cause || {};
+  } catch (error: unknown) {
+    const cause = getErrorCause(error);
     return NextResponse.json({ 
       success: false, 
-      error: error.message,
+      error: getErrorMessage(error),
       causeMsg: cause.message,
       causeCode: cause.code,
       causeDetail: cause.detail,
-      stack: error.stack 
+      stack: getErrorStack(error) 
     }, { status: 500 });
   }
 }

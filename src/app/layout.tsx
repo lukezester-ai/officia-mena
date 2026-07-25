@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
 import "./globals.css";
-
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  variable: "--font-cairo",
-  weight: ["300", "400", "500", "600", "700", "800"],
-});
 
 const siteUrl = "https://officia-mena.com";
 
@@ -49,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className="dark">
       <body
-        className={`${cairo.variable} antialiased font-cairo bg-background text-foreground`}
+        className="antialiased bg-background text-foreground"
       >
         {children}
       </body>

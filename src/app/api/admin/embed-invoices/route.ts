@@ -4,8 +4,9 @@ import { invoices } from '@/lib/db/schema/invoices';
 import { isNull, eq } from 'drizzle-orm';
 import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
+import { getErrorMessage } from '@/lib/errors';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     // Fetch invoices that don't have embeddings
     const invoicesWithoutEmbeddings = await db.select().from(invoices).where(isNull(invoices.embedding));
@@ -34,8 +35,8 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ success: true, message: `Embedded ${invoicesWithoutEmbeddings.length} invoices.` });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error embedding invoices:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ import { db } from '@/lib/db/db';
 import { documentChunks } from '@/lib/db/schema/documents';
 import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
+import { getErrorMessage } from '@/lib/errors';
 
 const zatcaRules = [
   {
@@ -27,7 +28,7 @@ const zatcaRules = [
   }
 ];
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     // Generate embeddings for all ZATCA rules
     const chunks = zatcaRules.map(r => `${r.title}\n\n${r.content}`);
@@ -48,8 +49,8 @@ export async function POST(req: Request) {
     await db.insert(documentChunks).values(insertData);
 
     return NextResponse.json({ success: true, message: `Seeded ${chunks.length} ZATCA rules.` });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error seeding ZATCA knowledge:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

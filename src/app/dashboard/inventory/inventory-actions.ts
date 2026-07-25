@@ -3,7 +3,7 @@
 'use server';
 
 import { db } from '@/lib/db/db';
-import { products, inventoryLevels, warehouses } from '@/lib/db/schema/inventory';
+import { products, inventoryLevels, warehouses, stockMovements } from '@/lib/db/schema/inventory';
 import { eq, desc, and } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
@@ -22,6 +22,8 @@ export async function getProducts() {
         sku: products.sku,
         barcode: products.barcode,
         unitPrice: products.unitPrice,
+        costPrice: products.costPrice,
+        minStockLevel: products.minStockLevel,
         category: products.category,
         isPetroleum: products.isPetroleum,
         apiGravity: products.apiGravity,
@@ -53,6 +55,9 @@ export async function createProduct(data: {
   sku: string;
   barcode: string;
   unitPrice: number;
+  costPrice?: number;
+  initialQuantity?: number;
+  initialStockReference?: string;
   category: string;
   isPetroleum: boolean;
   apiGravity?: number;
@@ -71,32 +76,48 @@ export async function createProduct(data: {
     if (!warehouse) {
       const wRes = await db.insert(warehouses).values({
         tenantId: tenant.id,
-        name: 'المستودع الرئيسي (Main Warehouse)'
+        name: 'المستودع الرئيسي',
+        location: 'غير محدد',
       }).returning();
       warehouse = wRes[0];
     }
 
-    // 2. Insert the product
-    const pRes = await db.insert(products).values({
-      tenantId: tenant.id,
-      name: data.name,
-      sku: data.sku,
-      barcode: data.barcode,
-      unitPrice: data.unitPrice.toString(),
-      category: data.category,
-      isPetroleum: data.isPetroleum,
-      apiGravity: data.apiGravity ? data.apiGravity.toString() : null,
-      isFertilizer: data.isFertilizer,
-      mewaRegistration: data.mewaRegistration || null,
-      securityClearanceExpiry: data.securityClearanceExpiry ? new Date(data.securityClearanceExpiry) : null,
-    }).returning();
-    
-    // 3. Add initial stock (e.g. 50 units for demo purposes so POS can sell them)
-    await db.insert(inventoryLevels).values({
-      tenantId: tenant.id,
-      productId: pRes[0].id,
-      warehouseId: warehouse.id,
-      quantity: 50 // Demo initial stock
+    const openingQuantity = Math.max(0, Math.floor(data.initialQuantity || 0));
+
+    await db.transaction(async (tx) => {
+      const pRes = await tx.insert(products).values({
+        tenantId: tenant.id,
+        name: data.name,
+        sku: data.sku,
+        barcode: data.barcode,
+        unitPrice: data.unitPrice.toString(),
+        costPrice: data.costPrice && data.costPrice > 0 ? data.costPrice.toString() : null,
+        category: data.category,
+        isPetroleum: data.isPetroleum,
+        apiGravity: data.apiGravity ? data.apiGravity.toString() : null,
+        isFertilizer: data.isFertilizer,
+        mewaRegistration: data.mewaRegistration || null,
+        securityClearanceExpiry: data.securityClearanceExpiry ? new Date(data.securityClearanceExpiry) : null,
+      }).returning();
+
+      await tx.insert(inventoryLevels).values({
+        tenantId: tenant.id,
+        productId: pRes[0].id,
+        warehouseId: warehouse.id,
+        quantity: openingQuantity,
+      });
+
+      if (openingQuantity > 0) {
+        await tx.insert(stockMovements).values({
+          tenantId: tenant.id,
+          productId: pRes[0].id,
+          warehouseId: warehouse.id,
+          type: 'ADJUSTMENT',
+          quantity: openingQuantity,
+          referenceId: data.initialStockReference || 'OPENING-BALANCE',
+          notes: 'رصيد افتتاحي موثق عند إنشاء المنتج',
+        });
+      }
     });
     
     

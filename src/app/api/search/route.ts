@@ -4,6 +4,7 @@ import { invoices } from '@/lib/db/schema/invoices';
 import { embed } from 'ai';
 import { google } from '@ai-sdk/google';
 import { sql, desc, isNotNull } from 'drizzle-orm';
+import { getErrorMessage } from '@/lib/errors';
 
 export async function GET(req: Request) {
   try {
@@ -42,8 +43,8 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ results: filteredResults });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Semantic Search Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

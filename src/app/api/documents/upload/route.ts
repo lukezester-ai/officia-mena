@@ -3,7 +3,8 @@ import { db } from '@/lib/db/db';
 import { documentChunks } from '@/lib/db/schema/documents';
 import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
-import pdf from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
+import { getErrorMessage } from '@/lib/errors';
 
 export async function POST(req: Request) {
   try {
@@ -16,9 +17,11 @@ export async function POST(req: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    
+
     // Parse the PDF
-    const pdfData = await pdf(buffer);
+    const parser = new PDFParse({ data: buffer });
+    const pdfData = await parser.getText();
+    await parser.destroy();
     const text = pdfData.text;
 
     // Simple chunking (e.g. by paragraphs or fixed length)
@@ -58,8 +61,8 @@ export async function POST(req: Request) {
     await db.insert(documentChunks).values(insertData);
 
     return NextResponse.json({ success: true, chunksCount: chunks.length });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error processing document:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@ import { expenses } from '@/lib/db/schema/expenses';
 import { aiInboxItems } from '@/lib/db/schema/ai_inbox';
 import { eq, sum, count } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
+import { getErrorMessage, isNextRedirectError } from '@/lib/errors';
 
 export async function getDashboardStats() {
   try {
@@ -68,17 +69,17 @@ export async function getDashboardStats() {
         alertsCount
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching dashboard stats:', error);
     
     // IMPORTANT: Let Next.js handle redirect errors (thrown by requireTenant)
-    if (error.message === 'NEXT_REDIRECT' || (error.digest && error.digest.startsWith('NEXT_REDIRECT'))) {
+    if (isNextRedirectError(error)) {
       throw error;
     }
     
     return {
       success: false,
-      error: error.message
+      error: getErrorMessage(error)
     };
   }
 }

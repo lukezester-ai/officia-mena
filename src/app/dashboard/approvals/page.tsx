@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { ShieldCheck, CheckCircle, XCircle, Clock, AlertTriangle, FileText, Loader2, Search } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ShieldCheck, CheckCircle, XCircle, Clock, AlertTriangle, FileText, Loader2 } from 'lucide-react';
 import { getApprovals, getApprovalsSummary, updateApprovalStatus } from './approval-actions';
 
 interface Approval {
@@ -40,7 +40,7 @@ export default function ApprovalsPage() {
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const [appRes, sumRes] = await Promise.all([
       getApprovals(filter),
@@ -49,11 +49,11 @@ export default function ApprovalsPage() {
     if (appRes.success && appRes.data) setApprovals(appRes.data as any);
     if (sumRes.success && sumRes.summary) setSummary(sumRes.summary as any);
     setLoading(false);
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchData();
-  }, [filter]);
+  }, [fetchData]);
 
   const handleAction = async () => {
     if (!actionId || !actionType) return;
