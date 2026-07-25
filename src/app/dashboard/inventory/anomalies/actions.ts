@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -71,7 +69,7 @@ export async function detectStockAnomalies() {
     });
 
     return { success: true, data: object.anomalies };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Anomaly detection error (DB likely not set up), falling back to mock data:', error);
     // Return mock data so the UI doesn't crash while DB is unavailable
     return { 

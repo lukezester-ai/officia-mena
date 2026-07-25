@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -20,8 +18,8 @@ export async function getPOs() {
       .limit(50);
       
     return { success: true, data };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -54,8 +52,8 @@ export async function createPO(data: {
     
     revalidatePath('/dashboard/inventory/purchase-orders');
     return { success: true, poNumber };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -149,7 +147,7 @@ export async function receivePO(id: string, warehouseId: string) {
     revalidatePath('/dashboard/inventory/purchase-orders');
     revalidatePath('/dashboard/inventory/warehouses');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

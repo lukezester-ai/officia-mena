@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -14,6 +12,14 @@ import { postApprovedExpense } from '@/lib/accounting/postings';
 
 function netVatInclusiveAmount(amount: number, vatRate = 15) {
   return amount / (1 + vatRate / 100);
+}
+
+interface ReceiptItem {
+  name: string;
+  qty: number;
+  unitPrice: number;
+  isPetroleum: boolean;
+  isFertilizer: boolean;
 }
 
 export async function analyzeReceiptImage(base64Image: string) {
@@ -51,7 +57,7 @@ export async function analyzeReceiptImage(base64Image: string) {
     });
 
     return { success: true, data: object };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI Vision Error:', error);
     
     // Fallback for demo if API fails
@@ -74,7 +80,7 @@ export async function confirmAndAutomateReceipt(data: {
   supplierName: string;
   totalAmount: number;
   date: string;
-  items: any[];
+  items: ReceiptItem[];
 }) {
   try {
     const tenant = await requireTenant();
@@ -149,7 +155,7 @@ export async function confirmAndAutomateReceipt(data: {
     revalidatePath('/dashboard/accounting');
     
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -23,8 +21,8 @@ export async function getQuotations() {
       .limit(50);
       
     return { success: true, data };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -60,9 +58,9 @@ export async function createQuotation(data: {
     
     revalidatePath('/dashboard/quotations');
     return { success: true, quotationNumber: quoteNumber };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Quotation creation error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -133,7 +131,7 @@ export async function convertToInvoice(quotationId: string) {
     revalidatePath('/dashboard/invoices');
     revalidatePath('/dashboard/accounting');
     return { success: true, invoiceNumber: invNumber };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

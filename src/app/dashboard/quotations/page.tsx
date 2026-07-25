@@ -1,9 +1,7 @@
-/* eslint-disable */
-// @ts-nocheck
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { FileSignature, Plus, ArrowRight, ArrowLeftRight, Loader2, CheckCircle, Clock } from 'lucide-react';
+import { FileSignature, Plus, ArrowLeftRight, Loader2, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { getQuotations, convertToInvoice } from './quotation-actions';
 
@@ -12,8 +10,8 @@ interface Quotation {
   quotationNumber: string;
   clientName: string;
   totalAmount: string;
-  status: string;
-  issueDate: string | null;
+  status: string | null;
+  issueDate: Date | null;
 }
 
 export default function QuotationsPage() {

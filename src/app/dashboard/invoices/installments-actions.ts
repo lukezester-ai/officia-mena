@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -49,9 +47,9 @@ export async function createInstallmentPlan(invoiceId: string, numberOfInstallme
     
     revalidatePath('/dashboard/invoices');
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create installment plan error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -66,8 +64,8 @@ export async function getInvoiceInstallments(invoiceId: string) {
       .orderBy(installments.dueDate);
       
     return { success: true, data };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -81,7 +79,7 @@ export async function payInstallment(installmentId: string) {
       
     revalidatePath('/dashboard/invoices');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

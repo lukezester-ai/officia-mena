@@ -10,8 +10,8 @@ type ReceiptItem = {
   name: string;
   qty: number;
   unitPrice: number;
-  isPetroleum?: boolean;
-  isFertilizer?: boolean;
+  isPetroleum: boolean;
+  isFertilizer: boolean;
 };
 
 type ReceiptScanResult = {

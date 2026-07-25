@@ -1,9 +1,8 @@
-/* eslint-disable */
 'use client';
 
 import { useState } from 'react';
 import { login, signup, getGoogleOAuthUrl } from './actions';
-import { Loader2, User, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Loader2, Lock, Mail, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -20,7 +19,7 @@ export default function LoginPage() {
       if (result.url) {
         window.location.href = result.url;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setError('Възникна грешка при свързването с Google.');
       setIsLoading(false);
@@ -42,7 +41,7 @@ export default function LoginPage() {
         setError(result.error);
         setIsLoading(false);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setError('An error occurred. Please check your Supabase environment variables in Vercel.');
       setIsLoading(false);

@@ -1,111 +1,98 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { tool, embed } from 'ai';
+import { embed } from 'ai';
 import { z } from 'zod';
 import { db } from '@/lib/db/db';
 import { documentChunks } from '@/lib/db/schema/documents';
 import { google } from '@ai-sdk/google';
 import { sql, desc, eq } from 'drizzle-orm';
 import { getErrorMessage } from '@/lib/errors';
+import type { ToolSet } from 'ai';
 
 type SearchInput = {
   query: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const makeTool = (config: any) => config as ToolSet[string];
+
 export const hrTools = {
-  getExpiringIqamas: tool({
-    description: 'Fetch a list of employees whose Iqama (Residency Visa) is expiring soon or has already expired. Useful for HR compliance and risk analysis.',
+  getExpiringIqamas: makeTool({
+    description: 'Fetch a list of employees whose Iqama is expiring soon.',
     parameters: z.object({
-      department: z.string().optional().describe('Filter by department (optional)'),
+      department: z.string().optional().describe('Filter by department'),
     }),
-    execute: async (_args: any) => {
-      // Simulated DB response
-      return {
-        department: 'HR',
-        expiringDocuments: [
-          { employeeName: 'John Smith', documentType: 'Iqama', expiryDate: '2026-07-22', status: 'Expiring in 4 days', fineRisk: '500 SAR/day' },
-          { employeeName: 'Ravi Kumar', documentType: 'Iqama', expiryDate: '2026-07-10', status: 'Expired', fineRisk: 'Potential Deportation' }
-        ],
-        totalActiveEmployees: 45
-      };
-    },
-  } as any),
-  getPayrollSummary: tool({
-    description: 'Fetch the latest payroll and Wage Protection System (WPS) status for the current month.',
+    execute: async () => ({
+      department: 'HR',
+      expiringDocuments: [
+        { employeeName: 'John Smith', documentType: 'Iqama', expiryDate: '2026-07-22', status: 'Expiring in 4 days', fineRisk: '500 SAR/day' },
+        { employeeName: 'Ravi Kumar', documentType: 'Iqama', expiryDate: '2026-07-10', status: 'Expired', fineRisk: 'Potential Deportation' },
+      ],
+      totalActiveEmployees: 45,
+    }),
+  }),
+  getPayrollSummary: makeTool({
+    description: 'Fetch the latest payroll and WPS status for the current month.',
     parameters: z.object({
       month: z.string().optional().describe('The month to fetch payroll for'),
     }),
-    execute: async (_args: any) => {
-      return {
-        department: 'Payroll',
-        month: 'July 2026',
-        totalSalaries: '485,200.00 SAR',
-        wpsStatus: 'PENDING_SUBMISSION',
-        unpaidEmployees: 0
-      };
-    }
-  } as any)
+    execute: async () => ({
+      department: 'Payroll',
+      month: 'July 2026',
+      totalSalaries: '485,200.00 SAR',
+      wpsStatus: 'PENDING_SUBMISSION',
+      unpaidEmployees: 0,
+    }),
+  }),
 };
 
 export const inventoryTools = {
-  getComplianceRisks: tool({
-    description: 'Check the inventory for products that violate local MENA regulations (e.g., expired Halal certificates or expired Security Clearances for fertilizers).',
+  getComplianceRisks: makeTool({
+    description: 'Check inventory for products that violate local MENA regulations.',
     parameters: z.object({
       category: z.string().optional().describe('Category to check'),
     }),
-    execute: async (_args: any) => {
-      // Simulated DB response
-      return {
-        department: 'Inventory Control',
-        complianceRisks: [
-          { sku: 'FOD-023', productName: 'Premium Arabic Coffee', issue: 'Halal Certificate Expired (1444-01-01)', actionRequired: 'Remove from shelves or renew SFDA certificate.' },
-          { sku: 'FRT-044', productName: 'Ammonium Nitrate (Fertilizer)', issue: 'Security Clearance Expired (2025-12-31)', actionRequired: 'CRITICAL: DO NOT SELL. Renew Ministry of Interior clearance immediately.' }
-        ]
-      };
-    }
-  } as any)
+    execute: async () => ({
+      department: 'Inventory Control',
+      complianceRisks: [
+        { sku: 'FOD-023', productName: 'Premium Arabic Coffee', issue: 'Halal Certificate Expired', actionRequired: 'Remove from shelves or renew SFDA certificate.' },
+        { sku: 'FRT-044', productName: 'Ammonium Nitrate', issue: 'Security Clearance Expired', actionRequired: 'CRITICAL: DO NOT SELL. Renew Ministry of Interior clearance.' },
+      ],
+    }),
+  }),
 };
 
-// The Maestro can use all tools from all departments
 export const documentTools = {
-  searchDocuments: tool({
-    description: 'Search the uploaded company documents and contracts for information based on semantic meaning. Use this whenever the user asks about rules, contracts, policies, or specific documents.',
+  searchDocuments: makeTool({
+    description: 'Search uploaded company documents for information based on semantic meaning.',
     parameters: z.object({
       query: z.string().describe('The search query or question'),
     }),
     execute: async ({ query }: SearchInput) => {
       try {
-        // Embed the query
         const { embedding } = await embed({
           model: google.embedding('text-embedding-004'),
           value: query,
         });
-
-        // Search the vector DB
         const similarity = sql<number>`1 - (${documentChunks.embedding} <=> ${JSON.stringify(embedding)})`;
-        
         const results = await db.select({
           fileName: documentChunks.fileName,
           content: documentChunks.content,
-          similarity: similarity,
+          similarity,
         })
-        .from(documentChunks)
-        .where(eq(documentChunks.docType, 'user_document'))
-        .orderBy(desc(similarity))
-        .limit(3); // Get top 3 chunks
-
+          .from(documentChunks)
+          .where(eq(documentChunks.docType, 'user_document'))
+          .orderBy(desc(similarity))
+          .limit(3);
         return {
           department: 'Document Management',
-          results: results.map(r => ({ fileName: r.fileName, excerpt: r.content, relevanceScore: r.similarity }))
+          results: results.map(r => ({ fileName: r.fileName, excerpt: r.content, relevanceScore: r.similarity })),
         };
       } catch (e: unknown) {
         return { error: 'Failed to search documents: ' + getErrorMessage(e) };
       }
-    }
-  } as any),
-  
-  searchZatcaRegulations: tool({
-    description: 'Search the official Saudi ZATCA (Zakat, Tax and Customs Authority) regulations and tax laws. Use this whenever the user asks about tax rules, E-Invoicing requirements (FATOORAH Phase 2), VAT rates, or compliance.',
+    },
+  }),
+  searchZatcaRegulations: makeTool({
+    description: 'Search official Saudi ZATCA regulations and tax laws.',
     parameters: z.object({
       query: z.string().describe('The tax or ZATCA related question'),
     }),
@@ -115,31 +102,28 @@ export const documentTools = {
           model: google.embedding('text-embedding-004'),
           value: query,
         });
-
         const similarity = sql<number>`1 - (${documentChunks.embedding} <=> ${JSON.stringify(embedding)})`;
-        
         const results = await db.select({
           content: documentChunks.content,
-          similarity: similarity,
+          similarity,
         })
-        .from(documentChunks)
-        .where(eq(documentChunks.docType, 'zatca_regulation'))
-        .orderBy(desc(similarity))
-        .limit(2);
-
+          .from(documentChunks)
+          .where(eq(documentChunks.docType, 'zatca_regulation'))
+          .orderBy(desc(similarity))
+          .limit(2);
         return {
           department: 'Tax & Compliance Advisor (ZATCA)',
-          results: results.map(r => ({ rule: r.content, confidence: r.similarity }))
+          results: results.map(r => ({ rule: r.content, confidence: r.similarity })),
         };
       } catch (e: unknown) {
         return { error: 'Failed to query ZATCA regulations: ' + getErrorMessage(e) };
       }
-    }
-  } as any)
+    },
+  }),
 };
 
 export const maestroTools = {
   ...hrTools,
   ...inventoryTools,
-  ...documentTools
+  ...documentTools,
 };

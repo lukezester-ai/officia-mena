@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -60,8 +58,8 @@ export async function processReceiptImage(base64Image: string) {
     revalidatePath('/dashboard/expenses');
     return { success: true, data: object };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('OCR Error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -102,8 +100,8 @@ export async function downloadWpsSif(month: number, year: number): Promise<{ suc
     revalidatePath('/dashboard/hr/payroll');
 
     return { success: true, data: csvData };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generating WPS file:', error);
-    return { success: false, error: error.message || 'حدث خطأ غير متوقع.' };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) || 'حدث خطأ غير متوقع.' };
   }
 }

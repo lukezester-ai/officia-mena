@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -357,8 +355,8 @@ export async function runSmartReconciliation() {
     revalidatePath('/dashboard/accounting');
 
     return { success: true, matchedCount, details: object.matches };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Reconciliation Error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

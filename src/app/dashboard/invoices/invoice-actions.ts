@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -22,8 +20,8 @@ export async function getInvoices() {
       .limit(50);
       
     return { success: true, data };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -94,9 +92,9 @@ export async function createInvoice(data: {
     revalidatePath('/dashboard/invoices');
     revalidatePath('/dashboard/accounting');
     return { success: true, invoiceNumber: invNumber };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Invoice creation error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -163,8 +161,8 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
     revalidatePath('/dashboard/invoices');
     revalidatePath('/dashboard/accounting');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -183,7 +181,7 @@ export async function getInvoiceById(id: string) {
     }
     
     return { success: true, data: data[0] };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use server';
 
@@ -45,8 +44,8 @@ export async function getProducts() {
     }));
 
     return { success: true, data: mapped };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -124,8 +123,8 @@ export async function createProduct(data: {
     revalidatePath('/dashboard/inventory');
     revalidatePath('/dashboard/pos');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -155,7 +154,7 @@ export async function generateProductWithAi(prompt: string) {
 
     const parsed = JSON.parse(text.trim());
     return { success: true, data: parsed };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI Error:', error);
     
     // Fallback for demo if API key fails
@@ -166,6 +165,6 @@ export async function generateProductWithAi(prompt: string) {
        return { success: true, data: { name: 'نترات الأمونيوم (سماد)', sku: 'FRT-044', unitPrice: 150, isPetroleum: false, apiGravity: null, isFertilizer: true, category: 'كيماويات زراعية' } };
     }
     
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

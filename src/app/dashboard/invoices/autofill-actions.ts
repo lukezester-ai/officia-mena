@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { generateObject } from 'ai';
@@ -36,8 +34,8 @@ export async function extractInvoiceData(prompt: string) {
     });
 
     return { success: true, data: object };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI Auto-fill error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

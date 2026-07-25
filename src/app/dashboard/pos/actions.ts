@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
 'use server';
 
 import { db } from '@/lib/db/db';
@@ -10,6 +8,11 @@ import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { generateZatcaQrCode, ZatcaTags } from '@/lib/accounting/zatca-qr';
 import { postInventoryCogs, postPosSale } from '@/lib/accounting/postings';
+
+interface PosLineItem {
+  id: string;
+  qty: number;
+}
 
 export async function getPosProducts() {
   try {
@@ -50,15 +53,15 @@ export async function getPosProducts() {
       };
     }
     return { success: true, data: mapped };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
 export async function checkoutPos(data: {
-  items: any[];
+  items: PosLineItem[];
   subtotal: number;
-  vatRate: number; // e.g. 15 for 15%
+  vatRate: number;
   paymentMethod: string;
 }) {
   try {
@@ -165,8 +168,8 @@ export async function checkoutPos(data: {
     revalidatePath('/dashboard/accounting');
     
     return { success: true, invoiceNumber: invNumber, qrCode };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('POS Checkout error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }

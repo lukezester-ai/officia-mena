@@ -1,11 +1,11 @@
  
-/* eslint-disable @typescript-eslint/no-explicit-any */
  
+
 'use server';
 
 import { db } from '@/lib/db/db';
 import { approvals } from '@/lib/db/schema/approvals';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, type SQL } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 
@@ -13,8 +13,7 @@ export async function getApprovals(filter: 'all' | 'pending' | 'approved' | 'rej
   try {
     const tenant = await requireTenant();
     
-    // In a real app we query the DB
-    let condition: any = eq(approvals.tenantId, tenant.id);
+    let condition: SQL | undefined = eq(approvals.tenantId, tenant.id);
     if (filter !== 'all') {
       condition = and(condition, eq(approvals.status, filter));
     }
@@ -67,8 +66,8 @@ export async function getApprovals(filter: 'all' | 'pending' | 'approved' | 'rej
     }
 
     return { success: true, data };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -85,8 +84,8 @@ export async function getApprovalsSummary() {
     };
     
     return { success: true, summary };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 
@@ -103,8 +102,8 @@ export async function updateApprovalStatus(id: string, newStatus: 'approved' | '
     
     revalidatePath('/dashboard/approvals');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
   }
 }
 

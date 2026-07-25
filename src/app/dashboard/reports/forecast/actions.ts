@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use server';
 
@@ -63,7 +62,7 @@ export async function generateCashflowForecast() {
     });
 
     return { success: true, data: object };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Forecast error (DB likely not set up), falling back to mock data:', error);
     return { 
       success: true, 

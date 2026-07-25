@@ -1,13 +1,14 @@
-/* eslint-disable */
-// @ts-nocheck
 export const dynamic = 'force-dynamic';
 import React from 'react';
-import { Wallet, FileWarning, ShieldAlert, Scale, ArrowUpRight, ArrowDownRight, Clock, FileText } from 'lucide-react';
+import { Wallet, FileWarning, ShieldAlert, Scale, Clock, FileText } from 'lucide-react';
 import { getDashboardStats } from './actions';
 
 export default async function DashboardPage() {
   const statsRes = await getDashboardStats();
-  const data = statsRes.data || { cashBalance: 0, totalRevenue: 0, totalVat: 0, totalExpenses: 0, alertsCount: 0 };
+  if (!statsRes.success || !statsRes.data) {
+    return <div className="p-6 text-red-500">Неуспешно зареждане на данните.</div>;
+  }
+  const data = statsRes.data;
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(amount);

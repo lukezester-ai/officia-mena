@@ -371,7 +371,7 @@ export default function Home() {
               </div>
               <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
                 <h3 className="text-xl font-bold text-white mb-2">هل يوجد ذكاء اصطناعي (AI) في النظام؟</h3>
-                <p className="text-[var(--color-desert-300)]">بالتأكيد. يتضمن النظام "المايسترو" (Maestro AI) الذي يقوم بقراءة الفواتير آلياً عبر الكاميرا (OCR)، تحليل النفقات، وتقديم استشارات ضريبية ذكية بناءً على القوانين المحلية.</p>
+                <p className="text-[var(--color-desert-300)]">بالتأكيد. يتضمن النظام &ldquo;المايسترو&rdquo; (Maestro AI) الذي يقوم بقراءة الفواتير آلياً عبر الكاميرا (OCR)، تحليل النفقات، وتقديم استشارات ضريبية ذكية بناءً على القوانين المحلية.</p>
               </div>
               <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
                 <h3 className="text-xl font-bold text-white mb-2">هل يمكنني تتبع المخزون والمنتجات الزراعية/البترولية؟</h3>
