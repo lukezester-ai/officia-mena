@@ -98,8 +98,8 @@ export function ManualJournalEntryForm({ accounts }: { accounts: AccountOption[]
     <section className="rounded-xl border border-white/10 bg-card/70 shadow-xl">
       <div className="flex flex-col gap-2 border-b border-white/10 px-5 py-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-lg font-black text-white">Manual Journal Entry</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Post adjustments, opening balances, and accounting corrections.</p>
+          <h2 className="text-lg font-black text-white">قيد يومية يدوي</h2>
+          <p className="mt-1 text-xs text-muted-foreground">ترحيل التسويات والأرصدة الافتتاحية والتصحيحات المحاسبية.</p>
         </div>
         <div className={`rounded-full border px-3 py-1 font-mono text-xs font-bold ${totals.isBalanced ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300' : 'border-amber-400/20 bg-amber-400/10 text-amber-300'}`}>
           Dr {totals.debit.toFixed(2)} / Cr {totals.credit.toFixed(2)}

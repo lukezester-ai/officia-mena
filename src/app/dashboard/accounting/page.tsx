@@ -86,11 +86,11 @@ export default async function AccountingPage() {
         <div>
           <h1 className="flex items-center gap-3 text-3xl font-black text-white">
             <BookOpen className="text-primary" size={32} />
-            Accounting Core
+            المحاسبة الأساسية
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Chart of accounts, journal entries, and the double-entry foundation that invoices,
-            expenses, POS, payments, and bank reconciliation will post into.
+            دليل الحسابات، قيود اليومية، وأساس القيد المزدوج الذي تستند إليه الفواتير والمصروفات
+            ونقاط البيع والمدفوعات والتسوية البنكية.
           </p>
         </div>
 
@@ -100,14 +100,14 @@ export default async function AccountingPage() {
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-white transition hover:border-primary/40"
           >
             <Download size={18} />
-            Trial balance CSV
+            ميزان المراجعة CSV
           </a>
           <a
             href="/api/accounting/journal-lines"
             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-white transition hover:border-primary/40"
           >
             <Download size={18} />
-            Journal CSV
+            دفتر اليومية CSV
           </a>
           <form action={seedChartOfAccounts}>
             <button
@@ -115,7 +115,7 @@ export default async function AccountingPage() {
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-black text-background shadow-[0_14px_34px_rgba(245,197,24,0.22)] transition hover:bg-amber-300"
             >
               <PlusCircle size={18} />
-              Seed default accounts
+              تهيئة الحسابات الافتراضية
             </button>
           </form>
         </div>
@@ -133,44 +133,44 @@ export default async function AccountingPage() {
         <div className="flex flex-col gap-2 border-b border-white/10 px-5 py-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
             {hasControlWarnings ? <AlertTriangle className="text-amber-300" size={18} /> : <ShieldCheck className="text-emerald-300" size={18} />}
-            <h2 className="text-lg font-black text-white">Accounting Controls</h2>
+            <h2 className="text-lg font-black text-white">الرقابة المحاسبية</h2>
           </div>
           <span className={`w-max rounded-full border px-3 py-1 text-xs font-black ${hasControlWarnings ? 'border-amber-400/20 bg-amber-400/10 text-amber-300' : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'}`}>
-            {hasControlWarnings ? 'Review needed' : 'Clear'}
+            {hasControlWarnings ? 'بحاجة للمراجعة' : 'سليم'}
           </span>
         </div>
 
         <div className="grid gap-3 p-5 md:grid-cols-4">
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Posting Gaps</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">فجوات الترحيل</div>
             <div className={`mt-3 font-mono text-2xl font-black ${controlChecks.postingGaps.total > 0 ? 'text-amber-300' : 'text-emerald-300'}`}>{controlChecks.postingGaps.total}</div>
             <div className="mt-2 text-xs leading-5 text-muted-foreground">
-              INV {controlChecks.postingGaps.issuedInvoices} · POS {controlChecks.postingGaps.posSales} · EXP {controlChecks.postingGaps.approvedExpenses} · PAY {controlChecks.postingGaps.payrollAccruals}
+              فواتير {controlChecks.postingGaps.issuedInvoices} · نقاط بيع {controlChecks.postingGaps.posSales} · مصروفات {controlChecks.postingGaps.approvedExpenses} · رواتب {controlChecks.postingGaps.payrollAccruals}
             </div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Unreconciled Bank</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">معاملات بنكية غير مسوية</div>
             <div className={`mt-3 font-mono text-2xl font-black ${controlChecks.bankReconciliation.pendingCount > 0 ? 'text-amber-300' : 'text-emerald-300'}`}>{controlChecks.bankReconciliation.pendingCount}</div>
             <div className="mt-2 text-xs leading-5 text-muted-foreground">
-              IN {controlChecks.bankReconciliation.pendingIn} · OUT {controlChecks.bankReconciliation.pendingOut}
+              وارد {controlChecks.bankReconciliation.pendingIn} · صادر {controlChecks.bankReconciliation.pendingOut}
             </div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Missing Cost Price</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">سعر التكلفة مفقود</div>
             <div className={`mt-3 font-mono text-2xl font-black ${controlChecks.inventoryCosting.missingCostCount > 0 ? 'text-amber-300' : 'text-emerald-300'}`}>{controlChecks.inventoryCosting.missingCostCount}</div>
-            <div className="mt-2 text-xs leading-5 text-muted-foreground">Affects COGS accuracy</div>
+            <div className="mt-2 text-xs leading-5 text-muted-foreground">يؤثر على دقة تكلفة البضاعة المباعة</div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Unbalanced Entries</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">قيود غير متوازنة</div>
             <div className={`mt-3 font-mono text-2xl font-black ${controlChecks.integrity.unbalancedEntryCount > 0 ? 'text-rose-300' : 'text-emerald-300'}`}>{controlChecks.integrity.unbalancedEntryCount}</div>
-            <div className="mt-2 text-xs leading-5 text-muted-foreground">Should always be zero</div>
+            <div className="mt-2 text-xs leading-5 text-muted-foreground">يجب أن تكون صفر دائماً</div>
           </div>
         </div>
 
         {controlChecks.inventoryCosting.items.length > 0 && (
           <div className="px-5 pb-5">
             <div className="rounded-lg border border-amber-400/20 bg-amber-400/10 p-3">
-              <div className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-amber-300">Products needing cost price</div>
+              <div className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-amber-300">منتجات تحتاج سعر تكلفة</div>
               <div className="grid gap-2 md:grid-cols-2">
                 {controlChecks.inventoryCosting.items.map((item) => (
                   <form
@@ -179,20 +179,20 @@ export default async function AccountingPage() {
                     className="grid gap-2 rounded-lg border border-white/10 bg-black/10 px-3 py-2 text-xs md:grid-cols-[1fr_120px_auto] md:items-center"
                   >
                     <input type="hidden" name="productId" value={item.id} />
-                    <span className="font-bold text-white">{item.sku} · {item.name} · Qty {item.quantity}</span>
+                    <span className="font-bold text-white">{item.sku} · {item.name} · كمية {item.quantity}</span>
                     <input
                       name="costPrice"
                       type="number"
                       min="0.01"
                       step="0.01"
-                      placeholder="Cost"
+                      placeholder="التكلفة"
                       className="rounded-md border border-white/10 bg-black/30 px-2 py-1 font-mono text-white outline-none focus:border-primary"
                     />
                     <button
                       type="submit"
                       className="rounded-md bg-primary px-3 py-1 font-black text-background transition hover:bg-amber-300"
                     >
-                      Save cost
+                      حفظ التكلفة
                     </button>
                   </form>
                 ))}
@@ -204,21 +204,21 @@ export default async function AccountingPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Accounts</div>
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">الحسابات</div>
           <div className="mt-3 text-3xl font-black text-white">{accounts.length}</div>
         </div>
         <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Journal Entries</div>
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">قيود اليومية</div>
           <div className="mt-3 text-3xl font-black text-white">{journalEntries.length}</div>
         </div>
         <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
             <Scale size={16} />
-            Trial Balance
+            ميزان المراجعة
           </div>
           <div className={`mt-3 flex items-center gap-2 text-xl font-black ${totals.isBalanced ? 'text-emerald-300' : 'text-rose-300'}`}>
             {totals.isBalanced ? <CheckCircle2 size={22} /> : <XCircle size={22} />}
-            {totals.isBalanced ? 'Balanced' : 'Out of balance'}
+            {totals.isBalanced ? 'متوازن' : 'غير متوازن'}
           </div>
         </div>
       </div>
@@ -228,19 +228,19 @@ export default async function AccountingPage() {
           <div className="border-b border-white/10 p-5 md:border-b-0 md:border-l">
             <div className="mb-5 flex items-center gap-2">
               <TrendingUp className="text-primary" size={18} />
-              <h2 className="text-lg font-black text-white">Profit & Loss</h2>
+              <h2 className="text-lg font-black text-white">الأرباح والخسائر</h2>
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Revenue</span>
+                <span className="text-muted-foreground">الإيرادات</span>
                 <span className="font-mono font-bold text-emerald-300">{statements.profitAndLoss.revenue}</span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Expenses</span>
+                <span className="text-muted-foreground">المصروفات</span>
                 <span className="font-mono font-bold text-rose-300">{statements.profitAndLoss.expenses}</span>
               </div>
               <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-3">
-                <span className="font-black text-white">Net Income</span>
+                <span className="font-black text-white">صافي الدخل</span>
                 <span className="font-mono text-lg font-black text-primary">{statements.profitAndLoss.netIncome}</span>
               </div>
             </div>
@@ -250,32 +250,32 @@ export default async function AccountingPage() {
             <div className="mb-5 flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <Landmark className="text-primary" size={18} />
-                <h2 className="text-lg font-black text-white">Balance Sheet</h2>
+                <h2 className="text-lg font-black text-white">الميزانية العمومية</h2>
               </div>
               <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-bold ${statements.balanceSheet.isBalanced ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300' : 'border-rose-400/20 bg-rose-400/10 text-rose-300'}`}>
                 {statements.balanceSheet.isBalanced ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-                {statements.balanceSheet.isBalanced ? 'Balanced' : 'Review'}
+                {statements.balanceSheet.isBalanced ? 'متوازنة' : 'مراجعة'}
               </span>
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Assets</span>
+                <span className="text-muted-foreground">الأصول</span>
                 <span className="font-mono font-bold text-emerald-300">{statements.balanceSheet.assets}</span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Liabilities</span>
+                <span className="text-muted-foreground">الخصوم</span>
                 <span className="font-mono font-bold text-amber-300">{statements.balanceSheet.liabilities}</span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Equity</span>
+                <span className="text-muted-foreground">حقوق الملكية</span>
                 <span className="font-mono font-bold text-sky-300">{statements.balanceSheet.equity}</span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Retained Earnings</span>
+                <span className="text-muted-foreground">الأرباح المحتجزة</span>
                 <span className="font-mono font-bold text-primary">{statements.balanceSheet.retainedEarnings}</span>
               </div>
               <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-3">
-                <span className="font-black text-white">Liabilities + Equity</span>
+                <span className="font-black text-white">الخصوم + حقوق الملكية</span>
                 <span className="font-mono text-lg font-black text-primary">{statements.balanceSheet.liabilitiesAndEquity}</span>
               </div>
             </div>
@@ -287,23 +287,23 @@ export default async function AccountingPage() {
         <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <Calculator className="text-primary" size={18} />
-            <h2 className="text-lg font-black text-white">VAT Control</h2>
+            <h2 className="text-lg font-black text-white">الرقابة على ضريبة القيمة المضافة</h2>
           </div>
           <span className={`w-max rounded-full border px-3 py-1 text-xs font-black ${vatControl.position === 'payable' ? 'border-amber-400/20 bg-amber-400/10 text-amber-300' : 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300'}`}>
-            {vatControl.position === 'payable' ? 'VAT Payable' : 'VAT Recoverable'}
+            {vatControl.position === 'payable' ? 'ضريبة مستحقة' : 'ضريبة قابلة للاسترداد'}
           </span>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Output VAT</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">ضريبة المخرجات</div>
             <div className="mt-3 font-mono text-2xl font-black text-amber-300">{vatControl.outputVat}</div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Input VAT</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">ضريبة المدخلات</div>
             <div className="mt-3 font-mono text-2xl font-black text-emerald-300">{vatControl.inputVat}</div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Net VAT</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">صافي ضريبة القيمة المضافة</div>
             <div className="mt-3 font-mono text-2xl font-black text-primary">{vatControl.netVat}</div>
           </div>
         </div>
@@ -313,29 +313,29 @@ export default async function AccountingPage() {
         <div className="flex flex-col gap-2 border-b border-white/10 px-5 py-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <ArrowDownToLine className="text-primary" size={18} />
-            <h2 className="text-lg font-black text-white">Cash Flow</h2>
+            <h2 className="text-lg font-black text-white">التدفق النقدي</h2>
           </div>
           <div className="font-mono text-xs font-bold text-muted-foreground">
-            Ending cash {cashFlow.endingCash}
+            الرصيد النقدي الختامي {cashFlow.endingCash}
           </div>
         </div>
         <div className="grid gap-3 p-5 md:grid-cols-3">
           <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">
               <ArrowDownToLine size={15} />
-              Inflow
+              التدفق الداخل
             </div>
             <div className="mt-3 font-mono text-2xl font-black text-emerald-300">{cashFlow.inflow}</div>
           </div>
           <div className="rounded-lg border border-rose-400/20 bg-rose-400/10 p-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-rose-300">
               <ArrowUpFromLine size={15} />
-              Outflow
+              التدفق الخارج
             </div>
             <div className="mt-3 font-mono text-2xl font-black text-rose-300">{cashFlow.outflow}</div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Net Cash Movement</div>
+            <div className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">صافي الحركة النقدية</div>
             <div className="mt-3 font-mono text-2xl font-black text-primary">{cashFlow.net}</div>
           </div>
         </div>
@@ -344,16 +344,16 @@ export default async function AccountingPage() {
             <table className="w-full text-right text-xs">
               <thead className="bg-white/[0.03] uppercase tracking-[0.12em] text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2 font-bold">Category</th>
-                  <th className="px-3 py-2 font-bold">Inflow</th>
-                  <th className="px-3 py-2 font-bold">Outflow</th>
-                  <th className="px-3 py-2 font-bold">Net</th>
+                  <th className="px-3 py-2 font-bold">الفئة</th>
+                  <th className="px-3 py-2 font-bold">وارد</th>
+                  <th className="px-3 py-2 font-bold">صادر</th>
+                  <th className="px-3 py-2 font-bold">الصافي</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {cashFlow.categories.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-3 py-4 text-center text-muted-foreground">No cash movements yet.</td>
+                    <td colSpan={4} className="px-3 py-4 text-center text-muted-foreground">لا توجد حركات نقدية بعد.</td>
                   </tr>
                 ) : (
                   cashFlow.categories.map((row) => (
@@ -377,17 +377,17 @@ export default async function AccountingPage() {
         <div className="flex flex-col gap-2 border-b border-white/10 px-5 py-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <Clock3 className="text-primary" size={18} />
-            <h2 className="text-lg font-black text-white">A/R & A/P Aging</h2>
+            <h2 className="text-lg font-black text-white">تقادم الذمم المدينة والدائنة</h2>
           </div>
           <div className="font-mono text-xs font-bold text-muted-foreground">
-            AR {aging.receivables.total} / AP {aging.payables.total}
+            ذمم مدينة {aging.receivables.total} / ذمم دائنة {aging.payables.total}
           </div>
         </div>
 
         <div className="grid gap-0 md:grid-cols-2">
           {[
-            { title: 'Accounts Receivable', data: aging.receivables, tone: 'text-emerald-300' },
-            { title: 'Accounts Payable', data: aging.payables, tone: 'text-amber-300' },
+            { title: 'الذمم المدينة', data: aging.receivables, tone: 'text-emerald-300' },
+            { title: 'الذمم الدائنة', data: aging.payables, tone: 'text-amber-300' },
           ].map((section) => (
             <div key={section.title} className="border-b border-white/10 p-5 md:border-b-0 md:border-l md:last:border-l-0">
               <div className="mb-4 flex items-center justify-between gap-4">
@@ -406,7 +406,7 @@ export default async function AccountingPage() {
 
               <div className="mt-4 divide-y divide-white/5 rounded-lg border border-white/10">
                 {section.data.items.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-muted-foreground">No open items.</div>
+                  <div className="px-3 py-4 text-center text-xs text-muted-foreground">لا توجد بنود مفتوحة.</div>
                 ) : (
                   section.data.items.slice(0, 5).map((item) => (
                     <div key={item.id} className="grid gap-2 px-3 py-3 text-xs md:grid-cols-[1fr_auto] md:items-center">
@@ -428,29 +428,29 @@ export default async function AccountingPage() {
         <div className="flex flex-col gap-2 border-b border-white/10 px-5 py-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <Scale className="text-primary" size={18} />
-            <h2 className="text-lg font-black text-white">Trial Balance</h2>
+            <h2 className="text-lg font-black text-white">ميزان المراجعة</h2>
           </div>
           <div className="font-mono text-xs font-bold text-muted-foreground">
-            Dr {totals.debit} / Cr {totals.credit}
+            مدين {totals.debit} / دائن {totals.credit}
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-right text-sm">
             <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
               <tr>
-                <th className="px-5 py-3 font-bold">Code</th>
-                <th className="px-5 py-3 font-bold">Account</th>
-                <th className="px-5 py-3 font-bold">Type</th>
-                <th className="px-5 py-3 font-bold">Debit</th>
-                <th className="px-5 py-3 font-bold">Credit</th>
-                <th className="px-5 py-3 font-bold">Balance</th>
+                <th className="px-5 py-3 font-bold">الرمز</th>
+                <th className="px-5 py-3 font-bold">الحساب</th>
+                <th className="px-5 py-3 font-bold">النوع</th>
+                <th className="px-5 py-3 font-bold">مدين</th>
+                <th className="px-5 py-3 font-bold">دائن</th>
+                <th className="px-5 py-3 font-bold">الرصيد</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {trialBalance.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center text-muted-foreground">
-                    No balances yet. Post invoices, POS sales, expenses, or reconciliations to populate this report.
+                    لا توجد أرصدة بعد. قم بترحيل الفواتير أو نقاط البيع أو المصروفات أو التسويات لتعبئة هذا التقرير.
                   </td>
                 </tr>
               ) : (
@@ -472,24 +472,24 @@ export default async function AccountingPage() {
 
       <section className="rounded-xl border border-white/10 bg-card/70 shadow-xl">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h2 className="text-lg font-black text-white">Chart of Accounts</h2>
-          <span className="text-xs font-bold text-muted-foreground">tenant scoped</span>
+          <h2 className="text-lg font-black text-white">دليل الحسابات</h2>
+          <span className="text-xs font-bold text-muted-foreground">محدود بالمنشأة</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-right text-sm">
             <thead className="border-b border-white/10 text-xs uppercase tracking-[0.14em] text-muted-foreground">
               <tr>
-                <th className="px-5 py-3 font-bold">Code</th>
-                <th className="px-5 py-3 font-bold">Name</th>
-                <th className="px-5 py-3 font-bold">Type</th>
-                <th className="px-5 py-3 font-bold">Normal Balance</th>
+                <th className="px-5 py-3 font-bold">الرمز</th>
+                <th className="px-5 py-3 font-bold">الاسم</th>
+                <th className="px-5 py-3 font-bold">النوع</th>
+                <th className="px-5 py-3 font-bold">الرصيد الطبيعي</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {accounts.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-5 py-10 text-center text-muted-foreground">
-                    No accounts yet. Seed the default chart to initialize the ledger.
+                    لا توجد حسابات بعد. قم بتهيئة دليل الحسابات الافتراضي لبدء الدفتر.
                   </td>
                 </tr>
               ) : (
@@ -514,12 +514,12 @@ export default async function AccountingPage() {
       <section className="rounded-xl border border-white/10 bg-card/70 shadow-xl">
         <div className="flex items-center gap-2 border-b border-white/10 px-5 py-4">
           <FileText className="text-primary" size={18} />
-          <h2 className="text-lg font-black text-white">Recent Journal Entries</h2>
+          <h2 className="text-lg font-black text-white">آخر قيود اليومية</h2>
         </div>
         <div className="divide-y divide-white/5">
           {recentJournalEntries.length === 0 ? (
             <div className="px-5 py-10 text-center text-sm text-muted-foreground">
-              No journal entries posted yet.
+              لم يتم ترحيل أي قيود بعد.
             </div>
           ) : (
             recentJournalEntries.map((entry) => (
@@ -534,13 +534,13 @@ export default async function AccountingPage() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-1 text-sm text-white">{entry.memo || 'Journal entry'}</div>
+                    <div className="mt-1 text-sm text-white">{entry.memo || 'قيد يومية'}</div>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {new Date(entry.entryDate).toLocaleDateString('en-GB')}
+                    {new Date(entry.entryDate).toLocaleDateString('ar-SA')}
                   </div>
                   <div className="text-left font-mono text-sm font-bold text-white">
-                    Dr {entry.totalDebit} / Cr {entry.totalCredit}
+                    مدين {entry.totalDebit} / دائن {entry.totalCredit}
                   </div>
                   {entry.sourceType !== 'journal.reversal' ? (
                     <form action={reverseAccountingEntry}>
@@ -550,12 +550,12 @@ export default async function AccountingPage() {
                         className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-300 transition hover:bg-amber-400/15"
                       >
                         <RotateCcw size={14} />
-                        Reverse
+                        عكس
                       </button>
                     </form>
                   ) : (
                     <span className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-center text-xs font-bold text-muted-foreground">
-                      Reversal
+                      قيد عكسي
                     </span>
                   )}
                 </div>
@@ -564,10 +564,10 @@ export default async function AccountingPage() {
                   <table className="w-full text-right text-xs">
                     <thead className="bg-white/[0.03] uppercase tracking-[0.12em] text-muted-foreground">
                       <tr>
-                        <th className="px-3 py-2 font-bold">Account</th>
-                        <th className="px-3 py-2 font-bold">Description</th>
-                        <th className="px-3 py-2 font-bold">Debit</th>
-                        <th className="px-3 py-2 font-bold">Credit</th>
+                        <th className="px-3 py-2 font-bold">الحساب</th>
+                        <th className="px-3 py-2 font-bold">الوصف</th>
+                        <th className="px-3 py-2 font-bold">مدين</th>
+                        <th className="px-3 py-2 font-bold">دائن</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">

@@ -38,10 +38,10 @@ export function AccountingRepairPanel() {
         <div>
           <h2 className="flex items-center gap-2 text-lg font-black text-white">
             <Wrench className="text-primary" size={18} />
-            Repair Missing Postings
+            إصلاح الترحيلات المفقودة
           </h2>
           <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
-            Backfill journal entries for existing issued invoices, POS sales, approved expenses, and generated payroll runs.
+            تعبئة قيود اليومية للفواتير الصادرة ومبيعات نقاط البيع والمصروفات المعتمدة ودفعات الرواتب المنشأة.
           </p>
         </div>
         <button
@@ -51,7 +51,7 @@ export function AccountingRepairPanel() {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-black text-background transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Wrench size={16} />
-          {isPending ? 'Repairing...' : 'Run repair'}
+          {isPending ? 'جاري الإصلاح...' : 'تشغيل الإصلاح'}
         </button>
       </div>
 
@@ -59,7 +59,7 @@ export function AccountingRepairPanel() {
         <div className={`mt-4 rounded-lg border p-3 text-sm font-bold ${result.success ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300' : 'border-rose-400/20 bg-rose-400/10 text-rose-300'}`}>
           {result.success && result.summary ? (
             <span>
-              Repaired {repairedTotal} postings: invoices {result.summary.issuedInvoices}, POS {result.summary.posSales}, expenses {result.summary.approvedExpenses}, payroll {result.summary.payrollAccruals}.
+              تم إصلاح {repairedTotal} ترحيلات: فواتير {result.summary.issuedInvoices}، نقاط بيع {result.summary.posSales}، مصروفات {result.summary.approvedExpenses}، رواتب {result.summary.payrollAccruals}.
             </span>
           ) : (
             result.error
