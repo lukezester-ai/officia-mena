@@ -39,7 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# build artifacts
 officia-mena.rar
 artifacts/
-.vercel
-.env*
