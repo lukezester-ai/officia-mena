@@ -21,7 +21,7 @@ export default function LoginPage() {
       }
     } catch (err: unknown) {
       console.error(err);
-      setError('Възникна грешка при свързването с Google.');
+      setError('حدث خطأ أثناء الاتصال بحساب Google.');
       setIsLoading(false);
     }
   };

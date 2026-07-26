@@ -26,9 +26,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  ...(process.env.NODE_ENV === "production" && {
-    poweredByHeader: false,
-  }),
+  ...(process.env.NODE_ENV === "production" ? { poweredByHeader: false } : {}),
 };
 
 export default nextConfig;

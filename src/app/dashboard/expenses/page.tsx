@@ -158,7 +158,7 @@ export default function ExpensesPage() {
                             onClick={() => handleApprove(exp.id)}
                             className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-lg text-xs font-bold"
                           >
-                            Approve
+                            اعتماد
                           </button>
                         </div>
                       ) : (

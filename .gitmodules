@@ -1,0 +1,3 @@
+[submodule "agrinexus-law"]
+	path = agrinexus-law
+	url = https://github.com/lukezester-ai/agrinexus-law.git

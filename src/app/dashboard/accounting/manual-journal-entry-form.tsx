@@ -109,7 +109,7 @@ export function ManualJournalEntryForm({ accounts }: { accounts: AccountOption[]
       <div className="space-y-4 p-5">
         <div className="grid gap-3 md:grid-cols-[180px_1fr]">
           <label className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Date</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">التاريخ</span>
             <input
               type="date"
               value={entryDate}
@@ -118,12 +118,12 @@ export function ManualJournalEntryForm({ accounts }: { accounts: AccountOption[]
             />
           </label>
           <label className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Memo</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">البيان</span>
             <input
               type="text"
               value={memo}
               onChange={(event) => setMemo(event.target.value)}
-              placeholder="Adjustment memo"
+              placeholder="بيان التسوية"
               className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white outline-none focus:border-primary"
             />
           </label>
@@ -133,10 +133,10 @@ export function ManualJournalEntryForm({ accounts }: { accounts: AccountOption[]
           <table className="w-full text-right text-sm">
             <thead className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
               <tr>
-                <th className="px-2 py-2 font-bold">Account</th>
-                <th className="px-2 py-2 font-bold">Description</th>
-                <th className="px-2 py-2 font-bold">Debit</th>
-                <th className="px-2 py-2 font-bold">Credit</th>
+                <th className="px-2 py-2 font-bold">الحساب</th>
+                <th className="px-2 py-2 font-bold">الوصف</th>
+                <th className="px-2 py-2 font-bold">مدين</th>
+                <th className="px-2 py-2 font-bold">دائن</th>
                 <th className="w-10 px-2 py-2" />
               </tr>
             </thead>
@@ -209,7 +209,7 @@ export function ManualJournalEntryForm({ accounts }: { accounts: AccountOption[]
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-bold text-white transition hover:border-primary/40"
           >
             <PlusCircle size={16} />
-            Add line
+            إضافة بند
           </button>
           <button
             type="button"
@@ -218,7 +218,7 @@ export function ManualJournalEntryForm({ accounts }: { accounts: AccountOption[]
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-black text-background transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={16} />
-            {isPending ? 'Posting...' : 'Post journal entry'}
+            {isPending ? 'جاري الترحيل...' : 'ترحيل القيد'}
           </button>
         </div>
 

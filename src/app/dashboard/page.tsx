@@ -6,7 +6,7 @@ import { getDashboardStats } from './actions';
 export default async function DashboardPage() {
   const statsRes = await getDashboardStats();
   if (!statsRes.success || !statsRes.data) {
-    return <div className="p-6 text-red-500">Неуспешно зареждане на данните.</div>;
+    return <div className="p-6 text-red-500">فشل تحميل البيانات.</div>;
   }
   const data = statsRes.data;
 
