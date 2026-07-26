@@ -3,8 +3,9 @@ import { tenants } from './tenants';
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
-  clerkId: varchar('clerk_id', { length: 255 }).unique().notNull(),
-  tenantId: uuid('tenant_id').references(() => tenants.id), // Current active tenant
+  authId: uuid('auth_id').unique(),
+  clerkId: varchar('clerk_id', { length: 255 }).unique(),
+  tenantId: uuid('tenant_id').references(() => tenants.id),
   email: varchar('email', { length: 255 }).notNull(),
   firstName: varchar('first_name', { length: 255 }),
   lastName: varchar('last_name', { length: 255 }),

@@ -87,13 +87,13 @@ CREATE TABLE "tenants" (
 
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"clerk_id" varchar(255) NOT NULL,
+	"auth_id" uuid UNIQUE,
+	"clerk_id" varchar(255) UNIQUE,
 	"tenant_id" uuid,
 	"email" varchar(255) NOT NULL,
 	"first_name" varchar(255),
 	"last_name" varchar(255),
-	"created_at" timestamp DEFAULT now(),
-	CONSTRAINT "users_clerk_id_unique" UNIQUE("clerk_id")
+	"created_at" timestamp DEFAULT now()
 );
 
 ALTER TABLE "ai_inbox_items" ADD CONSTRAINT "ai_inbox_items_tenant_id_tenants_id_fk" FOREIGN KEY ("tenant_id") REFERENCES "public"."tenants"("id") ON DELETE no action ON UPDATE no action;
@@ -321,8 +321,8 @@ BEGIN
   VALUES (new_tenant_id, 'My Company', 'SA', now(), now());
 
   /* 2. Create the user profile and link it to the tenant */
-  INSERT INTO public.users (id, clerk_id, tenant_id, email, created_at)
-  VALUES (gen_random_uuid(), NEW.id::text, new_tenant_id, NEW.email, now());
+  INSERT INTO public.users (id, auth_id, tenant_id, email, created_at)
+  VALUES (gen_random_uuid(), NEW.id, new_tenant_id, NEW.email, now());
 
   RETURN NEW;
 END;

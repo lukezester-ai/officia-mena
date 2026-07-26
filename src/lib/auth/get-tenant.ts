@@ -5,6 +5,31 @@ import { eq } from 'drizzle-orm';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
+async function findOrProvisionUser(email: string, authUserId: string) {
+  // Try to find existing user by email (works for both Clerk-era and Supabase-era rows)
+  const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  if (existing.length > 0 && existing[0].tenantId) {
+    return existing[0];
+  }
+
+  // Auto-provision: create tenant + user for first-time Supabase login
+  const tenantResult = await db.insert(tenants).values({
+    name: email.split('@')[0] + "'s Company",
+    country: 'SA',
+    crn: 'TEMP-' + Date.now().toString(36).toUpperCase(),
+  }).returning();
+
+  const tenant = tenantResult[0];
+
+  const [userResult] = await db.insert(users).values({
+    authId: authUserId,
+    tenantId: tenant.id,
+    email,
+  }).returning();
+
+  return { ...userResult, tenantId: tenant.id };
+}
+
 export async function requireTenant() {
   // Check if Supabase is configured
   const supabaseUrl =process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,28 +51,26 @@ export async function requireTenant() {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  if (authError || !user) {
+  if (authError || !user || !user.email) {
     redirect('/login');
   }
 
   try {
-    // Find the user's record in our public schema to get their tenantId
-    const userRecord = await db.select().from(users).where(eq(users.clerkId, user.id)).limit(1);
+    const userRecord = await findOrProvisionUser(user.email, user.id);
 
-    if (userRecord.length === 0 || !userRecord[0].tenantId) {
+    if (!userRecord.tenantId) {
       throw new Error('User has no assigned tenant.');
     }
 
-    const tenantId = userRecord[0].tenantId;
-    const tenantRecord = await db.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1);
+    const tenantRecord = await db.select().from(tenants).where(eq(tenants.id, userRecord.tenantId)).limit(1);
 
     if (tenantRecord.length === 0) {
       throw new Error('Tenant not found.');
     }
 
     return tenantRecord[0];
-  } catch {
-    console.warn('Database error or missing tenant table, falling back to mock tenant');
+  } catch (err) {
+    console.warn('requireTenant error, falling back to mock tenant:', err);
     return {
       id: 'mock-tenant-id',
       name: 'Officia MENA (Demo)',
