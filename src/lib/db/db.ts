@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as dotenv from 'dotenv';
 import * as schema from './schema';
@@ -14,9 +15,9 @@ function createDb() {
   return drizzle(client, { schema });
 }
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: PostgresJsDatabase<typeof schema> | null = null;
 
-export const db = new Proxy<Record<string, unknown>>({} as ReturnType<typeof drizzle>, {
+export const db = new Proxy<PostgresJsDatabase<typeof schema>>({} as unknown as PostgresJsDatabase<typeof schema>, {
   get(_, prop) {
     if (!_db) _db = createDb();
     return Reflect.get(_db, prop);
