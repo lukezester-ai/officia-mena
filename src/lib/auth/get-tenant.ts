@@ -5,14 +5,34 @@ import { eq } from 'drizzle-orm';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
+export type TenantRecord = {
+  id: string;
+  name: string;
+  crn: string | null;
+  trn: string | null;
+  country: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  isMock: boolean;
+};
+
+const MOCK_TENANT: TenantRecord = {
+  id: 'mock-tenant-id',
+  name: 'Officia MENA (Demo)',
+  crn: '1234567890',
+  trn: '300000000000003',
+  country: 'SA',
+  createdAt: null,
+  updatedAt: null,
+  isMock: true,
+};
+
 async function findOrProvisionUser(email: string, authUserId: string) {
-  // Try to find existing user by email (works for both Clerk-era and Supabase-era rows)
   const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
   if (existing.length > 0 && existing[0].tenantId) {
     return existing[0];
   }
 
-  // Auto-provision: create tenant + user for first-time Supabase login
   const tenantResult = await db.insert(tenants).values({
     name: email.split('@')[0] + "'s Company",
     country: 'SA',
@@ -37,15 +57,7 @@ export async function requireTenant() {
 
   if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your_supabase_url_here')) {
     console.warn('Supabase not configured, using mock tenant for demo');
-    return {
-      id: 'mock-tenant-id',
-      name: 'Officia MENA (Demo)',
-      crn: '1234567890',
-      trn: '300000000000003',
-      country: 'SA',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    return MOCK_TENANT;
   }
 
   const supabase = await createClient();
@@ -68,17 +80,9 @@ export async function requireTenant() {
       throw new Error('Tenant not found.');
     }
 
-    return tenantRecord[0];
+    return { ...tenantRecord[0], isMock: false as const };
   } catch (err) {
     console.warn('requireTenant error, falling back to mock tenant:', err);
-    return {
-      id: 'mock-tenant-id',
-      name: 'Officia MENA (Demo)',
-      crn: '1234567890',
-      trn: '300000000000003',
-      country: 'SA',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    return MOCK_TENANT;
   }
 }
