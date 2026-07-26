@@ -7,10 +7,6 @@ import { sql, and, desc, eq } from 'drizzle-orm';
 import { getErrorMessage } from '@/lib/errors';
 import type { ToolSet } from 'ai';
 
-type SearchInput = {
-  query: string;
-};
-
 const isDev = process.env.NODE_ENV === 'development';
 const IS_MOCK_DATA_ENABLED = isDev || process.env.NEXT_PUBLIC_ENABLE_MOCK_DATA === '1';
 
