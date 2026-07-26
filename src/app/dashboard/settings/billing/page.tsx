@@ -58,7 +58,7 @@ export default async function BillingPage() {
               <span className="text-2xl font-black">€99</span> <span className="text-gray-500">/ شهرياً</span>
             </div>
             <ul className="space-y-2 mb-6">
-              <li className="flex items-center gap-2 text-sm text-gray-700"><CheckCircle2 size={16} className="text-[var(--color-gold-500)]"/> الذكاء الاصطناعي (Maestro)</li>
+              <li className="flex items-center gap-2 text-sm text-gray-700"><CheckCircle2 size={16} className="text-[var(--color-gold-500)]"/> الذكاء الاصطناعي</li>
               <li className="flex items-center gap-2 text-sm text-gray-700"><CheckCircle2 size={16} className="text-[var(--color-gold-500)]"/> مستخدمين غير محدودين</li>
               <li className="flex items-center gap-2 text-sm text-gray-700"><CheckCircle2 size={16} className="text-[var(--color-gold-500)]"/> قراءة الفواتير ذكياً</li>
             </ul>

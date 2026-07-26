@@ -74,7 +74,7 @@ export default function BankPage() {
           className="bg-[var(--color-desert-900)] hover:bg-black text-white font-bold py-3 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2 group disabled:opacity-50"
         >
           <BrainCircuit size={20} className={`text-[var(--color-gold-500)] ${isReconciling ? 'animate-spin' : 'group-hover:animate-pulse'}`} /> 
-          {isReconciling ? 'جاري التحليل (AI)...' : 'التسوية الذكية (AI)'}
+          {isReconciling ? 'جاري التحليل...' : 'التسوية الذكية'}
         </button>
       </div>
 
@@ -136,7 +136,7 @@ export default function BankPage() {
                 <th className="px-6 py-4 font-bold">التفاصيل</th>
                 <th className="px-6 py-4 font-bold">المبلغ</th>
                 <th className="px-6 py-4 font-bold">التاريخ</th>
-                <th className="px-6 py-4 font-bold">التسوية (Reconciliation)</th>
+                <th className="px-6 py-4 font-bold">التسوية</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-desert-100)]">
@@ -181,7 +181,7 @@ export default function BankPage() {
                         </span>
                       ) : (
                         <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg w-max text-xs font-bold border border-amber-200">
-                          <AlertCircle size={14} /> غير مسوى (Unreconciled)
+                          <AlertCircle size={14} /> غير مسوى
                         </span>
                       )}
                     </td>

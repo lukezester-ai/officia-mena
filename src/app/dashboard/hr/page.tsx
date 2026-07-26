@@ -76,7 +76,7 @@ export default function HrPage() {
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-2 flex items-center gap-3">
             <Users className="text-[var(--color-gold-600)]" size={32} />
-            الموارد البشرية (HR)
+            الموارد البشرية
           </h1>
           <p className="text-[var(--color-desert-600)]">إدارة الموظفين وتتبع الإقامات.</p>
         </div>
@@ -84,7 +84,7 @@ export default function HrPage() {
         <div className="flex gap-3">
           <Link href="/dashboard/hr/payroll" className="bg-[var(--color-gold-50)] border border-[var(--color-gold-200)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[var(--color-gold-100)] transition-colors shadow-sm">
             <CreditCard size={18} />
-            الرواتب (Payroll)
+            الرواتب
           </Link>
           <button 
             onClick={() => setShowModal(true)}
@@ -207,7 +207,7 @@ export default function HrPage() {
                 </div>
               </div>
 
-              <h3 className="font-bold text-[var(--color-desert-900)] mb-4 border-b border-[var(--color-desert-200)] pb-2">بيانات الراتب (بالريال السعودي)</h3>
+              <h3 className="font-bold text-[var(--color-desert-900)] mb-4 border-b border-[var(--color-desert-200)] pb-2">بيانات الراتب</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div>
                   <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">الراتب الأساسي</label>

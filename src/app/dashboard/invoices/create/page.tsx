@@ -261,15 +261,15 @@ export default function CreateInvoicePage() {
             <h3 className="font-bold text-primary mb-4">ملخص الفاتورة</h3>
             <div className="space-y-3 font-mono text-sm">
               <div className="flex justify-between text-white/70">
-                <span>المبلغ الأساسي (Subtotal)</span>
+                <span>المبلغ الأساسي</span>
                 <span>{formatMoney(subtotal)}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>قيمة الضريبة (VAT Amount)</span>
+                <span>قيمة الضريبة</span>
                 <span>{formatMoney(vatAmount)}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-white border-t border-white/20 pt-3 mt-2">
-                <span>الإجمالي المستحق (Total)</span>
+                <span>الإجمالي المستحق</span>
                 <span className="text-primary">{formatMoney(totalAmount)}</span>
               </div>
             </div>
@@ -284,7 +284,7 @@ export default function CreateInvoicePage() {
             disabled={isSubmitting || items.length === 0}
             className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl border border-white/10 transition-colors flex justify-center items-center gap-2 disabled:opacity-50"
           >
-            <Save size={20} /> حفظ كمسودة (Draft)
+            <Save size={20} /> حفظ كمسودة
           </button>
           
           <button 

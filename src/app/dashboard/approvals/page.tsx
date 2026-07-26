@@ -88,7 +88,7 @@ export default function ApprovalsPage() {
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <ShieldCheck className="text-primary" size={32} />
-            سير الموافقات (Approvals)
+            سير الموافقات
           </h1>
           <p className="text-muted-foreground mt-1">الموافقة على المعاملات المالية عالية القيمة</p>
         </div>

@@ -93,7 +93,7 @@ export default function TaxesPage() {
         <div>
           <div className="flex items-center gap-3 text-[var(--color-gold-600)]">
             <Calculator size={28} />
-            <span className="text-sm font-black uppercase tracking-[0.18em]">ZATCA VAT</span>
+            <span className="text-sm font-black uppercase tracking-[0.18em]">ضريبة القيمة المضافة</span>
           </div>
           <h1 className="mt-2 text-3xl font-black text-[var(--color-desert-900)]">
             الإقرار الضريبي لضريبة القيمة المضافة

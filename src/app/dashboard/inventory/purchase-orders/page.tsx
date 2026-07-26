@@ -73,7 +73,7 @@ export default function PurchaseOrdersPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-            <ShoppingCart className="text-primary" /> أوامر الشراء (Purchase Orders)
+            <ShoppingCart className="text-primary" /> أوامر الشراء
           </h1>
           <p className="text-muted-foreground mt-1">إدارة المشتريات واستلام البضائع للمستودع</p>
         </div>

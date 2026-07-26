@@ -128,7 +128,7 @@ export default function InventoryPage() {
         <div>
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
             <Package className="text-primary" size={32} />
-            المخزون (Inventory)
+            المخزون
           </h1>
           <p className="text-muted-foreground">إدارة المنتجات، الكميات، والبترول والسماد.</p>
         </div>
@@ -193,12 +193,12 @@ export default function InventoryPage() {
           <table className="w-full text-right text-sm">
             <thead className="bg-white/5 text-muted-foreground border-b border-white/10">
               <tr>
-                <th className="py-3 px-6 font-medium">المنتج (Product)</th>
+                <th className="py-3 px-6 font-medium">المنتج</th>
                 <th className="py-3 px-6 font-medium">SKU</th>
-                <th className="py-3 px-6 font-medium">الباركود (Barcode)</th>
-                <th className="py-3 px-6 font-medium text-center">التصنيف (Class)</th>
-                <th className="py-3 px-6 font-medium">السعر (Price)</th>
-                <th className="py-3 px-6 font-medium flex items-center gap-1 justify-end">الكمية (Qty) <ArrowUpDown size={14}/></th>
+                <th className="py-3 px-6 font-medium">الباركود</th>
+                <th className="py-3 px-6 font-medium text-center">التصنيف</th>
+                <th className="py-3 px-6 font-medium">السعر</th>
+                <th className="py-3 px-6 font-medium flex items-center gap-1 justify-end">الكمية <ArrowUpDown size={14}/></th>
                 <th className="py-3 px-6 font-medium">الحالة</th>
               </tr>
             </thead>
@@ -275,9 +275,9 @@ export default function InventoryPage() {
               
               {/* AI Smart Fill Box */}
               <div className="bg-primary/10 border border-primary/20 rounded-2xl p-4 mb-6 relative overflow-hidden">
-                <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
-                  <Sparkles size={16} /> التعبئة الذكية (AI Auto-fill)
-                </h2>
+                  <h2 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
+                    <Sparkles size={16} /> التعبئة الذكية
+                  </h2>
                 <div className="flex gap-2 relative z-10">
                   <input 
                     type="text" 
@@ -303,7 +303,7 @@ export default function InventoryPage() {
                 
                 {/* Product Type Selection */}
                 <div className="flex gap-4 p-1 bg-black/40 rounded-xl border border-white/10">
-                  <button type="button" onClick={() => setProductType('general')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${productType === 'general' ? 'bg-white shadow-sm border border-white text-black' : 'text-muted-foreground hover:bg-white/5'}`}>عام (General)</button>
+                  <button type="button" onClick={() => setProductType('general')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${productType === 'general' ? 'bg-white shadow-sm border border-white text-black' : 'text-muted-foreground hover:bg-white/5'}`}>عام</button>
                   <button type="button" onClick={() => setProductType('petroleum')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1 ${productType === 'petroleum' ? 'bg-primary shadow-sm border border-primary text-black' : 'text-muted-foreground hover:bg-white/5'}`}><Fuel size={14}/> بترول</button>
                   <button type="button" onClick={() => setProductType('fertilizer')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-1 ${productType === 'fertilizer' ? 'bg-amber-500 shadow-sm border border-amber-500 text-black' : 'text-muted-foreground hover:bg-white/5'}`}><Sprout size={14}/> سماد</button>
                 </div>
@@ -314,11 +314,11 @@ export default function InventoryPage() {
                     <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-muted-foreground mb-1">السعر (SAR) *</label>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">السعر *</label>
                     <input required type="number" step="0.01" value={formData.unitPrice} onChange={e => setFormData({...formData, unitPrice: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-muted-foreground mb-1">Cost Price (COGS)</label>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">سعر التكلفة</label>
                     <input type="number" step="0.01" value={formData.costPrice} onChange={e => setFormData({...formData, costPrice: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
                   <div>
@@ -330,7 +330,7 @@ export default function InventoryPage() {
                     <input type="text" value={formData.initialStockReference} onChange={e => setFormData({...formData, initialStockReference: e.target.value})} placeholder="مثال: INV-2026-001" className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-muted-foreground mb-1">الباركود (Barcode)</label>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">الباركود</label>
                     <div className="flex gap-2">
                       <input type="text" value={formData.barcode} onChange={e => setFormData({...formData, barcode: e.target.value})} placeholder="اتركه فارغاً للتوليد" className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                       <button type="button" onClick={() => setIsScanningForm(true)} className="bg-white/10 hover:bg-white/20 text-white px-3 rounded-lg border border-white/10 transition-colors">
@@ -339,7 +339,7 @@ export default function InventoryPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-muted-foreground mb-1">رمز SKU (اختياري)</label>
+                    <label className="block text-xs font-bold text-muted-foreground mb-1">رمز SKU</label>
                     <input type="text" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                   </div>
                   <div>
@@ -353,7 +353,7 @@ export default function InventoryPage() {
                   <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mt-4 space-y-3">
                     <h3 className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1"><Fuel size={14}/> الخصائص البترولية</h3>
                     <div>
-                      <label className="block text-xs font-bold text-white mb-1">API Gravity (لتحويل الحجم/الكتلة)</label>
+                      <label className="block text-xs font-bold text-white mb-1">API Gravity لتحويل الحجم والكتلة</label>
                       <input type="number" step="0.1" placeholder="مثال: 35.5" value={formData.apiGravity} onChange={e => setFormData({...formData, apiGravity: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary" />
                     </div>
                   </div>
@@ -365,11 +365,11 @@ export default function InventoryPage() {
                     <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1"><Sprout size={14}/> قيود زراعية وأمنية</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-white mb-1">رقم تسجيل الزراعة (MEWA)</label>
+                        <label className="block text-xs font-bold text-white mb-1">رقم تسجيل الزراعة</label>
                         <input type="text" value={formData.mewaRegistration} onChange={e => setFormData({...formData, mewaRegistration: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-white mb-1">انتهاء التصريح الأمني (MOI)</label>
+                        <label className="block text-xs font-bold text-white mb-1">انتهاء التصريح الأمني</label>
                         <input type="date" value={formData.securityClearanceExpiry} onChange={e => setFormData({...formData, securityClearanceExpiry: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500" />
                       </div>
                     </div>

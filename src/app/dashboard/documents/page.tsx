@@ -52,8 +52,8 @@ export default function DocumentsPage() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-2">إدارة المستندات الذكية (RAG)</h1>
-        <p className="text-[var(--color-desert-600)]">قم برفع العقود، السياسات، أو التقارير هنا. سيقوم المايسترو (AI) بقراءتها وفهمها لتتمكن من سؤاله عنها لاحقاً.</p>
+        <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-2">إدارة المستندات الذكية</h1>
+        <p className="text-[var(--color-desert-600)]">قم برفع العقود، السياسات، أو التقارير هنا. سيقوم المايسترو بقراءتها وفهمها لتتمكن من سؤاله عنها لاحقاً.</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-[var(--color-desert-200)] p-8">
@@ -118,9 +118,9 @@ export default function DocumentsPage() {
         </h3>
         <ul className="text-sm text-[var(--color-desert-700)] space-y-2 list-disc list-inside">
           <li>يقوم النظام باستخراج النصوص من ملفات الـ PDF الخاصة بك.</li>
-          <li>يتم تحويل النصوص إلى "متجهات" (Vectors) رياضية باستخدام تقنية Google Gemini Embeddings.</li>
+          <li>يتم تحويل النصوص إلى متجهات رياضية باستخدام تقنية Google Gemini Embeddings.</li>
           <li>يتم حفظ المتجهات في قاعدة بيانات آمنة خاصة بك.</li>
-          <li>عندما تطرح سؤالاً على المايسترو، سيقوم بالبحث الدلالي (Semantic Search) للعثور على الإجابة الدقيقة من مستنداتك!</li>
+          <li>عندما تطرح سؤالاً على المايسترو، سيقوم بالبحث الدلالي للعثور على الإجابة الدقيقة من مستنداتك!</li>
         </ul>
       </div>
     </div>

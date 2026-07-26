@@ -27,10 +27,10 @@ const NAV_ITEMS = [
   { path: '/dashboard/accounting', label: 'المحاسبة الأساسية', icon: BookOpen },
   { path: '/dashboard/approvals', label: 'سير الموافقات', icon: ShieldCheck },
   { path: '/dashboard/inventory', label: 'المستودع', icon: Package },
-  { path: '/dashboard/inventory/purchase-orders', label: 'أوامر الشراء (PO)', icon: ShoppingCart },
+  { path: '/dashboard/inventory/purchase-orders', label: 'أوامر الشراء', icon: ShoppingCart },
   { path: '/dashboard/inventory/warehouses', label: 'المستودعات المتعددة', icon: Building2 },
   { path: '/dashboard/inventory/anomalies', label: 'AI فحص المخزون', icon: ShieldCheck },
-  { path: '/dashboard/pos', label: 'نقطة البيع (POS)', icon: ShoppingCart },
+  { path: '/dashboard/pos', label: 'نقطة البيع', icon: ShoppingCart },
   { path: '/dashboard/invoices', label: 'الفواتير', icon: FileText },
   { path: '/dashboard/quotations', label: 'عروض الأسعار', icon: FileSignature },
   { path: '/dashboard/expenses', label: 'المصروفات', icon: Calculator },
@@ -62,7 +62,7 @@ export default function DashboardLayout({
                 Officia <span className="text-primary">MENA</span>
               </div>
               <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.24em] text-muted-foreground">
-                Command ERP
+                برنامج المحاسبة ERP
               </div>
             </div>
           </Link>
@@ -99,8 +99,8 @@ export default function DashboardLayout({
           <div className="ambient-border rounded-lg border bg-white/[0.035] p-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-xs font-bold text-white">Maestro AI</div>
-                <div className="mt-1 text-[10px] text-muted-foreground">RAG / Finance / ZATCA</div>
+                <div className="text-xs font-bold text-white">المايسترو AI</div>
+                <div className="mt-1 text-[10px] text-muted-foreground">RAG / مالية / زكاة</div>
               </div>
               <div className="command-pulse h-2.5 w-2.5 rounded-full bg-[var(--color-oasis-500)] shadow-[0_0_14px_rgba(31,191,165,0.9)]" />
             </div>

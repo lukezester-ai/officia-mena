@@ -49,9 +49,9 @@ export default function InvoicesPage() {
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-1 flex items-center gap-3">
             <FileText className="text-[var(--color-gold-600)]" size={32} />
-            الفواتير الإلكترونية (E-Invoicing)
+            الفواتير الإلكترونية
           </h1>
-          <p className="text-[var(--color-desert-600)] text-sm">إدارة الفواتير متوافقة مع هيئة الزكاة والضريبة (ZATCA)</p>
+          <p className="text-[var(--color-desert-600)] text-sm">إدارة الفواتير متوافقة مع هيئة الزكاة والضريبة</p>
         </div>
         <Link 
           href="/dashboard/invoices/create"
@@ -74,7 +74,7 @@ export default function InvoicesPage() {
               onClick={() => setViewMode('spreadsheet')}
               className={`px-4 py-2 rounded-md flex items-center gap-2 text-sm font-bold transition-colors ${viewMode === 'spreadsheet' ? 'bg-[var(--color-desert-900)] text-white' : 'text-[var(--color-desert-500)] hover:bg-[var(--color-desert-100)]'}`}
             >
-              <Table size={16} /> وضع الإكسل (سريع)
+              <Table size={16} /> وضع الإكسل السريع
             </button>
           </div>
           <div className="relative">
@@ -172,23 +172,23 @@ export default function InvoicesPage() {
                           onChange={(e) => handleStatusChange(inv.id, e.target.value)}
                           className={`w-full h-full p-3 bg-transparent outline-none text-sm font-bold cursor-pointer ${inv.status === 'draft' ? 'text-amber-600' : 'text-indigo-600'}`}
                         >
-                          <option value="draft">مسودة (Draft)</option>
-                          <option value="issued">مُصدرة (Issued)</option>
+                          <option value="draft">مسودة</option>
+                          <option value="issued">مُصدرة</option>
                         </select>
                       ) : (
                         <div className="flex items-center gap-4">
                           {inv.status === 'draft' ? (
                             <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg w-max text-xs font-bold border border-amber-200">
-                              <FileEdit size={14} /> مسودة (Draft)
+                              <FileEdit size={14} /> مسودة
                             </span>
                           ) : (
                             <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg w-max text-xs font-bold border border-indigo-200">
-                              <CheckCircle2 size={14} /> مُصدرة (Issued)
+                              <CheckCircle2 size={14} /> مُصدرة
                             </span>
                           )}
                           <div className="flex flex-col gap-1">
                             <Link href={`/dashboard/invoices/${inv.id}`} className="text-xs bg-white border border-[var(--color-desert-200)] hover:bg-[var(--color-desert-100)] px-2 py-1 rounded shadow-sm text-[var(--color-desert-600)] font-bold transition-colors flex items-center gap-1"><FileText size={12}/> التفاصيل / التقسيط</Link>
-                            <Link href={`/dashboard/invoices/${inv.id}/print`} target="_blank" className="text-xs bg-[var(--color-gold-500)] text-black hover:bg-[var(--color-gold-600)] border border-[var(--color-gold-600)] px-2 py-1 rounded shadow-sm font-bold transition-colors flex items-center gap-1"><Printer size={12}/> طباعة (A4)</Link>
+                            <Link href={`/dashboard/invoices/${inv.id}/print`} target="_blank" className="text-xs bg-[var(--color-gold-500)] text-black hover:bg-[var(--color-gold-600)] border border-[var(--color-gold-600)] px-2 py-1 rounded shadow-sm font-bold transition-colors flex items-center gap-1"><Printer size={12}/> طباعة</Link>
                           </div>
                         </div>
                       )}

@@ -260,15 +260,15 @@ export default function CreateQuotationPage() {
             <h3 className="font-bold text-primary mb-4">ملخص عرض السعر</h3>
             <div className="space-y-3 font-mono text-sm">
               <div className="flex justify-between text-white/70">
-                <span>المبلغ الأساسي (Subtotal)</span>
+                <span>المبلغ الأساسي</span>
                 <span>{formatMoney(subtotal)}</span>
               </div>
               <div className="flex justify-between text-white/70">
-                <span>قيمة الضريبة (VAT Amount)</span>
+                <span>قيمة الضريبة</span>
                 <span>{formatMoney(vatAmount)}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-white border-t border-white/20 pt-3 mt-2">
-                <span>الإجمالي (Total)</span>
+                <span>الإجمالي</span>
                 <span className="text-primary">{formatMoney(totalAmount)}</span>
               </div>
             </div>

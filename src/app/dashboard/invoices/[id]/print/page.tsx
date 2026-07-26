@@ -32,7 +32,7 @@ export default async function PrintInvoicePage({ params }: { params: Promise<{ i
           }}
           className="bg-black text-white px-6 py-2 rounded-lg font-bold"
         >
-          طباعة (Print)
+          طباعة
         </button>
       </div>
 
@@ -43,7 +43,7 @@ export default async function PrintInvoicePage({ params }: { params: Promise<{ i
         <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">فاتورة ضريبية</h1>
-            <h2 className="text-xl text-gray-600 font-bold uppercase tracking-widest">Tax Invoice</h2>
+            <h2 className="text-xl text-gray-600 font-bold uppercase tracking-widest">فاتورة ضريبية</h2>
           </div>
           
           <div className="text-left" dir="ltr">

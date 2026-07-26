@@ -79,7 +79,7 @@ export default function AdvancedWarehousePage() {
         <div>
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <Building2 className="text-primary" size={32} />
-            إدارة المستودعات (Advanced Warehouse)
+            إدارة المستودعات المتقدمة
           </h1>
           <p className="text-muted-foreground mt-1">تتبع المخزون عبر فروع ومستودعات متعددة ونقل البضائع</p>
         </div>
@@ -114,7 +114,7 @@ export default function AdvancedWarehousePage() {
       <div className="bg-card rounded-2xl border border-white/5 shadow-xl overflow-hidden mt-8">
         <div className="p-6 border-b border-white/5 flex items-center gap-3">
           <Package className="text-primary" />
-          <h2 className="text-xl font-bold text-white">توزيع المخزون (Stock Distribution)</h2>
+          <h2 className="text-xl font-bold text-white">توزيع المخزون</h2>
         </div>
         
         {loading ? (
@@ -132,7 +132,7 @@ export default function AdvancedWarehousePage() {
                   {warehouses.map(wh => (
                     <th key={wh.id} className="px-6 py-4 font-semibold text-center border-r border-white/5">{wh.name}</th>
                   ))}
-                  <th className="px-6 py-4 font-semibold text-center border-r border-white/5 bg-primary/5 text-primary">الإجمالي (Total)</th>
+                  <th className="px-6 py-4 font-semibold text-center border-r border-white/5 bg-primary/5 text-primary">الإجمالي</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -178,7 +178,7 @@ export default function AdvancedWarehousePage() {
           <div className="bg-[#07070F] border border-white/10 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-white/5 flex items-center gap-3 text-primary">
               <ArrowLeftRight size={28} />
-              <h3 className="text-xl font-bold text-white">نقل المخزون (Stock Transfer)</h3>
+              <h3 className="text-xl font-bold text-white">نقل المخزون</h3>
             </div>
             
             <div className="p-6 space-y-5 text-white">

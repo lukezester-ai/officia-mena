@@ -92,13 +92,13 @@ export default function POSPage() {
             <CheckCircle2 className="text-emerald-500" size={60} />
           </div>
           <h1 className="text-4xl font-bold text-[var(--color-desert-900)] mb-2">تم الدفع بنجاح!</h1>
-          <p className="text-[var(--color-desert-500)] text-lg">تم إصدار فاتورة ضريبية مبسطة (B2C)</p>
+          <p className="text-[var(--color-desert-500)] text-lg">تم إصدار فاتورة ضريبية مبسطة</p>
         </div>
 
         {/* Thermal Receipt (Screen + Print) */}
         <div className="bg-white p-6 rounded-2xl border border-[var(--color-desert-200)] shadow-lg print:shadow-none print:border-none print:p-0 w-[300px] print:w-auto mx-auto flex flex-col items-center">
           
-          <h2 className="font-bold text-xl text-black mb-1">Officia MENA Corp</h2>
+          <h2 className="font-bold text-xl text-black mb-1">شركة أوفيسيا مينا</h2>
           <p className="text-xs text-gray-500 font-mono mb-4">TRN: 310123456700003</p>
           <div className="w-full border-b border-dashed border-gray-300 mb-4"></div>
           
@@ -151,7 +151,7 @@ export default function POSPage() {
               No QR
             </div>
           )}
-          <p className="text-[10px] text-gray-400 mt-2 text-center w-full">Simplified Tax Invoice<br/>فاتورة ضريبية مبسطة</p>
+          <p className="text-[10px] text-gray-400 mt-2 text-center w-full">فاتورة ضريبية مبسطة</p>
         </div>
         
         {/* Actions (Screen only) */}
@@ -183,7 +183,7 @@ export default function POSPage() {
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         <div className="mb-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-1">نقطة البيع (POS)</h1>
+            <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-1">نقطة البيع</h1>
             <p className="text-[var(--color-desert-600)] text-sm">مبيعات التجزئة والإصدار الفوري للفواتير</p>
           </div>
           <div className="relative">

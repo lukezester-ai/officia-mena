@@ -71,7 +71,7 @@ export default function PayrollPage() {
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-1 flex items-center gap-3">
             <CreditCard className="text-[var(--color-gold-600)]" size={32} />
-            الرواتب (Payroll)
+            الرواتب
           </h1>
           <p className="text-[var(--color-desert-600)] text-sm">نظام حماية الأجور ومكافأة نهاية الخدمة.</p>
         </div>
@@ -85,7 +85,7 @@ export default function PayrollPage() {
               <FileText size={24} />
             </div>
             <div>
-              <h2 className="font-bold text-lg text-[var(--color-desert-900)]">نظام حماية الأجور (WPS)</h2>
+              <h2 className="font-bold text-lg text-[var(--color-desert-900)]">نظام حماية الأجور</h2>
               <p className="text-xs text-[var(--color-desert-500)]">إنشاء ملف SIF للبنك</p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function PayrollPage() {
                 {isGenerating ? (
                   <span className="flex items-center gap-2"><span className="animate-spin text-white">⚙️</span> جاري التوليد...</span>
                 ) : (
-                  <><Download size={18} /> إنشاء وتحميل ملف (SIF)</>
+                  <><Download size={18} /> إنشاء وتحميل ملف SIF</>
                 )}
               </button>
             ) : (
@@ -139,14 +139,14 @@ export default function PayrollPage() {
               <Calculator size={24} />
             </div>
             <div>
-              <h2 className="font-bold text-lg text-[var(--color-desert-900)]">مكافأة نهاية الخدمة (EOSB)</h2>
+              <h2 className="font-bold text-lg text-[var(--color-desert-900)]">مكافأة نهاية الخدمة</h2>
               <p className="text-xs text-[var(--color-desert-500)]">حاسبة حقوق الموظف عند الاستقالة/الإقالة</p>
             </div>
           </div>
 
           <div className="flex-1 space-y-4">
             <div>
-              <label className="block text-xs font-bold text-[var(--color-desert-500)] mb-1">الراتب الأساسي (SAR)</label>
+              <label className="block text-xs font-bold text-[var(--color-desert-500)] mb-1">الراتب الأساسي</label>
               <input 
                 type="number" 
                 value={eosbSalary}

@@ -47,7 +47,7 @@ export default function ExpensesPage() {
       setAmount('');
       fetchExpenses();
     } else {
-      alert('Failed to add expense');
+      alert('فشل في إضافة المصروف');
     }
     setIsSubmitting(false);
   };
@@ -57,7 +57,7 @@ export default function ExpensesPage() {
     if (res.success) {
       fetchExpenses();
     } else {
-      alert(res.error || 'Failed to approve expense');
+      alert(res.error || 'فشل في الموافقة على المصروف');
     }
   };
 

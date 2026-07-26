@@ -28,7 +28,7 @@ export default function BarcodeScannerPage() {
           <Link href="/dashboard/inventory" className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
             <ArrowRight size={20} />
           </Link>
-          <span className="font-bold text-sm">مسح الباركود (Scan Barcode)</span>
+          <span className="font-bold text-sm">مسح الباركود</span>
           <button className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
             <X size={20} />
           </button>
@@ -69,7 +69,7 @@ export default function BarcodeScannerPage() {
                 </div>
                 
                 <div className="bg-black/40 rounded-xl p-4 text-right mb-4">
-                  <p className="text-xs text-white/50 mb-1">المنتج (Product)</p>
+                  <p className="text-xs text-white/50 mb-1">المنتج</p>
                   <p className="font-bold">لابتوب ديل XPS 15</p>
                   <p className="text-sm text-[var(--color-gold-400)]">SKU: ITM-001</p>
                 </div>

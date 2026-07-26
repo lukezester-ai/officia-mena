@@ -95,11 +95,11 @@ export default function AiMaestroPage() {
         <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 mb-4 flex items-start gap-3 shrink-0">
           <AlertCircle className="text-rose-600 mt-1" />
           <div>
-            <h3 className="font-bold text-rose-800">خطأ في الاتصال (Connection Error)</h3>
+            <h3 className="font-bold text-rose-800">خطأ في الاتصال</h3>
             <p className="text-sm text-rose-600">
               يرجى التأكد من إضافة مفتاح <code>ANTHROPIC_API_KEY</code> في ملف <code>.env</code> أو Vercel.
               <br/>
-              (Error: {error.message})
+              {error.message}
             </p>
           </div>
         </div>

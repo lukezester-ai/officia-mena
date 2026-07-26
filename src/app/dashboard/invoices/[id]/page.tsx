@@ -69,7 +69,7 @@ export default async function InvoiceDetailsPage({ params }: { params: Promise<{
           {/* Top Section */}
           <div className="flex flex-col md:flex-row justify-between items-start gap-8 border-b border-[var(--color-desert-100)] pb-8 mb-8">
             <div>
-              <h2 className="text-sm font-bold text-[var(--color-desert-500)] uppercase tracking-wider mb-2">فاتورة إلى (Billed To)</h2>
+              <h2 className="text-sm font-bold text-[var(--color-desert-500)] uppercase tracking-wider mb-2">فاتورة إلى</h2>
               <p className="text-xl font-bold text-[var(--color-desert-900)] mb-1">{invoice.clientName}</p>
               {invoice.clientTrn && (
                 <p className="text-sm text-[var(--color-desert-600)] font-mono">الرقم الضريبي: {invoice.clientTrn}</p>
@@ -119,15 +119,15 @@ export default async function InvoiceDetailsPage({ params }: { params: Promise<{
             {/* Totals */}
             <div className="w-full md:w-80 space-y-4 text-left md:text-right" dir="ltr">
               <div className="flex justify-between items-center text-sm font-bold text-[var(--color-desert-600)]">
-                <span>(Subtotal) المبلغ الأساسي</span>
+                <span>المبلغ الأساسي</span>
                 <span className="font-mono">{formatMoney(invoice.subtotal)}</span>
               </div>
               <div className="flex justify-between items-center text-sm font-bold text-[var(--color-desert-600)]">
-                <span>(VAT {invoice.vatRate}%) ضريبة القيمة المضافة</span>
+                <span>ضريبة القيمة المضافة {invoice.vatRate}%</span>
                 <span className="font-mono">{formatMoney(invoice.vatAmount)}</span>
               </div>
               <div className="flex justify-between items-center text-xl font-bold text-[var(--color-desert-900)] border-t-2 border-[var(--color-desert-900)] pt-4 mt-2">
-                <span>(Total) الإجمالي</span>
+                <span>الإجمالي</span>
                 <span className="font-mono">{formatMoney(invoice.totalAmount)}</span>
               </div>
             </div>
