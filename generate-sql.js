@@ -23,8 +23,8 @@ BEGIN
   VALUES (new_tenant_id, 'My Company', 'SA', now(), now());
 
   -- 2. Create the user profile and link it to the tenant
-  INSERT INTO public.users (id, clerk_id, tenant_id, email, created_at)
-  VALUES (gen_random_uuid(), NEW.id::text, new_tenant_id, NEW.email, now());
+  INSERT INTO public.users (id, auth_id, tenant_id, email, created_at)
+  VALUES (gen_random_uuid(), NEW.id, new_tenant_id, NEW.email, now());
 
   RETURN NEW;
 END;
