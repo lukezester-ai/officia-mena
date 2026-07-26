@@ -77,25 +77,25 @@ export async function POST(req: Request) {
         const customerEmail = session.customer_details?.email || 'customer@example.com';
         
         await resend.emails.send({
-          from: 'Агри Нексус ЕООД <info@agrinexus.eu>',
+          from: 'Agri Nexus Ltd <info@agrinexus.eu>',
           to: [customerEmail],
-          subject: `Фактура за абонамент - ${invoiceNumber}`,
+          subject: `Invoice for Officia MENA Subscription - ${invoiceNumber}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; direction: ltr;">
               <h1 style="color: #d4af37;">Officia MENA</h1>
-              <p><strong>Фактура №:</strong> ${invoiceNumber}</p>
-              <p><strong>Дата:</strong> ${new Date().toLocaleDateString('bg-BG')}</p>
+              <p><strong>Invoice No:</strong> ${invoiceNumber}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB')}</p>
               <hr/>
               <div style="display: flex; justify-content: space-between;">
                 <div>
-                  <h3>Продавач</h3>
-                  <p><strong>Агри Нексус ЕООД</strong></p>
-                  <p>ЕИК: 208692862</p>
-                  <p>с. Елин Пелин 2109, ул. Искър, 8</p>
+                  <h3>Seller</h3>
+                  <p><strong>Agri Nexus Ltd</strong></p>
+                  <p>EIK: 208692862</p>
+                  <p>8 Iskar St, Elin Pelin 2109, Bulgaria</p>
                   <p>Email: info@agrinexus.eu</p>
                 </div>
                 <div style="text-align: right;">
-                  <h3>Купувач</h3>
+                  <h3>Buyer</h3>
                   <p>Customer ID: ${session.customer}</p>
                   <p>Tenant ID: ${tenantId}</p>
                 </div>
@@ -103,17 +103,17 @@ export async function POST(req: Request) {
               <hr/>
               <table style="width: 100%; text-align: left; border-collapse: collapse;">
                 <tr style="background: #f9f9f9;">
-                  <th style="padding: 10px; border: 1px solid #ddd;">Описание</th>
-                  <th style="padding: 10px; border: 1px solid #ddd;">Сума</th>
+                  <th style="padding: 10px; border: 1px solid #ddd;">Description</th>
+                  <th style="padding: 10px; border: 1px solid #ddd;">Amount</th>
                 </tr>
                 <tr>
-                  <td style="padding: 10px; border: 1px solid #ddd;">Абонамент Officia MENA (${planId})</td>
+                  <td style="padding: 10px; border: 1px solid #ddd;">Officia MENA Subscription (${planId})</td>
                   <td style="padding: 10px; border: 1px solid #ddd;">${amount.toFixed(2)} ${currency}</td>
                 </tr>
               </table>
               <div style="text-align: right; margin-top: 20px;">
-                <p><strong>Общо:</strong> ${amount.toFixed(2)} ${currency}</p>
-                <p style="color: #666; font-size: 12px;">ДДС не се начислява — на основание чл. 113, ал. 9 от ЗДДС.</p>
+                <p><strong>Total:</strong> ${amount.toFixed(2)} ${currency}</p>
+                <p style="color: #666; font-size: 12px;">VAT not charged — EU reverse charge / Article 113(9) of Bulgarian VAT Act.</p>
               </div>
             </div>
           `,
