@@ -29,11 +29,11 @@ export default function Home() {
           </Link>
           
           <nav className="hidden md:flex gap-8 items-center">
-            <Link href="/" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الرئيسية</Link>
-            <Link href="/about" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">عن المنصة</Link>
-            <Link href="#pricing" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الحلول</Link>
-            <Link href="#pricing" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">الأسعار</Link>
-            <Link href="/contact" className="text-gray-300 hover:text-[var(--color-gold-500)] transition-colors font-medium">تواصل معنا</Link>
+            <Link href="/" className="text-gray-100 hover:text-[var(--color-gold-500)] transition-colors font-medium">الرئيسية</Link>
+            <Link href="/about" className="text-gray-100 hover:text-[var(--color-gold-500)] transition-colors font-medium">عن المنصة</Link>
+            <Link href="#pricing" className="text-gray-100 hover:text-[var(--color-gold-500)] transition-colors font-medium">الحلول</Link>
+            <Link href="#pricing" className="text-gray-100 hover:text-[var(--color-gold-500)] transition-colors font-medium">الأسعار</Link>
+            <Link href="/contact" className="text-gray-100 hover:text-[var(--color-gold-500)] transition-colors font-medium">تواصل معنا</Link>
           </nav>
           
           <div className="flex items-center gap-4">
@@ -73,7 +73,7 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="mt-12 flex items-center gap-6 text-sm text-[var(--color-desert-400)]">
+            <div className="mt-12 flex items-center gap-6 text-sm text-[var(--color-desert-300)]">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-[var(--color-emerald-500)] shadow-[0_0_8px_var(--color-emerald-500)]"></div>
                 متوافق مع هيئة الزكاة (ZATCA) <span className="text-[10px] bg-[var(--color-emerald-500)]/20 text-[var(--color-emerald-400)] px-2 py-0.5 rounded border border-[var(--color-emerald-500)]/30 ml-2">قيد التطوير</span>
@@ -126,7 +126,7 @@ export default function Home() {
                   <div className="rounded-2xl border border-[var(--color-gold-500)]/25 bg-white/[0.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                     <div className="mb-4 flex items-center justify-between">
                       <Receipt className="text-[var(--color-gold-500)]" size={18} />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">Revenue</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">Revenue</span>
                     </div>
                     <div className="text-2xl font-black text-white">1.24M</div>
                     <div className="mt-1 text-xs font-bold text-[var(--color-gold-500)]">SAR +18%</div>
@@ -134,13 +134,13 @@ export default function Home() {
                   <div className="rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
                     <div className="mb-4 flex items-center justify-between">
                       <Users className="text-[var(--color-emerald-500)]" size={18} />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">Payroll</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">Payroll</span>
                     </div>
                     <div className="text-2xl font-black text-white">485K</div>
                     <div className="mt-1 text-xs font-bold text-emerald-300">WPS ready</div>
                   </div>
                   <div className="rounded-2xl border border-white/15 bg-white/[0.06] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                    <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">ZATCA</div>
+                    <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">ZATCA</div>
                     <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[conic-gradient(from_180deg,#10b981_0_84%,rgba(255,255,255,0.08)_84%_100%)]">
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#120d08] text-sm font-black text-white">98%</div>
                     </div>
@@ -151,7 +151,7 @@ export default function Home() {
                 <div className="relative mt-4 flex-1 overflow-hidden rounded-3xl border border-white/10 bg-black/25 p-4">
                    <div className="mb-5 flex items-center justify-between">
                      <div>
-                       <div className="text-xs font-bold uppercase tracking-[0.18em] text-white/40">Cashflow forecast</div>
+                       <div className="text-xs font-bold uppercase tracking-[0.18em] text-white/65">Cashflow forecast</div>
                        <div className="mt-1 text-base font-black text-white">Q3 liquidity path</div>
                      </div>
                      <div className="rounded-full border border-[var(--color-gold-500)]/25 bg-[var(--color-gold-500)]/10 px-3 py-1 text-xs font-bold text-[var(--color-gold-500)]">
@@ -273,10 +273,10 @@ export default function Home() {
                 <p className="text-[var(--color-desert-300)] mb-6 h-12">للشركات الناشئة والمؤسسات الصغيرة.</p>
                 <div className="mb-8">
                   <span className="text-4xl font-black text-white">SAR 99</span>
-                  <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
-                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو عبر Stripe (≈€29). نقبل Visa, Mastercard, MADA.</div>
+                  <span className="text-[var(--color-desert-300)]">/ شهرياً</span>
+                  <div className="text-xs text-[var(--color-desert-400)] mt-2">* تتم معالجة الدفع باليورو عبر Stripe (≈€29). نقبل Visa, Mastercard, MADA.</div>
                 </div>
-                <ul className="space-y-4 mb-8 text-gray-300">
+                <ul className="space-y-4 mb-8 text-gray-100">
                   <li className="flex items-center gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-gold-500)]"></div>
                     حتى 5 مستخدمين
@@ -304,10 +304,10 @@ export default function Home() {
                 <p className="text-[var(--color-desert-300)] mb-6 h-12">للاحتياجات المتكاملة وإدارة الموارد الذكية.</p>
                 <div className="mb-8">
                   <span className="text-4xl font-black text-white">SAR 399</span>
-                  <span className="text-[var(--color-desert-400)]">/ شهرياً</span>
-                  <div className="text-xs text-[var(--color-desert-500)] mt-2">* تتم معالجة الدفع باليورو عبر Stripe (≈€99). نقبل Visa, Mastercard, MADA.</div>
+                  <span className="text-[var(--color-desert-300)]">/ شهرياً</span>
+                  <div className="text-xs text-[var(--color-desert-400)] mt-2">* تتم معالجة الدفع باليورو عبر Stripe (≈€99). نقبل Visa, Mastercard, MADA.</div>
                 </div>
-                <ul className="space-y-4 mb-8 text-gray-300">
+                <ul className="space-y-4 mb-8 text-gray-100">
                   <li className="flex items-center gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-gold-500)]"></div>
                     مستخدمين غير محدودين
@@ -337,7 +337,7 @@ export default function Home() {
                 <div className="mb-8 flex items-center h-10">
                   <span className="text-3xl font-black text-white">تواصل معنا</span>
                 </div>
-                <ul className="space-y-4 mb-8 text-gray-300">
+                <ul className="space-y-4 mb-8 text-gray-100">
                   <li className="flex items-center gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-gold-500)]"></div>
                     كل ميزات خطة Pro
@@ -367,15 +367,15 @@ export default function Home() {
             <div className="space-y-6">
               <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
                 <h3 className="text-xl font-bold text-white mb-2">هل يدعم النظام الفوترة الإلكترونية (ZATCA) في السعودية؟</h3>
-                <p className="text-[var(--color-desert-300)]">نعم، نظامنا متوافق بالكامل مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA) للمرحلة الثانية للفوترة الإلكترونية، ويقوم بتوليد رموز QR مشفرة.</p>
+                <p className="text-[var(--color-desert-200)]">نعم، نظامنا متوافق بالكامل مع متطلبات هيئة الزكاة والضريبة والجمارك (ZATCA) للمرحلة الثانية للفوترة الإلكترونية، ويقوم بتوليد رموز QR مشفرة.</p>
               </div>
               <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
                 <h3 className="text-xl font-bold text-white mb-2">هل يوجد ذكاء اصطناعي (AI) في النظام؟</h3>
-                <p className="text-[var(--color-desert-300)]">بالتأكيد. يتضمن النظام &quot;المايسترو&quot; (Maestro AI) الذي يقوم بقراءة الفواتير آلياً عبر الكاميرا (OCR)، تحليل النفقات، وتقديم استشارات ضريبية ذكية بناءً على القوانين المحلية.</p>
+                <p className="text-[var(--color-desert-200)]">بالتأكيد. يتضمن النظام &quot;المايسترو&quot; (Maestro AI) الذي يقوم بقراءة الفواتير آلياً عبر الكاميرا (OCR)، تحليل النفقات، وتقديم استشارات ضريبية ذكية بناءً على القوانين المحلية.</p>
               </div>
               <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
                 <h3 className="text-xl font-bold text-white mb-2">هل يمكنني تتبع المخزون والمنتجات الزراعية/البترولية؟</h3>
-                <p className="text-[var(--color-desert-300)]">نعم، نوفر وحدة مخزون متقدمة تدعم التصنيفات الخاصة مثل البترول (مع حسابات API Gravity) والأسمدة الزراعية مع تنبيهات لتواريخ انتهاء التصاريح الأمنية.</p>
+                <p className="text-[var(--color-desert-200)]">نعم، نوفر وحدة مخزون متقدمة تدعم التصنيفات الخاصة مثل البترول (مع حسابات API Gravity) والأسمدة الزراعية مع تنبيهات لتواريخ انتهاء التصاريح الأمنية.</p>
               </div>
             </div>
           </div>
@@ -384,21 +384,21 @@ export default function Home() {
         {/* Social Proof / Trust Badges */}
         <section className="w-full py-16 relative z-10 border-t border-gray-800">
           <div className="max-w-5xl mx-auto px-6 text-center">
-            <p className="text-sm text-[var(--color-desert-400)] mb-6 tracking-widest uppercase">موثوق من قبل</p>
+            <p className="text-sm text-[var(--color-desert-300)] mb-6 tracking-widest uppercase">موثوق من قبل</p>
             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
-              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+              <div className="flex items-center gap-2 text-[var(--color-desert-300)]">
                 <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 <span className="text-sm">دعم فوري</span>
               </div>
-              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+              <div className="flex items-center gap-2 text-[var(--color-desert-300)]">
                 <svg className="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                 <span className="text-sm">ZATCA Compatible</span>
               </div>
-              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+              <div className="flex items-center gap-2 text-[var(--color-desert-300)]">
                 <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                 <span className="text-sm">AI-Powered</span>
               </div>
-              <div className="flex items-center gap-2 text-[var(--color-desert-400)]">
+              <div className="flex items-center gap-2 text-[var(--color-desert-300)]">
                 <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 <span className="text-sm">قيد التطوير</span>
               </div>
@@ -415,7 +415,7 @@ export default function Home() {
                 <Link href="/" className="text-xl font-bold tracking-wider text-white mb-3 block">
                   Officia <span className="gold-text">MENA</span>
                 </Link>
-                <p className="text-sm text-[var(--color-desert-400)] mb-4 leading-relaxed">
+                <p className="text-sm text-[var(--color-desert-300)] mb-4 leading-relaxed">
                   منصة محاسبية ذكية للشركات في منطقة الشرق الأوسط وشمال أفريقيا.
                 </p>
                 <div className="flex justify-center md:justify-start gap-3">
@@ -429,10 +429,10 @@ export default function Home() {
               <div className="text-center md:text-right">
                 <h4 className="text-white font-bold mb-4">روابط سريعة</h4>
                 <ul className="space-y-2">
-                  <li><Link href="/" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">الرئيسية</Link></li>
-                  <li><Link href="/about" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">عن المنصة</Link></li>
-                  <li><Link href="/contact" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">تواصل معنا</Link></li>
-                  <li><Link href="/login" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">تسجيل الدخول</Link></li>
+                  <li><Link href="/" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">الرئيسية</Link></li>
+                  <li><Link href="/about" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">عن المنصة</Link></li>
+                  <li><Link href="/contact" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">تواصل معنا</Link></li>
+                  <li><Link href="/login" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">تسجيل الدخول</Link></li>
                 </ul>
               </div>
 
@@ -440,15 +440,15 @@ export default function Home() {
               <div className="text-center md:text-right">
                 <h4 className="text-white font-bold mb-4">قانوني</h4>
                 <ul className="space-y-2">
-                  <li><Link href="/privacy" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">سياسة الخصوصية</Link></li>
-                  <li><Link href="/terms" className="text-sm text-[var(--color-desert-400)] hover:text-[var(--color-gold-500)] transition-colors">الشروط والأحكام</Link></li>
+                  <li><Link href="/privacy" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">سياسة الخصوصية</Link></li>
+                  <li><Link href="/terms" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">الشروط والأحكام</Link></li>
                 </ul>
               </div>
 
               {/* Company Info */}
               <div className="text-center md:text-right">
                 <h4 className="text-white font-bold mb-4">الشركة</h4>
-                <ul className="space-y-2 text-sm text-[var(--color-desert-400)]">
+                <ul className="space-y-2 text-sm text-[var(--color-desert-300)]">
                   <li>Agri Nexus Ltd</li>
                   <li>صوفيا، بلغاريا</li>
                   <li><a href="mailto:info@agrinexus.eu" className="hover:text-[var(--color-gold-500)] transition-colors">info@agrinexus.eu</a></li>
@@ -457,14 +457,14 @@ export default function Home() {
             </div>
 
             <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-[var(--color-desert-500)]">© 2026 Officia MENA. جميع الحقوق محفوظة.</p>
+              <p className="text-sm text-[var(--color-desert-400)]">© 2026 Officia MENA. جميع الحقوق محفوظة.</p>
               <div className="flex flex-wrap gap-4 text-sm">
-                <a href="https://zatca.gov.sa" target="_blank" rel="noopener noreferrer" className="text-[var(--color-desert-400)] hover:text-[var(--color-emerald-500)] transition-colors flex items-center gap-1">
+                <a href="https://zatca.gov.sa" target="_blank" rel="noopener noreferrer" className="text-[var(--color-desert-300)] hover:text-[var(--color-emerald-500)] transition-colors flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full bg-[var(--color-emerald-500)]"></div>
                   متوافق مع ZATCA
                 </a>
                 <span className="text-[var(--color-desert-600)]">|</span>
-                <span className="text-[var(--color-desert-500)]">السجل التجاري: 208692862</span>
+                <span className="text-[var(--color-desert-400)]">السجل التجاري: 208692862</span>
               </div>
             </div>
           </div>
