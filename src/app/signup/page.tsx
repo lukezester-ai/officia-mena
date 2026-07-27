@@ -1,6 +1,6 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <div dir="ltr" className="min-h-screen flex flex-col justify-center items-center relative overflow-hidden bg-zinc-950">
       {/* Dynamic Background */}
@@ -10,11 +10,11 @@ export default function LoginPage() {
       <div className="z-10 flex flex-col items-center">
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Officia MENA</h1>
-          <p className="text-zinc-400">تسجيل الدخول إلى حسابك</p>
+          <p className="text-zinc-400">إنشاء حساب جديد</p>
         </div>
         
         <div className="shadow-2xl shadow-black/50 rounded-2xl">
-          <SignIn 
+          <SignUp 
             appearance={{
               elements: {
                 card: "bg-zinc-900 border border-zinc-800",
@@ -34,7 +34,7 @@ export default function LoginPage() {
               },
             }}
             routing="hash"
-            signUpUrl="/signup"
+            signInUrl="/login"
             fallbackRedirectUrl="/dashboard"
           />
         </div>

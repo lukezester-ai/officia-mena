@@ -34,6 +34,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { ClerkProvider } from "@clerk/nextjs";
+
 // Cache-bust: clean redeploy
 export default function RootLayout({
   children,
@@ -41,10 +43,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className="dark">
-      <body className="antialiased bg-background text-foreground">
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="ar" dir="rtl" className="dark">
+        <body className="antialiased bg-background text-foreground">
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -7,9 +7,9 @@ import * as schema from './schema';
 dotenv.config();
 
 function createDb() {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = process.env.STORAGE_POSTGRES_URL;
   if (!connectionString) {
-    throw new Error('DATABASE_URL environment variable is required.');
+    throw new Error('STORAGE_POSTGRES_URL environment variable is required.');
   }
   const client = postgres(connectionString, { prepare: false });
   return drizzle(client, { schema });

@@ -2,8 +2,8 @@ import { db } from '@/lib/db/db';
 import { tenants } from '@/lib/db/schema/tenants';
 import { users } from '@/lib/db/schema/users';
 import { eq } from 'drizzle-orm';
-import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
 
 export type TenantRecord = {
   id: string;
@@ -16,21 +16,17 @@ export type TenantRecord = {
   isMock: boolean;
 };
 
-const MOCK_TENANT: TenantRecord = {
-  id: 'mock-tenant-id',
-  name: 'Officia MENA (Demo)',
-  crn: '1234567890',
-  trn: '300000000000003',
-  country: 'SA',
-  createdAt: null,
-  updatedAt: null,
-  isMock: true,
-};
-
-async function findOrProvisionUser(email: string, authUserId: string) {
-  const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
+async function findOrProvisionUser(clerkId: string, email: string) {
+  const existing = await db.select().from(users).where(eq(users.clerkId, clerkId)).limit(1);
   if (existing.length > 0 && existing[0].tenantId) {
     return existing[0];
+  }
+
+  // Check if they exist by email but no clerkId (migration scenario)
+  const existingByEmail = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  if (existingByEmail.length > 0 && existingByEmail[0].tenantId) {
+    await db.update(users).set({ clerkId }).where(eq(users.id, existingByEmail[0].id));
+    return { ...existingByEmail[0], clerkId };
   }
 
   const tenantResult = await db.insert(tenants).values({
@@ -42,7 +38,7 @@ async function findOrProvisionUser(email: string, authUserId: string) {
   const tenant = tenantResult[0];
 
   const [userResult] = await db.insert(users).values({
-    authId: authUserId,
+    clerkId: clerkId,
     tenantId: tenant.id,
     email,
   }).returning();
@@ -51,38 +47,29 @@ async function findOrProvisionUser(email: string, authUserId: string) {
 }
 
 export async function requireTenant() {
-  // Check if Supabase is configured
-  const supabaseUrl =process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your_supabase_url_here')) {
-    console.warn('Supabase not configured, using mock tenant for demo');
-    return MOCK_TENANT;
-  }
-
-  const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user || !user.email) {
+  const user = await currentUser();
+  if (!user) {
     redirect('/login');
   }
 
-  try {
-    const userRecord = await findOrProvisionUser(user.email, user.id);
-
-    if (!userRecord.tenantId) {
-      throw new Error('User has no assigned tenant.');
-    }
-
-    const tenantRecord = await db.select().from(tenants).where(eq(tenants.id, userRecord.tenantId)).limit(1);
-
-    if (tenantRecord.length === 0) {
-      throw new Error('Tenant not found.');
-    }
-
-    return { ...tenantRecord[0], isMock: false as const };
-  } catch (err) {
-    console.warn('requireTenant error, falling back to mock tenant:', err);
-    return MOCK_TENANT;
+  const email = user.emailAddresses[0]?.emailAddress;
+  if (!email) {
+    throw new Error('User has no email address');
   }
+
+  const dbUser = await findOrProvisionUser(user.id, email);
+  
+  if (!dbUser.tenantId) {
+    redirect('/onboarding');
+  }
+
+  const tenant = await db.select().from(tenants).where(eq(tenants.id, dbUser.tenantId)).limit(1);
+  if (tenant.length === 0) {
+    throw new Error('Tenant not found');
+  }
+
+  return {
+    ...tenant[0],
+    isMock: false
+  } as TenantRecord;
 }
