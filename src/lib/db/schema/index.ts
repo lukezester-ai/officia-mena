@@ -6,6 +6,7 @@ export * from './documents';
 export * from './expenses';
 export * from './hr';
 export * from './installments';
+export * from './clients';
 export * from './inventory';
 export * from './invoices';
 export * from './purchase_orders';
