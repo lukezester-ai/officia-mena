@@ -13,6 +13,7 @@ export const warehouses = pgTable('warehouses', {
 export const products = pgTable('products', {
   id: uuid('id').primaryKey().defaultRandom(),
   tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  type: varchar('type', { length: 50 }).default('product').notNull(), // 'product' or 'service'
   sku: varchar('sku', { length: 100 }).notNull(),
   barcode: varchar('barcode', { length: 100 }), // Barcode field
   name: varchar('name', { length: 255 }).notNull(),
