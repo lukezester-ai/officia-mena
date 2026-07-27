@@ -5,6 +5,9 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  if (process.env.NODE_ENV === 'development') {
+    return; // Bypass authentication entirely for local development
+  }
   if (isProtectedRoute(req)) await auth.protect()
 });
 

@@ -15,24 +15,6 @@ export default function SignupPage() {
         
         <div className="shadow-2xl shadow-black/50 rounded-2xl">
           <SignUp 
-            appearance={{
-              elements: {
-                card: "bg-zinc-900 border border-zinc-800",
-                headerTitle: "text-white",
-                headerSubtitle: "text-zinc-400",
-                socialButtonsBlockButton: "border border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 text-white",
-                socialButtonsBlockButtonText: "text-white",
-                dividerLine: "bg-zinc-800",
-                dividerText: "text-zinc-500",
-                formFieldLabel: "text-zinc-300",
-                formFieldInput: "bg-zinc-950 border-zinc-800 text-white focus:border-blue-500",
-                formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white",
-                footerActionText: "text-zinc-400",
-                footerActionLink: "text-blue-400 hover:text-blue-300",
-                identityPreviewText: "text-white",
-                identityPreviewEditButton: "text-blue-400",
-              },
-            }}
             routing="path"
             path="/signup"
             signInUrl="/login"

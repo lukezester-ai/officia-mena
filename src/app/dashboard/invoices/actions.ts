@@ -1,61 +1,63 @@
-'use server';
+'use server'
 
-import { checkHalalComplianceForSale, HalalProductData } from '@/lib/inventory/halal-checker';
-import { generateZatcaQrCode } from '@/lib/accounting/zatca-qr';
+import { db } from '@/lib/db/db';
+import { invoices } from '@/lib/db/schema/invoices';
+import { requireTenant } from '@/lib/auth/get-tenant';
+import { generateZatcaQrCode } from '@/lib/zatca';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
-export interface InvoiceItem {
-  sku: string;
-  name: string;
-  qty: number;
-  price: number;
-  isHalalCertified: boolean;
-  hijriExpiry?: string;
-  halalExpiryDate?: Date;
-}
-
-export async function createInvoiceWithChecks(clientName: string, items: InvoiceItem[]) {
-  // 1. Compliance Check (Halal & Hijri)
+export async function createInvoice(formData: FormData) {
+  const tenant = await requireTenant();
+  
+  // Extract data from form
+  const clientName = formData.get('clientName') as string;
+  const clientCrn = formData.get('clientCrn') as string;
+  const clientAddress = formData.get('clientAddress') as string;
+  
+  // Items as JSON string from a hidden field
+  const itemsJson = formData.get('items') as string;
+  const items = JSON.parse(itemsJson || '[]');
+  
+  // Calculate totals
+  let subtotal = 0;
   for (const item of items) {
-    const productData: HalalProductData = {
-      sku: item.sku,
-      isHalalCertified: item.isHalalCertified,
-      halalExpiryDate: item.halalExpiryDate,
-      expiryDateHijri: item.hijriExpiry
-    };
-
-    const check = checkHalalComplianceForSale(productData);
-    
-    if (!check.isValid && check.severity === 'BLOCK') {
-      return {
-        success: false,
-        error: `تم حظر الفاتورة: المنتج "${item.name}" غير صالح للبيع. ${check.reason}`
-      };
-    }
+    subtotal += (Number(item.price) * Number(item.quantity));
   }
-
-  // 2. Calculate Totals (VAT 15%)
-  const subtotal = items.reduce((sum, item) => sum + (item.qty * item.price), 0);
-  const vatAmount = subtotal * 0.15;
-  const total = subtotal + vatAmount;
-
-  // 3. Generate ZATCA Phase 2 QR Code
-  const qrCode = generateZatcaQrCode({
-    sellerName: 'الرمال الذهبية ذ.م.م',
-    vatNumber: '310122393500003',
-    timestamp: new Date().toISOString(),
-    invoiceTotal: total.toFixed(2),
-    vatTotal: vatAmount.toFixed(2)
+  
+  const vatRate = 0.15; // 15% VAT for Saudi Arabia
+  const vatAmount = subtotal * vatRate;
+  const totalAmount = subtotal + vatAmount;
+  
+  const issueDate = new Date();
+  
+  // Generate ZATCA QR Code (Phase 1)
+  const qrHash = generateZatcaQrCode({
+    sellerName: tenant.name,
+    vatRegistrationNumber: tenant.trn || '300000000000003', // fallback to demo TRN
+    timestamp: issueDate.toISOString(),
+    invoiceTotal: totalAmount.toFixed(2),
+    vatTotal: vatAmount.toFixed(2),
   });
 
-  // 4. Simulate saving to DB and deducting from Inventory
-  // db.insert(invoices)...
-  // db.update(inventory_levels)...
+  const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
 
-  return {
-    success: true,
-    invoiceId: `INV-${Math.floor(Math.random() * 10000)}`,
-    qrCode,
-    total: total.toFixed(2),
-    message: 'تم إصدار الفاتورة وتحديث المخزون بنجاح.'
-  };
+  await db.insert(invoices).values({
+    tenantId: tenant.id,
+    invoiceNumber,
+    issueDate,
+    clientName,
+    clientCrn,
+    clientAddress,
+    subtotal: subtotal.toFixed(2),
+    vatRate: '15.00',
+    vatAmount: vatAmount.toFixed(2),
+    totalAmount: totalAmount.toFixed(2),
+    items: JSON.stringify(items),
+    zatcaQrCode: qrHash,
+    status: 'issued'
+  });
+
+  revalidatePath('/dashboard/invoices');
+  redirect('/dashboard/invoices');
 }

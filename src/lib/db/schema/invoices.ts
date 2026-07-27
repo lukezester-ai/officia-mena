@@ -33,6 +33,9 @@ export const invoices = pgTable('invoices', {
   // Semantic Search Embedding
   embedding: vector('embedding', { dimensions: 768 }),
   
+  // Line items (JSON)
+  items: text('items'), // We'll store stringified JSON array of items for Phase 1 simplicity
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

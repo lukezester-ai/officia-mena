@@ -47,6 +47,19 @@ async function findOrProvisionUser(clerkId: string, email: string) {
 }
 
 export async function requireTenant() {
+  if (process.env.NODE_ENV === 'development') {
+    return {
+      id: 'mock-tenant-id',
+      name: 'Development Company',
+      crn: '1234567890',
+      trn: '300000000000003',
+      country: 'SA',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isMock: true
+    } as TenantRecord;
+  }
+
   const user = await currentUser();
   if (!user) {
     redirect('/login');
