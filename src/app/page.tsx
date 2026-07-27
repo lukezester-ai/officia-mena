@@ -8,19 +8,13 @@ import { Receipt, Users, BrainCircuit } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#1A120B]">
-      {/* Abstract Desert/Gold Background Elements */}
-      <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-[var(--color-gold-700)] opacity-20 blur-[120px]"></div>
-        <div className="absolute top-[40%] -left-[10%] w-[40%] h-[40%] rounded-full bg-[var(--color-desert-600)] opacity-10 blur-[100px]"></div>
-        <div className="absolute -bottom-[20%] right-[20%] w-[60%] h-[60%] rounded-full bg-[var(--color-emerald-900)] opacity-20 blur-[150px]"></div>
-      </div>
+    <div className="min-h-screen bg-background">
 
       <div className="relative z-10 w-full flex flex-col">
         {/* Navbar */}
         <header className="max-w-7xl mx-auto px-6 w-full py-8 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity">
-            <div className="w-10 h-10 rounded-lg gold-gradient flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+            <div className="w-10 h-10 rounded-lg gold-gradient flex items-center justify-center font-bold text-white">
               O
             </div>
             <span className="text-2xl font-bold tracking-wider text-white">
@@ -38,7 +32,7 @@ export default function Home() {
           
           <div className="flex items-center gap-4">
 
-            <Link href="/login" className="px-6 py-2.5 rounded-full gold-gradient text-[#1A120B] font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.6)] transition-all">
+            <Link href="/login" className="px-6 py-2.5 rounded-full gold-gradient text-[#1A120B] font-bold hover:opacity-90 transition-all">
               تسجيل الدخول
             </Link>
           </div>
@@ -48,8 +42,7 @@ export default function Home() {
         <main className="max-w-7xl mx-auto px-6 w-full min-h-[90vh] flex flex-col lg:flex-row items-center justify-between gap-12 pb-20 pt-10">
           
           {/* Left Side (Text) */}
-          <div className="w-full lg:w-[55%] glass-panel p-10 md:p-14 rounded-3xl relative z-10">
-            <div className="absolute top-0 right-10 w-20 h-1 gold-gradient rounded-b-lg"></div>
+          <div className="w-full lg:w-[55%] p-10 md:p-14 rounded-3xl relative z-10">
             
             <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-6">
               مستقبل <span className="gold-text">المحاسبة</span><br/> في الشرق الأوسط
@@ -65,7 +58,7 @@ export default function Home() {
             </div>
             
             <div className="flex flex-wrap gap-4 items-center">
-              <Link href="/login" className="px-8 py-4 rounded-xl gold-gradient text-[#1A120B] text-lg font-bold hover:scale-105 hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all flex items-center gap-2">
+              <Link href="/login" className="px-8 py-4 rounded-xl gold-gradient text-[#1A120B] text-lg font-bold hover:opacity-90 transition-all flex items-center gap-2">
                 ابدأ الآن مجاناً
               </Link>
               <Link href="#pricing" className="px-8 py-4 rounded-xl border border-[var(--color-gold-700)] text-[var(--color-gold-500)] text-lg font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
@@ -93,21 +86,19 @@ export default function Home() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="relative w-full h-[500px]"
             >
-              {/* Main glowing backplate */}
-              <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_25%_20%,rgba(245,197,24,0.26),transparent_34%),radial-gradient(circle_at_80%_64%,rgba(16,185,129,0.22),transparent_32%)] blur-2xl"></div>
-              <div className="absolute inset-8 rounded-[2rem] border border-[var(--color-gold-500)]/15 bg-[linear-gradient(135deg,rgba(245,197,24,0.06),transparent_38%,rgba(16,185,129,0.06))] rotate-3"></div>
+              <div className="absolute inset-8 rounded-[2rem] border border-[var(--color-gold-500)]/10 bg-[linear-gradient(135deg,rgba(245,197,24,0.04),transparent_38%,rgba(16,185,129,0.04))] rotate-3"></div>
               
               {/* Main Dashboard Panel */}
               <motion.div 
                 animate={{ y: [-5, 5, -5] }}
                 transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                className="absolute inset-0 overflow-hidden rounded-[2rem] border border-[var(--color-gold-500)]/35 bg-[#1b1108]/95 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl"
+                className="absolute inset-0 overflow-hidden rounded-[2rem] border border-[var(--color-gold-500)]/25 bg-[#1b1108]/95 p-5"
               >
                 {/* Header */}
                 <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.08),transparent_35%),repeating-linear-gradient(90deg,rgba(255,255,255,0.025)_0_1px,transparent_1px_74px)] pointer-events-none"></div>
                 <div className="relative flex items-center justify-between border-b border-[var(--color-gold-500)]/10 pb-4">
                   <div className="flex items-center gap-3 text-right" dir="rtl">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#f5c518,#b45309)] text-lg font-black text-[#1A120B] shadow-[0_0_24px_rgba(245,197,24,0.34)]">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#f5c518,#b45309)] text-lg font-black text-[#1A120B]">
                       O
                     </div>
                     <div>
@@ -116,14 +107,14 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]"></span>
+                    <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
                     <span className="text-[11px] font-bold text-emerald-300">Synced</span>
                   </div>
                 </div>
 
                 {/* KPI Cards */}
                 <div className="relative mt-5 grid grid-cols-3 gap-3">
-                  <div className="rounded-2xl border border-[var(--color-gold-500)]/25 bg-white/[0.07] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <div className="rounded-2xl border border-[var(--color-gold-500)]/20 bg-white/[0.05] p-4">
                     <div className="mb-4 flex items-center justify-between">
                       <Receipt className="text-[var(--color-gold-500)]" size={18} />
                       <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">Revenue</span>
@@ -131,7 +122,7 @@ export default function Home() {
                     <div className="text-2xl font-black text-white">1.24M</div>
                     <div className="mt-1 text-xs font-bold text-[var(--color-gold-500)]">SAR +18%</div>
                   </div>
-                  <div className="rounded-2xl border border-emerald-400/25 bg-emerald-400/[0.08] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.06] p-4">
                     <div className="mb-4 flex items-center justify-between">
                       <Users className="text-[var(--color-emerald-500)]" size={18} />
                       <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">Payroll</span>
@@ -139,7 +130,7 @@ export default function Home() {
                     <div className="text-2xl font-black text-white">485K</div>
                     <div className="mt-1 text-xs font-bold text-emerald-300">WPS ready</div>
                   </div>
-                  <div className="rounded-2xl border border-white/15 bg-white/[0.06] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                     <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">ZATCA</div>
                     <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[conic-gradient(from_180deg,#10b981_0_84%,rgba(255,255,255,0.08)_84%_100%)]">
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#120d08] text-sm font-black text-white">98%</div>
@@ -209,10 +200,9 @@ export default function Home() {
                   scale: { duration: 0.5, type: "spring" },
                   y: { repeat: Infinity, duration: 5, ease: "easeInOut" }
                 }}
-                whileHover={{ scale: 1.05, borderColor: "rgba(16,185,129,0.8)" }}
-                className="absolute -right-8 top-[44%] z-20 flex cursor-pointer items-center gap-4 rounded-2xl border border-emerald-400/30 bg-[#0f1712]/90 p-4 shadow-[0_0_48px_rgba(16,185,129,0.34)] backdrop-blur-2xl"
+                className="absolute -right-8 top-[44%] z-20 flex cursor-pointer items-center gap-4 rounded-2xl border border-emerald-400/20 bg-[#0f1712]/90 p-4"
               >
-                <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-emerald-500)] to-emerald-800 shadow-inner">
+                <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-emerald-500)] to-emerald-800">
                   <motion.div 
                     animate={{ rotate: 360 }} 
                     transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
@@ -248,7 +238,7 @@ export default function Home() {
                 <strong className="text-white">مرحلة الوصول المبكر (Early Access)</strong> — 
                 المنصة قيد التطوير. سجّل الآن لتحصل على أولوية الوصول وتجربة مجانية ممتدة.
               </span>
-              <Link href="/login" className="px-4 py-1.5 rounded-lg gold-gradient text-[#1A120B] text-sm font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all shrink-0">
+              <Link href="/login" className="px-4 py-1.5 rounded-lg gold-gradient text-[#1A120B] text-sm font-bold hover:opacity-90 transition-all shrink-0">
                 سجّل الآن
               </Link>
             </div>
@@ -296,8 +286,8 @@ export default function Home() {
               </div>
 
               {/* Pro Plan */}
-              <div className="glass-panel p-8 rounded-3xl border-2 border-[var(--color-gold-500)] relative transform md:-translate-y-4 shadow-[0_0_30px_rgba(212,175,55,0.15)]">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 gold-gradient text-[#1A120B] px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+              <div className="glass-panel p-8 rounded-3xl border-2 border-[var(--color-gold-500)] relative transform md:-translate-y-4">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 gold-gradient text-[#1A120B] px-4 py-1 rounded-full text-sm font-bold">
                   الأكثر مبيعاً
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">Pro</h3>

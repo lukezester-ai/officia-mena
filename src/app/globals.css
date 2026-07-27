@@ -137,15 +137,8 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    /* Force dark theme style behavior */
     color-scheme: dark;
     min-height: 100vh;
-    background:
-      linear-gradient(135deg, rgba(31, 191, 165, 0.08), transparent 28%),
-      linear-gradient(225deg, rgba(201, 120, 69, 0.08), transparent 34%),
-      repeating-linear-gradient(90deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 72px),
-      repeating-linear-gradient(0deg, rgba(255,255,255,0.014) 0 1px, transparent 1px 72px),
-      hsl(var(--background));
   }
 
   ::selection {
@@ -154,12 +147,9 @@
   }
 }
 
-/* Glassmorphism utilities - keeping these for backwards compatibility with our local work */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .gold-gradient {
@@ -172,24 +162,16 @@
 }
 
 .executive-shell {
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.045), transparent 18rem),
-    radial-gradient(ellipse at top right, rgba(245,197,24,0.10), transparent 34rem),
-    #08070f;
+  background: #08070f;
 }
 
 .executive-sidebar {
-  background:
-    linear-gradient(180deg, rgba(251,247,239,0.08), rgba(251,247,239,0.02)),
-    linear-gradient(90deg, rgba(245,197,24,0.10), transparent 42%),
-    rgba(10, 10, 19, 0.96);
-  box-shadow: inset -1px 0 0 rgba(255,255,255,0.08);
+  background: rgba(10, 10, 19, 0.96);
+  border-left: 1px solid rgba(255,255,255,0.06);
 }
 
 .brand-mark {
-  background:
-    linear-gradient(135deg, #f5c518, #c97845 56%, #1fbfa5);
-  box-shadow: 0 14px 34px rgba(245, 197, 24, 0.24);
+  background: linear-gradient(135deg, #f5c518, #c97845 56%, #1fbfa5);
 }
 
 .nav-item {
@@ -223,17 +205,11 @@
 }
 
 .dashboard-canvas {
-  background:
-    linear-gradient(180deg, rgba(251,247,239,0.035), transparent 14rem),
-    repeating-linear-gradient(135deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 18px),
-    #08070f;
+  background: #08070f;
 }
 
 .ambient-border {
   border-color: rgba(251,247,239,0.10);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    0 20px 50px rgba(0,0,0,0.22);
 }
 
 @keyframes command-pulse {

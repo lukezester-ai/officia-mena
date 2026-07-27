@@ -25,7 +25,6 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -57,7 +56,7 @@ export default function LoginPage() {
 
       {/* Logo */}
       <Link href="/" className="mb-8 relative z-10 flex items-center gap-3 hover:opacity-90 transition-opacity">
-        <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center font-bold text-background text-xl shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+            <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center font-bold text-background text-xl">
           O
         </div>
         <span className="text-2xl font-bold tracking-tight text-white">
@@ -66,7 +65,7 @@ export default function LoginPage() {
       </Link>
 
       {/* Auth Card */}
-      <div className="w-full max-w-md bg-card/80 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 relative z-10">
+      <div className="w-full max-w-md bg-card/80 border border-white/10 rounded-3xl p-8 relative z-10">
         
         <div className="flex gap-4 mb-8">
           <button 
@@ -105,14 +104,6 @@ export default function LoginPage() {
           الدخول باستخدام جوجل
         </button>
 
-        <div className="relative mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-white/10" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">أو بالبريد الإلكتروني</span>
-          </div>
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           
@@ -155,7 +146,7 @@ export default function LoginPage() {
           <button 
             type="submit"
             disabled={isLoading}
-            className="w-full mt-6 gold-gradient text-background font-bold text-lg py-3.5 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(212,175,55,0.2)]"
+            className="w-full mt-6 gold-gradient text-background font-bold text-lg py-3.5 rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <Loader2 className="w-6 h-6 animate-spin" />
