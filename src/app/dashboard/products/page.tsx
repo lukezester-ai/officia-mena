@@ -1,5 +1,5 @@
 import { db } from '@/lib/db/db';
-import { products, inventoryLevels } from '@/lib/db/schema/inventory';
+import { products } from '@/lib/db/schema/inventory';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { eq, desc } from 'drizzle-orm';
 import Link from 'next/link';

@@ -90,7 +90,7 @@ export default function NewInvoicePage() {
             </div>
 
             {/* Rows */}
-            {items.map((item, index) => (
+            {items.map((item) => (
               <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/50">
                 <div className="col-span-1 md:col-span-6">
                   <input 

@@ -5,12 +5,13 @@ import { eq, and } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 
-export default async function PrintInvoicePage({ params }: { params: { id: string } }) {
+export default async function PrintInvoicePage({ params }: { params: Promise<{ id: string }> }) {
   const tenant = await requireTenant();
+  const { id } = await params;
   
   const invoiceResult = await db.select()
     .from(invoices)
-    .where(and(eq(invoices.id, params.id), eq(invoices.tenantId, tenant.id)))
+    .where(and(eq(invoices.id, id), eq(invoices.tenantId, tenant.id)))
     .limit(1);
 
   if (invoiceResult.length === 0) {
@@ -91,7 +92,7 @@ export default async function PrintInvoicePage({ params }: { params: { id: strin
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
-            {items.map((item: any, i: number) => (
+            {items.map((item: { name: string, quantity: number, price: number }, i: number) => (
               <tr key={i} className="text-zinc-800">
                 <td className="py-4 px-4 font-medium">{item.name}</td>
                 <td className="py-4 px-4 text-center font-sans">{item.quantity}</td>
