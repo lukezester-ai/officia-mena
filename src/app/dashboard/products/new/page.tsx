@@ -39,12 +39,12 @@ export default function NewProductPage() {
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 backdrop-blur-xl space-y-6">
           <h2 className="text-lg font-medium text-white border-b border-zinc-800 pb-4">نوع الصنف</h2>
           <div className="flex gap-4">
-            <label className={\`flex-1 cursor-pointer rounded-xl border p-4 transition-all \${type === 'product' ? 'border-emerald-500 bg-emerald-500/10' : 'border-zinc-800 bg-zinc-950 hover:bg-zinc-900'}\`}>
+            <label className={`flex-1 cursor-pointer rounded-xl border p-4 transition-all ${type === 'product' ? 'border-emerald-500 bg-emerald-500/10' : 'border-zinc-800 bg-zinc-950 hover:bg-zinc-900'}`}>
               <input type="radio" name="type" value="product" checked={type === 'product'} onChange={() => setType('product')} className="sr-only" />
               <div className="font-bold text-white mb-1">منتج ملموس</div>
               <div className="text-sm text-zinc-400">بضاعة لها كميات في المخزن</div>
             </label>
-            <label className={\`flex-1 cursor-pointer rounded-xl border p-4 transition-all \${type === 'service' ? 'border-purple-500 bg-purple-500/10' : 'border-zinc-800 bg-zinc-950 hover:bg-zinc-900'}\`}>
+            <label className={`flex-1 cursor-pointer rounded-xl border p-4 transition-all ${type === 'service' ? 'border-purple-500 bg-purple-500/10' : 'border-zinc-800 bg-zinc-950 hover:bg-zinc-900'}`}>
               <input type="radio" name="type" value="service" checked={type === 'service'} onChange={() => setType('service')} className="sr-only" />
               <div className="font-bold text-white mb-1">خدمة</div>
               <div className="text-sm text-zinc-400">خدمات استشارية، صيانة، إلخ (لا تتبع كميات)</div>

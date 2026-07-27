@@ -11,15 +11,15 @@ export default async function DashboardPage() {
   const tenant = await requireTenant();
 
   // 1. Fetch metrics
-  const invoicesResult = await db.select({ count: sql<number>\`count(*)\`, total: sql<number>\`sum(total_amount)\` })
+  const invoicesResult = await db.select({ count: sql<number>`count(*)`, total: sql<number>`sum(total_amount)` })
     .from(invoices)
     .where(eq(invoices.tenantId, tenant.id));
   
-  const clientsResult = await db.select({ count: sql<number>\`count(*)\` })
+  const clientsResult = await db.select({ count: sql<number>`count(*)` })
     .from(clients)
     .where(eq(clients.tenantId, tenant.id));
     
-  const productsResult = await db.select({ count: sql<number>\`count(*)\` })
+  const productsResult = await db.select({ count: sql<number>`count(*)` })
     .from(products)
     .where(eq(products.tenantId, tenant.id));
 
@@ -150,13 +150,13 @@ export default async function DashboardPage() {
 
             {/* Area Path */}
             <path 
-              d={\`M 0 200 \${chartPoints.map((p, i) => \`L \${(i / (chartPoints.length - 1)) * 1000} \${200 - (p / maxPoint) * 180}\`).join(' ')} L 1000 200 Z\`} 
+              d={`M 0 200 ${chartPoints.map((p, i) => `L ${(i / (chartPoints.length - 1)) * 1000} ${200 - (p / maxPoint) * 180}`).join(' ')} L 1000 200 Z`} 
               fill="url(#area-gradient)" 
             />
 
             {/* Line Path */}
             <path 
-              d={\`M 0 \${200 - (chartPoints[0] / maxPoint) * 180} \${chartPoints.map((p, i) => \`L \${(i / (chartPoints.length - 1)) * 1000} \${200 - (p / maxPoint) * 180}\`).join(' ')}\`} 
+              d={`M 0 ${200 - (chartPoints[0] / maxPoint) * 180} ${chartPoints.map((p, i) => `L ${(i / (chartPoints.length - 1)) * 1000} ${200 - (p / maxPoint) * 180}`).join(' ')}`} 
               fill="none" 
               stroke="#3b82f6" 
               strokeWidth="4" 
