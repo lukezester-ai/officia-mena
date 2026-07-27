@@ -33,7 +33,8 @@ export default function LoginPage() {
                 identityPreviewEditButton: "text-blue-400",
               },
             }}
-            routing="hash"
+            routing="path"
+            path="/login"
             signUpUrl="/signup"
             fallbackRedirectUrl="/dashboard"
           />
