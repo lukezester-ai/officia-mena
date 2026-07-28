@@ -109,7 +109,7 @@ export default async function LoginPage() {
 
           <div className="relative flex items-center py-2">
             <div className="flex-grow border-t border-zinc-800"></div>
-            <span className="flex-shrink-0 mx-4 text-zinc-500 text-sm">أو للنسخة التجريبية</span>
+            <span className="flex-shrink-0 mx-4 text-zinc-500 text-sm">أو للدخول التجريبي</span>
             <div className="flex-grow border-t border-zinc-800"></div>
           </div>
 
@@ -174,7 +174,7 @@ export default async function LoginPage() {
                   fill="#EA4335"
                 />
               </svg>
-              Google الدخول باستخدام
+              تسجيل الدخول باستخدام Google
             </button>
           </form>
 
