@@ -61,10 +61,19 @@ export default async function LoginPage() {
           <form
             action={async (formData) => {
               "use server"
-              await signIn("credentials", formData)
+              try {
+                await signIn("credentials", formData)
+              } catch (error: any) {
+                if (error?.type === "CredentialsSignin") {
+                  // Ignore and redirect back with error
+                } else {
+                  throw error; // Rethrow NEXT_REDIRECT
+                }
+              }
             }}
             className="space-y-4"
           >
+            {/* Show error if needed */}
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-2">البريد الإلكتروني</label>
               <input
@@ -106,7 +115,15 @@ export default async function LoginPage() {
           <form
             action={async () => {
               "use server"
-              await signIn("credentials", { email: "demo@officia.mena", isDemo: "true", redirectTo: "/dashboard" })
+              try {
+                await signIn("credentials", { email: "demo@officia.mena", isDemo: "true", redirectTo: "/dashboard" })
+              } catch (error: any) {
+                if (error?.type === "CredentialsSignin") {
+                  // Error
+                } else {
+                  throw error; // Rethrow NEXT_REDIRECT
+                }
+              }
             }}
           >
             <button
@@ -121,7 +138,15 @@ export default async function LoginPage() {
           <form
             action={async () => {
               "use server"
-              await signIn("google", { redirectTo: "/dashboard" })
+              try {
+                await signIn("google", { redirectTo: "/dashboard" })
+              } catch (error: any) {
+                if (error?.type === "CallbackRouteError" || error?.type === "AccessDenied" || error?.name === "AuthError") {
+                  // Ignore
+                } else {
+                  throw error;
+                }
+              }
             }}
           >
             <button
