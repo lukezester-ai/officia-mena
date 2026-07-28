@@ -1,64 +1,54 @@
-import { db } from '@/lib/db/db';
-import { tenants } from '@/lib/db/schema/tenants';
-import { users } from '@/lib/db/schema/users';
+import { db } from '../db/db';
+import { tenants } from '../db/schema/tenants';
+import { users } from '../db/schema/users';
 import { eq } from 'drizzle-orm';
-import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/auth';
 
-export type TenantRecord = {
-  id: string;
-  name: string;
-  crn: string | null;
-  trn: string | null;
-  country: string | null;
-  createdAt: Date | null;
-  updatedAt: Date | null;
-  isMock: boolean;
-};
+export async function getTenant() {
+  const session = await auth();
+  
+  // If no session, fallback to development tenant for demo purposes
+  let userRecord = null;
+  if (session?.user?.email) {
+    const records = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1);
+    if (records.length > 0) {
+      userRecord = records[0];
+    }
+  }
+  
+  let activeTenantId = userRecord?.tenantId;
 
-async function findOrProvisionUser(clerkId: string, email: string) {
-  const existing = await db.select().from(users).where(eq(users.clerkId, clerkId)).limit(1);
-  if (existing.length > 0 && existing[0].tenantId) {
-    return existing[0];
+  if (!activeTenantId) {
+    // Find or create the default development tenant
+    const defaultTenantName = 'Officia MENA Corp';
+    const tenantRecords = await db.select().from(tenants).where(eq(tenants.name, defaultTenantName)).limit(1);
+    
+    if (tenantRecords.length > 0) {
+      activeTenantId = tenantRecords[0].id;
+    } else {
+      const [newTenant] = await db.insert(tenants).values({
+        name: defaultTenantName,
+        crn: '1010123456',
+      }).returning();
+      activeTenantId = newTenant.id;
+    }
+    
+    // If we have a user but they don't have a tenant, attach them
+    if (userRecord && !userRecord.tenantId && activeTenantId) {
+      await db.update(users).set({ tenantId: activeTenantId }).where(eq(users.id, userRecord.id));
+    }
   }
 
-  // Check if they exist by email but no clerkId (migration scenario)
-  const existingByEmail = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  if (existingByEmail.length > 0 && existingByEmail[0].tenantId) {
-    await db.update(users).set({ clerkId }).where(eq(users.id, existingByEmail[0].id));
-    return { ...existingByEmail[0], clerkId };
-  }
+  if (!activeTenantId) return null;
 
-  const tenantResult = await db.insert(tenants).values({
-    name: email.split('@')[0] + "'s Company",
-    country: 'SA',
-    crn: 'TEMP-' + Date.now().toString(36).toUpperCase(),
-  }).returning();
-
-  const tenant = tenantResult[0];
-
-  const [userResult] = await db.insert(users).values({
-    clerkId: clerkId,
-    tenantId: tenant.id,
-    email,
-  }).returning();
-
-  return { ...userResult, tenantId: tenant.id };
+  const [tenant] = await db.select().from(tenants).where(eq(tenants.id, activeTenantId)).limit(1);
+  return tenant || null;
 }
 
 export async function requireTenant() {
-  const existing = await db.select().from(tenants).limit(1);
-  if (existing.length > 0) {
-    return { ...existing[0], isMock: true } as TenantRecord;
+  const tenant = await getTenant();
+  if (!tenant) {
+    throw new Error('Tenant not found');
   }
-  
-  const [newTenant] = await db.insert(tenants).values({
-    name: 'Development Company',
-    crn: '1234567890',
-    country: 'SA'
-  }).returning();
-  
-  return { ...newTenant, isMock: true } as TenantRecord;
-
-
+  return tenant;
 }

@@ -10,13 +10,12 @@ export default async function BillingPage() {
   const tenant = await requireTenant();
 
   let subscription: { planId: string | null; status: string | null; stripeCustomerId: string | null } | undefined;
-  if (!tenant.isMock) {
-    try {
-      const subResult = await db.select().from(subscriptions).where(eq(subscriptions.tenantId, tenant.id)).limit(1);
-      subscription = subResult[0];
-    } catch {
-      // table may not exist yet
-    }
+  
+  try {
+    const subResult = await db.select().from(subscriptions).where(eq(subscriptions.tenantId, tenant.id)).limit(1);
+    subscription = subResult[0];
+  } catch {
+    // table may not exist yet
   }
 
   const currentPlan = subscription?.planId || 'free';
