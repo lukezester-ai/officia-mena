@@ -32,7 +32,7 @@ export default function Home() {
           
           <div className="flex items-center gap-4">
 
-            <Link href="/login" className="px-6 py-2.5 rounded-full gold-gradient text-[#1A120B] font-bold hover:opacity-90 transition-all">
+            <Link href="/dashboard" className="px-6 py-2.5 rounded-full gold-gradient text-[#1A120B] font-bold hover:opacity-90 transition-all">
               تسجيل الدخول
             </Link>
           </div>
@@ -58,7 +58,7 @@ export default function Home() {
             </div>
             
             <div className="flex flex-wrap gap-4 items-center">
-              <Link href="/login" className="px-8 py-4 rounded-xl gold-gradient text-[#1A120B] text-lg font-bold hover:opacity-90 transition-all flex items-center gap-2">
+              <Link href="/dashboard" className="px-8 py-4 rounded-xl gold-gradient text-[#1A120B] text-lg font-bold hover:opacity-90 transition-all flex items-center gap-2">
                 ابدأ الآن مجاناً
               </Link>
               <Link href="#pricing" className="px-8 py-4 rounded-xl border border-[var(--color-gold-700)] text-[var(--color-gold-500)] text-lg font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
@@ -238,7 +238,7 @@ export default function Home() {
                 <strong className="text-white">مرحلة الوصول المبكر (Early Access)</strong> — 
                 المنصة قيد التطوير. سجّل الآن لتحصل على أولوية الوصول وتجربة مجانية ممتدة.
               </span>
-              <Link href="/login" className="px-4 py-1.5 rounded-lg gold-gradient text-[#1A120B] text-sm font-bold hover:opacity-90 transition-all shrink-0">
+              <Link href="/dashboard" className="px-4 py-1.5 rounded-lg gold-gradient text-[#1A120B] text-sm font-bold hover:opacity-90 transition-all shrink-0">
                 سجّل الآن
               </Link>
             </div>
@@ -280,7 +280,7 @@ export default function Home() {
                     إدارة المخزون الأساسية
                   </li>
                 </ul>
-                <Link href="/login" className="block w-full py-3 rounded-xl border border-[var(--color-gold-700)] text-center text-[var(--color-gold-500)] font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
+                <Link href="/dashboard" className="block w-full py-3 rounded-xl border border-[var(--color-gold-700)] text-center text-[var(--color-gold-500)] font-bold hover:bg-[rgba(212,175,55,0.1)] transition-all">
                   ابدأ مجاناً (14 يوم)
                 </Link>
               </div>
@@ -315,7 +315,7 @@ export default function Home() {
                     نظام نقاط البيع (POS)
                   </li>
                 </ul>
-                <Link href="/login" className="block w-full py-3 rounded-xl gold-gradient text-[#1A120B] text-center font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all">
+                <Link href="/dashboard" className="block w-full py-3 rounded-xl gold-gradient text-[#1A120B] text-center font-bold hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all">
                   اشترك الآن
                 </Link>
               </div>
@@ -422,7 +422,7 @@ export default function Home() {
                   <li><Link href="/" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">الرئيسية</Link></li>
                   <li><Link href="/about" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">عن المنصة</Link></li>
                   <li><Link href="/contact" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">تواصل معنا</Link></li>
-                  <li><Link href="/login" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">تسجيل الدخول</Link></li>
+                  <li><Link href="/dashboard" className="text-sm text-[var(--color-desert-300)] hover:text-[var(--color-gold-500)] transition-colors">تسجيل الدخول</Link></li>
                 </ul>
               </div>
 
