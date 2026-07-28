@@ -63,8 +63,9 @@ export default async function LoginPage() {
               "use server"
               try {
                 await signIn("credentials", formData)
-              } catch (error: any) {
-                if (error?.type === "CredentialsSignin") {
+              } catch (error) {
+                const err = error as Error & { type?: string };
+                if (err?.type === "CredentialsSignin") {
                   // Ignore and redirect back with error
                 } else {
                   throw error; // Rethrow NEXT_REDIRECT
@@ -117,8 +118,9 @@ export default async function LoginPage() {
               "use server"
               try {
                 await signIn("credentials", { email: "demo@officia.mena", isDemo: "true", redirectTo: "/dashboard" })
-              } catch (error: any) {
-                if (error?.type === "CredentialsSignin") {
+              } catch (error) {
+                const err = error as Error & { type?: string };
+                if (err?.type === "CredentialsSignin") {
                   // Error
                 } else {
                   throw error; // Rethrow NEXT_REDIRECT
@@ -140,8 +142,9 @@ export default async function LoginPage() {
               "use server"
               try {
                 await signIn("google", { redirectTo: "/dashboard" })
-              } catch (error: any) {
-                if (error?.type === "CallbackRouteError" || error?.type === "AccessDenied" || error?.name === "AuthError") {
+              } catch (error) {
+                const err = error as Error & { type?: string; name?: string };
+                if (err?.type === "CallbackRouteError" || err?.type === "AccessDenied" || err?.name === "AuthError") {
                   // Ignore
                 } else {
                   throw error;
