@@ -13,6 +13,7 @@ export const accounts = pgTable('accounts', {
   description: text('description'),
   isSystem: boolean('is_system').default(false).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
+  isZakatable: boolean('is_zakatable').default(false).notNull(), // Islamic Finance: marks accounts subject to Zakat
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [

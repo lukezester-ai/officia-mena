@@ -27,6 +27,10 @@ export const invoices = pgTable('invoices', {
   zatcaQrCode: text('zatca_qr_code'), // Base64 encoded TLV QR code for ZATCA
   isZatcaReported: boolean('is_zatca_reported').default(false),
   
+  // Islamic Finance (Penalty -> Charity)
+  lateFeeAmount: numeric('late_fee_amount', { precision: 12, scale: 2 }).default('0'),
+  lateFeeIsCharity: boolean('late_fee_is_charity').default(true),
+  
   status: varchar('status', { length: 20 }).default('draft'), // draft, issued, paid, overdue, cancelled
   notes: text('notes'),
   

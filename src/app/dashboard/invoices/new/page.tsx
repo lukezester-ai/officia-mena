@@ -147,7 +147,7 @@ export default function NewInvoicePage() {
           </button>
         </div>
 
-        {/* Summary Section */}
+        {/* Summary Section & Penalties */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-8">
           <div className="w-full md:w-1/2 space-y-4">
              <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 backdrop-blur-xl space-y-4">
@@ -158,6 +158,37 @@ export default function NewInvoicePage() {
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all resize-none" 
                   placeholder="أي ملاحظات إضافية للعميل..."
                 ></textarea>
+             </div>
+
+             <div className="bg-emerald-900/10 border border-emerald-500/20 rounded-2xl p-6 backdrop-blur-xl space-y-4">
+                <h3 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                  الشريعة الإسلامية (غرامة التأخير)
+                </h3>
+                <p className="text-xs text-zinc-400">
+                  لتجنب الربا، يتم توجيه رسوم التأخير إلى حساب التبرعات (Charity Fund Payable).
+                </p>
+                <div className="flex gap-4 items-center">
+                  <div className="flex-1">
+                    <label className="text-xs font-medium text-zinc-500 mb-1 block">مبلغ الغرامة (SAR)</label>
+                    <input 
+                      name="lateFeeAmount" 
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-2 px-3 text-white focus:outline-none focus:border-emerald-500 transition-all font-sans" 
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 mt-5">
+                    <input 
+                      type="checkbox" 
+                      name="lateFeeIsCharity"
+                      defaultChecked
+                      className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-900" 
+                    />
+                    <label className="text-sm font-medium text-white">توجيه للتبرعات</label>
+                  </div>
+                </div>
              </div>
           </div>
           
@@ -171,7 +202,7 @@ export default function NewInvoicePage() {
               <span className="text-white">{vatAmount.toFixed(2)} SAR</span>
             </div>
             <div className="pt-4 border-t border-zinc-800 flex justify-between items-center">
-              <span className="font-bold text-white">الإجمالي:</span>
+              <span className="font-bold text-white">الإجمالي (بدون الغرامة):</span>
               <span className="text-2xl font-bold text-blue-500">{total.toFixed(2)} SAR</span>
             </div>
           </div>

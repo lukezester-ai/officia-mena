@@ -22,6 +22,7 @@ export async function createProduct(formData: FormData) {
   const isHalalCertified = formData.get('isHalalCertified') === 'on';
   const halalCertificateNumber = formData.get('halalCertificateNumber') as string;
   const halalExpiryDateStr = formData.get('halalExpiryDate') as string;
+  const expiryDateStr = formData.get('expiryDate') as string;
   const expiryDateHijri = formData.get('expiryDateHijri') as string;
 
   await db.insert(products).values({
@@ -37,6 +38,7 @@ export async function createProduct(formData: FormData) {
     isHalalCertified,
     halalCertificateNumber,
     halalExpiryDate: halalExpiryDateStr ? new Date(halalExpiryDateStr) : null,
+    expiryDate: expiryDateStr ? new Date(expiryDateStr) : null,
     expiryDateHijri,
   });
 

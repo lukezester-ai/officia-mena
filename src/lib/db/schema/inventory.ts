@@ -27,6 +27,7 @@ export const products = pgTable('products', {
   isHalalCertified: boolean('is_halal_certified').default(false),
   halalCertificateNumber: varchar('halal_certificate_number', { length: 100 }),
   halalExpiryDate: timestamp('halal_expiry_date'),
+  expiryDate: timestamp('expiry_date'), // Standard Gregorian
   expiryDateHijri: varchar('expiry_date_hijri', { length: 20 }), // e.g. "1448-09-01"
   // Petroleum Sector
   isPetroleum: boolean('is_petroleum').default(false),

@@ -32,13 +32,15 @@ export async function createInvoice(data: {
   vatRate: number; // e.g. 15 for 15%
   isDraft: boolean;
   notes?: string;
+  lateFeeAmount?: number;
+  lateFeeIsCharity?: boolean;
 }) {
   try {
     const tenant = await requireTenant();
     
     const subtotal = data.subtotal;
     const vatAmount = subtotal * (data.vatRate / 100);
-    const totalAmount = subtotal + vatAmount;
+    const totalAmount = subtotal + vatAmount + (data.lateFeeAmount || 0); // Include late fee in total if you want, or handle separately. Usually penalty is separate from VAT.
     
     let qrCode = null;
     const status = data.isDraft ? 'draft' : 'issued';
@@ -68,6 +70,8 @@ export async function createInvoice(data: {
       vatRate: data.vatRate.toFixed(2),
       vatAmount: vatAmount.toFixed(2),
       totalAmount: totalAmount.toFixed(2),
+      lateFeeAmount: (data.lateFeeAmount || 0).toFixed(2),
+      lateFeeIsCharity: data.lateFeeIsCharity !== undefined ? data.lateFeeIsCharity : true,
       issueDate: new Date(),
       status: status,
       zatcaQrCode: qrCode,

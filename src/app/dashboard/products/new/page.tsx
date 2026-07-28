@@ -90,6 +90,23 @@ export default function NewProductPage() {
           </div>
         </div>
 
+        {/* Expiry Dates - ONLY for products */}
+        {type === 'product' && (
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 backdrop-blur-xl space-y-6">
+            <h2 className="text-lg font-medium text-white border-b border-zinc-800 pb-4">تواريخ الصلاحية</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-400">تاريخ انتهاء الصلاحية (ميلادي)</label>
+                <input name="expiryDate" type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-emerald-500 transition-all font-sans" dir="ltr" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-zinc-400">تاريخ انتهاء الصلاحية (هجري)</label>
+                <input name="expiryDateHijri" type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-emerald-500 transition-all font-sans" dir="ltr" placeholder="مثال: 1446-08-01" />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Halal / MENA Compliance - ONLY for products */}
         {type === 'product' && (
           <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 backdrop-blur-xl space-y-6 relative overflow-hidden">
@@ -102,7 +119,7 @@ export default function NewProductPage() {
                 تراخيص الجودة وشهادة Halal
               </h2>
               <label className="flex items-center gap-3 cursor-pointer">
-                <span className="text-sm font-medium text-white">הمح المنتج معتمد (Halal)؟</span>
+                <span className="text-sm font-medium text-white">المنتج معتمد (Halal)؟</span>
                 <input 
                   type="checkbox" 
                   name="isHalalCertified"
@@ -122,10 +139,6 @@ export default function NewProductPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-zinc-400">تاريخ انتهاء الشهادة</label>
                   <input name="halalExpiryDate" type="date" className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-emerald-500 transition-all font-sans" dir="ltr" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-zinc-400">تاريخ انتهاء الصلاحية (هجري)</label>
-                  <input name="expiryDateHijri" type="text" className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-emerald-500 transition-all font-sans" dir="ltr" placeholder="مثال: 1446-08-01" />
                 </div>
               </div>
             )}
