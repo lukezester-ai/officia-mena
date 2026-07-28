@@ -60,30 +60,5 @@ export async function requireTenant() {
   
   return { ...newTenant, isMock: true } as TenantRecord;
 
-  // unreachable code below
-  const user = await currentUser();
-  if (!user) {
-    redirect('/login');
-  }
 
-  const email = user.emailAddresses[0]?.emailAddress;
-  if (!email) {
-    throw new Error('User has no email address');
-  }
-
-  const dbUser = await findOrProvisionUser(user.id, email);
-  
-  if (!dbUser.tenantId) {
-    redirect('/onboarding');
-  }
-
-  const tenant = await db.select().from(tenants).where(eq(tenants.id, dbUser.tenantId)).limit(1);
-  if (tenant.length === 0) {
-    throw new Error('Tenant not found');
-  }
-
-  return {
-    ...tenant[0],
-    isMock: false
-  } as TenantRecord;
 }
