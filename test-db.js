@@ -1,9 +1,15 @@
+require('dotenv').config({ path: '.env.local' });
 const postgres = require('postgres');
-const sql = postgres(process.env.DATABASE_URL);
-sql`SELECT 1`.then(() => {
-  console.log('Connected!');
-  process.exit(0);
-}).catch(e => {
-  console.error('Connection Error:', e);
-  process.exit(1);
-});
+const sql = postgres(process.env.STORAGE_POSTGRES_URL);
+
+async function test() {
+  try {
+    const res = await sql`SELECT 1 as num`;
+    console.log('Database connection successful:', res);
+  } catch (err) {
+    console.error('Database connection failed:', err);
+  } finally {
+    process.exit();
+  }
+}
+test();
