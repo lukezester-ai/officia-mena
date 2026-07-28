@@ -49,7 +49,7 @@ export default function Home() {
             </h1>
             
             <div className="text-lg md:text-xl text-[var(--color-desert-200)] mb-10 font-light space-y-3">
-              <p>منصة محاسبية ذكية لرواد الأعمال والشركات. الحل الأمثل لإدارة الشؤون المالية بثقة.</p>
+              <p>المنصة المحاسبية الأولى المدعومة بالذكاء الاصطناعي في الشرق الأوسط، مصممة للأعمال الحديثة والصناعات المتخصصة.</p>
               <ul className="space-y-2 mt-4 text-base">
                 <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[var(--color-gold-500)] rounded-full"></div> <span>مدعومة بالذكاء الاصطناعي (Maestro AI)</span></li>
                 <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[var(--color-gold-500)] rounded-full"></div> <span>أتمتة كاملة لإدارة النفقات والمخزون</span></li>
