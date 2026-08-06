@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, numeric, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, boolean, uniqueIndex } from 'drizzle-orm/pg-core';
 import { vector } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
@@ -23,8 +23,12 @@ export const invoices = pgTable('invoices', {
   currency: varchar('currency', { length: 3 }).default('SAR'), // SAR, AED, BHD etc.
   
   // ZATCA specific fields (e-invoicing Phase 2)
-  zatcaHash: text('zatca_hash'), // Cryptographic hash of the invoice
+  zatcaHash: text('zatca_hash'), // Cryptographic hash of the invoice (SHA-256)
+  zatcaPreviousHash: varchar('zatca_previous_hash', { length: 64 }), // PIH - Previous Invoice Hash
+  zatcaCryptographicStamp: text('zatca_cryptographic_stamp'), // ECDSA digital signature
+  zatcaXml: text('zatca_xml'), // UBL 2.1 XML payload
   zatcaQrCode: text('zatca_qr_code'), // Base64 encoded TLV QR code for ZATCA
+  zatcaStatus: varchar('zatca_status', { length: 20 }).default('pending'), // pending, cleared, reported, rejected
   isZatcaReported: boolean('is_zatca_reported').default(false),
   
   // Islamic Finance (Penalty -> Charity)
@@ -40,6 +44,10 @@ export const invoices = pgTable('invoices', {
   // Line items (JSON)
   items: text('items'), // We'll store stringified JSON array of items for Phase 1 simplicity
   
+  idempotencyKey: varchar('idempotency_key', { length: 255 }),
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-});
+}, (table) => [
+  uniqueIndex('invoices_tenant_idemp_idx').on(table.tenantId, table.idempotencyKey)
+]);

@@ -1,9 +1,6 @@
-import {
-  createJournalEntryOnce,
-  ensureDefaultChartOfAccounts,
-  getAccountIdByCode,
-  type JournalLineInput,
-} from './ledger';
+import { createJournalEntryOnce } from './journals/create-journal';
+import { ensureDefaultChartOfAccounts, getAccountIdByCode } from './accounts';
+import { type JournalLineInput } from './utils';
 
 type MoneyInput = string | number;
 

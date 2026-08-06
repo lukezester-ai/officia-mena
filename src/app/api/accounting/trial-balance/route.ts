@@ -1,6 +1,6 @@
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { csvDownloadResponse } from '@/lib/accounting/csv';
-import { getAccountingOverview } from '@/lib/accounting/ledger';
+import { getAccountingOverview } from '@/lib/accounting';
 import { getErrorMessage } from '@/lib/errors';
 
 export async function GET() {

@@ -35,10 +35,12 @@ export const journalEntries = pgTable('journal_entries', {
   totalCredit: numeric('total_credit', { precision: 15, scale: 2 }).notNull(),
   postedAt: timestamp('posted_at'),
   createdBy: varchar('created_by', { length: 255 }),
+  idempotencyKey: varchar('idempotency_key', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
   uniqueIndex('journal_entries_tenant_number_unique').on(table.tenantId, table.entryNumber),
+  uniqueIndex('journal_entries_tenant_idemp_idx').on(table.tenantId, table.idempotencyKey),
   index('journal_entries_tenant_date_idx').on(table.tenantId, table.entryDate),
   index('journal_entries_source_idx').on(table.tenantId, table.sourceType, table.sourceId),
 ]);

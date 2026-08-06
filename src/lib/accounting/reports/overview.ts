@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db/db';
 import { accounts, journalEntries, journalLines } from '@/lib/db/schema/accounting';
 import { bankTransactions } from '@/lib/db/schema/bank';
@@ -6,69 +6,9 @@ import { expenses } from '@/lib/db/schema/expenses';
 import { payrollRuns } from '@/lib/db/schema/hr';
 import { inventoryLevels, products } from '@/lib/db/schema/inventory';
 import { invoices } from '@/lib/db/schema/invoices';
-import { DEFAULT_CHART_OF_ACCOUNTS } from './default-chart';
+import { moneyToCents, centsToMoney } from '../utils';
 
-type MoneyInput = string | number | null | undefined;
-
-export type JournalLineInput = {
-  accountId: string;
-  description?: string;
-  debit?: MoneyInput;
-  credit?: MoneyInput;
-  entityType?: string;
-  entityId?: string;
-};
-
-export type CreateJournalEntryInput = {
-  tenantId: string;
-  entryDate?: Date;
-  memo?: string;
-  sourceType?: string;
-  sourceId?: string;
-  currency?: string;
-  status?: 'draft' | 'posted';
-  createdBy?: string;
-  lines: JournalLineInput[];
-};
-
-function moneyToCents(value: MoneyInput) {
-  if (value === null || value === undefined || value === '') {
-    return 0;
-  }
-
-  const raw = typeof value === 'number' ? value.toFixed(2) : value.trim();
-  if (!/^-?\d+(\.\d{1,2})?$/.test(raw)) {
-    throw new Error(`Invalid money amount: ${raw}`);
-  }
-
-  const sign = raw.startsWith('-') ? -1 : 1;
-  const unsigned = raw.replace('-', '');
-  const [whole, fraction = ''] = unsigned.split('.');
-  const cents = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
-
-  if (!Number.isSafeInteger(cents)) {
-    throw new Error(`Money amount is too large: ${raw}`);
-  }
-
-  return sign * cents;
-}
-
-function centsToMoney(cents: number) {
-  const sign = cents < 0 ? '-' : '';
-  const absolute = Math.abs(cents);
-  const whole = Math.floor(absolute / 100);
-  const fraction = (absolute % 100).toString().padStart(2, '0');
-  return `${sign}${whole}.${fraction}`;
-}
-
-function nextEntryNumber() {
-  const date = new Date();
-  const stamp = date.toISOString().slice(0, 10).replace(/-/g, '');
-  const suffix = `${date.getTime()}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
-  return `JE-${stamp}-${suffix}`;
-}
-
-function agingBucket(date: Date | null, today = new Date()) {
+export function agingBucket(date: Date | null, today = new Date()) {
   if (!date) {
     return 'current' as const;
   }
@@ -80,7 +20,7 @@ function agingBucket(date: Date | null, today = new Date()) {
   return 'daysOver90' as const;
 }
 
-function cashFlowCategory(sourceType: string | null) {
+export function cashFlowCategory(sourceType: string | null) {
   if (!sourceType) return 'Manual / other';
   if (sourceType === 'pos.sale') return 'POS cash sales';
   if (sourceType === 'invoice.payment') return 'Customer collections';
@@ -89,174 +29,6 @@ function cashFlowCategory(sourceType: string | null) {
   if (sourceType === 'manual') return 'Manual entries';
   if (sourceType === 'journal.reversal') return 'Reversals';
   return 'Other accounting events';
-}
-
-export async function ensureDefaultChartOfAccounts(tenantId: string) {
-  const values = DEFAULT_CHART_OF_ACCOUNTS.map((account) => ({
-    tenantId,
-    code: account.code,
-    name: account.name,
-    type: account.type,
-    normalBalance: account.normalBalance,
-    description: account.description,
-    isSystem: true,
-    isActive: true,
-  }));
-
-  await db
-    .insert(accounts)
-    .values(values)
-    .onConflictDoNothing({ target: [accounts.tenantId, accounts.code] });
-}
-
-export async function createJournalEntry(input: CreateJournalEntryInput) {
-  if (input.lines.length < 2) {
-    throw new Error('A journal entry requires at least two lines.');
-  }
-
-  const normalizedLines = input.lines.map((line, index) => {
-    const debitCents = moneyToCents(line.debit);
-    const creditCents = moneyToCents(line.credit);
-
-    if (debitCents < 0 || creditCents < 0) {
-      throw new Error('Journal line amounts cannot be negative.');
-    }
-
-    if ((debitCents === 0 && creditCents === 0) || (debitCents > 0 && creditCents > 0)) {
-      throw new Error('Each journal line must have either a debit or a credit amount.');
-    }
-
-    return {
-      ...line,
-      lineNumber: index + 1,
-      debitCents,
-      creditCents,
-    };
-  });
-
-  const currency = input.currency || 'SAR';
-  const SUPPORTED_CURRENCIES = ['SAR', 'AED', 'BHD', 'QAR', 'OMR', 'KWD', 'USD', 'EUR'];
-  if (!SUPPORTED_CURRENCIES.includes(currency)) {
-    throw new Error(`Unsupported currency: ${currency}. Supported: ${SUPPORTED_CURRENCIES.join(', ')}.`);
-  }
-
-  const totalDebit = normalizedLines.reduce((sum, line) => sum + line.debitCents, 0);
-  const totalCredit = normalizedLines.reduce((sum, line) => sum + line.creditCents, 0);
-
-  if (totalDebit === 0 || totalCredit === 0 || totalDebit !== totalCredit) {
-    throw new Error('Journal entry is not balanced: total debits must equal total credits.');
-  }
-
-  const entryNumber = nextEntryNumber();
-  const status = input.status || 'posted';
-  const [entry] = await db.transaction(async (tx) => {
-    const insertedEntries = await tx
-      .insert(journalEntries)
-      .values({
-        tenantId: input.tenantId,
-        entryNumber,
-        entryDate: input.entryDate || new Date(),
-        memo: input.memo,
-        sourceType: input.sourceType,
-        sourceId: input.sourceId,
-        status,
-        currency,
-        totalDebit: centsToMoney(totalDebit),
-        totalCredit: centsToMoney(totalCredit),
-        postedAt: status === 'posted' ? new Date() : null,
-        createdBy: input.createdBy,
-      })
-      .returning();
-
-    await tx.insert(journalLines).values(
-      normalizedLines.map((line) => ({
-        tenantId: input.tenantId,
-        journalEntryId: insertedEntries[0].id,
-        accountId: line.accountId,
-        lineNumber: line.lineNumber,
-        description: line.description,
-        debit: centsToMoney(line.debitCents),
-        credit: centsToMoney(line.creditCents),
-        currency,
-        entityType: line.entityType,
-        entityId: line.entityId,
-      }))
-    );
-
-    return insertedEntries;
-  });
-
-  return entry;
-}
-
-export async function findJournalEntryBySource(tenantId: string, sourceType: string, sourceId: string) {
-  const [entry] = await db
-    .select()
-    .from(journalEntries)
-    .where(
-      and(
-        eq(journalEntries.tenantId, tenantId),
-        eq(journalEntries.sourceType, sourceType),
-        eq(journalEntries.sourceId, sourceId)
-      )
-    )
-    .limit(1);
-
-  return entry || null;
-}
-
-export async function createJournalEntryOnce(input: CreateJournalEntryInput) {
-  if (input.sourceType && input.sourceId) {
-    const existing = await findJournalEntryBySource(input.tenantId, input.sourceType, input.sourceId);
-    if (existing) {
-      return existing;
-    }
-  }
-
-  return createJournalEntry(input);
-}
-
-export async function reverseJournalEntry(tenantId: string, journalEntryId: string) {
-  const [entry] = await db
-    .select()
-    .from(journalEntries)
-    .where(and(eq(journalEntries.tenantId, tenantId), eq(journalEntries.id, journalEntryId)))
-    .limit(1);
-
-  if (!entry) {
-    throw new Error('Journal entry not found.');
-  }
-
-  if (entry.sourceType === 'journal.reversal') {
-    throw new Error('Reversal entries cannot be reversed from this action.');
-  }
-
-  const lines = await db
-    .select()
-    .from(journalLines)
-    .where(and(eq(journalLines.tenantId, tenantId), eq(journalLines.journalEntryId, journalEntryId)))
-    .orderBy(journalLines.lineNumber);
-
-  if (lines.length < 2) {
-    throw new Error('Journal entry has no reversible lines.');
-  }
-
-  return createJournalEntryOnce({
-    tenantId,
-    entryDate: new Date(),
-    memo: `Reversal of ${entry.entryNumber}${entry.memo ? ` - ${entry.memo}` : ''}`,
-    sourceType: 'journal.reversal',
-    sourceId: entry.id,
-    currency: entry.currency || 'SAR',
-    lines: lines.map((line) => ({
-      accountId: line.accountId,
-      description: `Reversal: ${line.description || entry.entryNumber}`,
-      debit: line.credit,
-      credit: line.debit,
-      entityType: line.entityType || undefined,
-      entityId: line.entityId || undefined,
-    })),
-  });
 }
 
 export async function getAccountingOverview(tenantId: string) {
@@ -766,18 +538,4 @@ export async function getAccountingOverview(tenantId: string) {
       },
     },
   };
-}
-
-export async function getAccountIdByCode(tenantId: string, code: string) {
-  const [account] = await db
-    .select({ id: accounts.id })
-    .from(accounts)
-    .where(and(eq(accounts.tenantId, tenantId), eq(accounts.code, code)))
-    .limit(1);
-
-  if (!account) {
-    throw new Error(`Missing account ${code}. Seed the chart of accounts first.`);
-  }
-
-  return account.id;
 }

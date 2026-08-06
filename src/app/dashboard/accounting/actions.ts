@@ -9,7 +9,7 @@ import {
   findJournalEntryBySource,
   getAccountingOverview,
   reverseJournalEntry,
-} from '@/lib/accounting/ledger';
+} from '@/lib/accounting';
 import {
   postApprovedExpense,
   postIssuedInvoice,

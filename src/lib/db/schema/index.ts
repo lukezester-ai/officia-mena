@@ -1,3 +1,4 @@
+export * from './audit_logs';
 export * from './ai_inbox';
 export * from './accounting';
 export * from './approvals';
@@ -15,3 +16,4 @@ export * from './rbac';
 export * from './subscriptions';
 export * from './tenants';
 export * from './users';
+export * from './ai_governance';
