@@ -4,26 +4,19 @@ import createGlobe from 'cobe';
 
 export function Globe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let phi = 0;
-    let width = 0;
-
-    if (!canvasRef.current || !containerRef.current) return;
-
-    const onResize = () => {
-      if (containerRef.current) {
-        width = containerRef.current.offsetWidth;
-      }
-    };
-    window.addEventListener('resize', onResize);
-    onResize();
-
+    if (!canvasRef.current) return;
+    
+    // We use a fixed large resolution (1000x1000) and scale it down with CSS.
+    // This avoids race conditions with offsetWidth being 0 on initial mount.
+    const size = 1000;
+    
     const globe = createGlobe(canvasRef.current, {
       devicePixelRatio: 2,
-      width: width * 2,
-      height: width * 2,
+      width: size,
+      height: size,
       phi: 0,
       theta: 0.3,
       dark: 1,
@@ -41,26 +34,28 @@ export function Globe() {
         // Doha
         { location: [25.2854, 51.5310], size: 0.07 },
       ],
-      // @ts-expect-error - onRender is missing in COBEOptions typings but required by library
+      // @ts-expect-error - onRender is missing in typings
       onRender: (state: Record<string, unknown>) => {
         state.phi = phi;
         phi += 0.005;
-        state.width = width * 2;
-        state.height = width * 2;
       },
     });
 
     return () => {
       globe.destroy();
-      window.removeEventListener('resize', onResize);
     };
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full aspect-square max-w-[600px] flex items-center justify-center">
+    <div className="relative w-full max-w-[500px] aspect-square mx-auto flex items-center justify-center">
       <canvas
         ref={canvasRef}
-        style={{ width: 100 + '%', height: 100 + '%', contain: 'layout paint size' }}
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          contain: 'layout paint size', 
+          opacity: 1 
+        }}
       />
     </div>
   );
