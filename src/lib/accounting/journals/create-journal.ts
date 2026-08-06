@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/lib/db/db';
 import { journalEntries, journalLines } from '@/lib/db/schema/accounting';
-import { MoneyInput, JournalLineInput, CreateJournalEntryInput, moneyToCents, centsToMoney, nextEntryNumber } from '../utils';
+import { CreateJournalEntryInput, moneyToCents, centsToMoney, nextEntryNumber } from '../utils';
 
 export async function createJournalEntry(input: CreateJournalEntryInput) {
   if (input.lines.length < 2) {

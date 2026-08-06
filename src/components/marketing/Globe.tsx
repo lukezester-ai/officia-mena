@@ -29,7 +29,8 @@ export function Globe() {
         // Doha
         { location: [25.2854, 51.5310], size: 0.07 },
       ],
-      onRender: (state) => {
+      // @ts-expect-error - onRender is missing in COBEOptions typings but required by library
+      onRender: (state: Record<string, unknown>) => {
         state.phi = phi;
         phi += 0.005;
       },

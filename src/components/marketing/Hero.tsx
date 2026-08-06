@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Receipt, Users, BrainCircuit } from 'lucide-react';
+import { Receipt, BrainCircuit } from 'lucide-react';
 import { Globe } from './Globe';
 
 export function Hero() {
