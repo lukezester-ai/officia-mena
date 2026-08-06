@@ -4,14 +4,26 @@ import createGlobe from 'cobe';
 
 export function Globe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let phi = 0;
-    if (!canvasRef.current) return;
+    let width = 0;
+
+    if (!canvasRef.current || !containerRef.current) return;
+
+    const onResize = () => {
+      if (containerRef.current) {
+        width = containerRef.current.offsetWidth;
+      }
+    };
+    window.addEventListener('resize', onResize);
+    onResize();
+
     const globe = createGlobe(canvasRef.current, {
       devicePixelRatio: 2,
-      width: 600,
-      height: 600,
+      width: width * 2,
+      height: width * 2,
       phi: 0,
       theta: 0.3,
       dark: 1,
@@ -33,16 +45,19 @@ export function Globe() {
       onRender: (state: Record<string, unknown>) => {
         state.phi = phi;
         phi += 0.005;
+        state.width = width * 2;
+        state.height = width * 2;
       },
     });
 
     return () => {
       globe.destroy();
+      window.removeEventListener('resize', onResize);
     };
   }, []);
 
   return (
-    <div className="relative w-full aspect-square max-w-[600px] flex items-center justify-center">
+    <div ref={containerRef} className="relative w-full aspect-square max-w-[600px] flex items-center justify-center">
       <canvas
         ref={canvasRef}
         style={{ width: 100 + '%', height: 100 + '%', contain: 'layout paint size' }}
