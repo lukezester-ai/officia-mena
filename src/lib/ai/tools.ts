@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db/db';
 import { documentChunks } from '@/lib/db/schema/documents';
 import { google } from '@ai-sdk/google';
-import { sql, and, desc, eq } from 'drizzle-orm';
+import { sql, and, desc, eq, isNull, or } from 'drizzle-orm';
 import { getErrorMessage } from '@/lib/errors';
 import type { ToolSet } from 'ai';
 
@@ -77,24 +77,20 @@ export const inventoryTools = {
   }),
 };
 
-export const documentTools = {
+export const createDocumentTools = (activeTenantId: string) => ({
   searchDocuments: makeTool({
     description: 'Search uploaded company documents for information based on semantic meaning.',
     parameters: z.object({
       query: z.string().describe('The search query or question'),
-      tenantId: z.string().optional().describe('Tenant ID for multi-tenant isolation'),
     }),
-    execute: async ({ query, tenantId }: { query: string; tenantId?: string }) => {
+    execute: async ({ query }: { query: string }) => {
       try {
         const { embedding } = await embed({
           model: google.embedding('text-embedding-004'),
           value: query,
         });
         const similarity = sql<number>`1 - (${documentChunks.embedding} <=> ${JSON.stringify(embedding)})`;
-        const conditions = [eq(documentChunks.docType, 'user_document')];
-        if (tenantId) {
-          conditions.push(eq(documentChunks.tenantId, tenantId));
-        }
+        const conditions = [eq(documentChunks.docType, 'user_document'), eq(documentChunks.tenantId, activeTenantId)];
         const results = await db.select({
           fileName: documentChunks.fileName,
           content: documentChunks.content,
@@ -117,19 +113,18 @@ export const documentTools = {
     description: 'Search official Saudi ZATCA regulations and tax laws.',
     parameters: z.object({
       query: z.string().describe('The tax or ZATCA related question'),
-      tenantId: z.string().optional().describe('Tenant ID for multi-tenant isolation'),
     }),
-    execute: async ({ query, tenantId }: { query: string; tenantId?: string }) => {
+    execute: async ({ query }: { query: string }) => {
       try {
         const { embedding } = await embed({
           model: google.embedding('text-embedding-004'),
           value: query,
         });
         const similarity = sql<number>`1 - (${documentChunks.embedding} <=> ${JSON.stringify(embedding)})`;
-        const conditions = [eq(documentChunks.docType, 'zatca_regulation')];
-        if (tenantId) {
-          conditions.push(eq(documentChunks.tenantId, tenantId));
-        }
+        const conditions = [
+          eq(documentChunks.docType, 'zatca_regulation'),
+          or(isNull(documentChunks.tenantId), eq(documentChunks.tenantId, activeTenantId))!,
+        ];
         const results = await db.select({
           content: documentChunks.content,
           similarity,
@@ -147,10 +142,10 @@ export const documentTools = {
       }
     },
   }),
-};
+});
 
-export const maestroTools = {
+export const createMaestroTools = (tenantId: string) => ({
   ...hrTools,
   ...inventoryTools,
-  ...documentTools,
-};
+  ...createDocumentTools(tenantId),
+});

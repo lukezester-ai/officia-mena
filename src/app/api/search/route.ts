@@ -3,11 +3,13 @@ import { db } from '@/lib/db/db';
 import { invoices } from '@/lib/db/schema/invoices';
 import { embed } from 'ai';
 import { google } from '@ai-sdk/google';
-import { sql, desc, isNotNull } from 'drizzle-orm';
+import { sql, desc, isNotNull, and, eq } from 'drizzle-orm';
 import { getErrorMessage } from '@/lib/errors';
+import { requireTenant } from '@/lib/auth/get-tenant';
 
 export async function GET(req: Request) {
   try {
+    const tenant = await requireTenant();
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q');
 
@@ -34,7 +36,7 @@ export async function GET(req: Request) {
       similarity: similarity,
     })
     .from(invoices)
-    .where(isNotNull(invoices.embedding)) // Only search embedded invoices
+    .where(and(eq(invoices.tenantId, tenant.id), isNotNull(invoices.embedding)))
     .orderBy(desc(similarity))
     .limit(5);
 

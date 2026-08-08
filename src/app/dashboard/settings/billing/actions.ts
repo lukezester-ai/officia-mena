@@ -6,8 +6,10 @@ import { subscriptions } from '@/lib/db/schema/subscriptions';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { requireTenant } from '@/lib/auth/get-tenant';
+import { requireRole } from '@/lib/auth/rbac';
 
 export async function createCheckoutSession(planId: string) {
+  await requireRole('admin');
   const tenant = await requireTenant();
 
   const prices: Record<string, string> = {
@@ -46,6 +48,7 @@ export async function createCheckoutSession(planId: string) {
 }
 
 export async function createPortalSession() {
+  await requireRole('admin');
   const tenant = await requireTenant();
 
   const subResult = await db.select().from(subscriptions).where(eq(subscriptions.tenantId, tenant.id)).limit(1);

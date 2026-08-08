@@ -8,6 +8,7 @@ import { approvals } from '@/lib/db/schema/approvals';
 import { eq, desc, and, type SQL } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
+import { requireRole } from '@/lib/auth/rbac';
 
 export async function getApprovals(filter: 'all' | 'pending' | 'approved' | 'rejected' = 'all') {
   try {
@@ -91,6 +92,7 @@ export async function getApprovalsSummary() {
 
 export async function updateApprovalStatus(id: string, newStatus: 'approved' | 'rejected', notes?: string) {
   try {
+    await requireRole('admin', 'finance', 'manager');
     const tenant = await requireTenant();
     
     await db.update(approvals).set({

@@ -6,11 +6,19 @@ import { and, desc, eq } from 'drizzle-orm';
 import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { postApprovedExpense } from '@/lib/accounting/postings';
+import { requireRole } from '@/lib/auth/rbac';
+import { z } from 'zod';
+
+const expenseSchema = z.object({
+  description: z.string().trim().min(1).max(1000),
+  amount: z.number().finite().positive().max(999_999_999.99),
+  category: z.string().trim().min(1).max(50),
+  expenseDate: z.string().datetime(),
+});
 
 export async function getExpenses() {
   try {
     const tenant = await requireTenant();
-    
     const data = await db
       .select({
         id: expenses.id,
@@ -40,6 +48,7 @@ export async function createExpense(data: {
 }) {
   try {
     const tenant = await requireTenant();
+    data = expenseSchema.parse(data);
     
     await db.insert(expenses).values({
       tenantId: tenant.id,
@@ -59,6 +68,7 @@ export async function createExpense(data: {
 
 export async function approveExpense(id: string) {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
 
     const [expense] = await db

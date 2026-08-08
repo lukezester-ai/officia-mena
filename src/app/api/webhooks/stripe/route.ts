@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/server';
 import { db } from '@/lib/db/db';
 import { subscriptions } from '@/lib/db/schema/subscriptions';
+import { stripeEvents } from '@/lib/db/schema/stripe_events';
 import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
 import { Resend } from 'resend';
@@ -33,6 +34,14 @@ export async function POST(req: Request) {
     );
   } catch (error: unknown) {
     return new NextResponse(`Webhook Error: ${getErrorMessage(error)}`, { status: 400 });
+  }
+
+  const insertedEvents = await db.insert(stripeEvents)
+    .values({ eventId: event.id, eventType: event.type })
+    .onConflictDoNothing({ target: stripeEvents.eventId })
+    .returning({ eventId: stripeEvents.eventId });
+  if (insertedEvents.length === 0) {
+    return new NextResponse('Webhook already processed', { status: 200 });
   }
 
   const session = event.data.object as Stripe.Checkout.Session;

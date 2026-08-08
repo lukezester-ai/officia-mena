@@ -8,11 +8,20 @@ import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { generateZatcaQrCode, ZatcaTags } from '@/lib/accounting/zatca-qr';
 import { postInventoryCogs, postPosSale } from '@/lib/accounting/postings';
+import { requireRole } from '@/lib/auth/rbac';
+import { z } from 'zod';
 
 interface PosLineItem {
   id: string;
   qty: number;
 }
+
+const checkoutSchema = z.object({
+  items: z.array(z.object({ id: z.string().uuid(), qty: z.number().int().positive().max(10_000) })).min(1).max(200),
+  subtotal: z.number().finite().positive().max(999_999_999.99),
+  vatRate: z.number().finite().min(0).max(100),
+  paymentMethod: z.enum(['cash', 'card', 'bank_transfer']),
+});
 
 export async function getPosProducts() {
   try {
@@ -65,16 +74,26 @@ export async function checkoutPos(data: {
   paymentMethod: string;
 }) {
   try {
+    await requireRole('admin', 'finance', 'manager', 'member');
     const tenant = await requireTenant();
+    data = checkoutSchema.parse(data);
     
-    const subtotal = data.subtotal;
+    const productIdsForPricing = data.items.map((item) => item.id);
+    const pricedProducts = await db.select({ id: products.id, unitPrice: products.unitPrice })
+      .from(products)
+      .where(and(eq(products.tenantId, tenant.id), inArray(products.id, productIdsForPricing)));
+    const priceByProductId = new Map(pricedProducts.map((product) => [product.id, Number(product.unitPrice)]));
+    if (pricedProducts.length !== new Set(productIdsForPricing).size) {
+      throw new Error('One or more products are invalid for this tenant.');
+    }
+    const subtotal = data.items.reduce((sum, item) => sum + (priceByProductId.get(item.id) || 0) * item.qty, 0);
     const vatAmount = subtotal * (data.vatRate / 100);
     const totalAmount = subtotal + vatAmount;
     
     // 1. Generate ZATCA QR (Since POS is immediate issuance)
     const zatcaData: ZatcaTags = {
-      sellerName: 'Officia MENA Corp (POS)',
-      vatNumber: '310123456700003',
+      sellerName: tenant.name,
+      vatNumber: tenant.trn || '',
       timestamp: new Date().toISOString(),
       invoiceTotal: totalAmount.toFixed(2),
       vatTotal: vatAmount.toFixed(2)
@@ -97,7 +116,8 @@ export async function checkoutPos(data: {
       issueDate: new Date(),
       status: 'issued',
       zatcaQrCode: qrCode,
-      isZatcaReported: true
+      isZatcaReported: false,
+      zatcaStatus: 'pending',
     }).returning();
 
     await postPosSale({

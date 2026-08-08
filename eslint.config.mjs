@@ -18,6 +18,10 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      "enable-vector.js",
+      "generate-sql.js",
+      "test-db*.js",
+      "test-supabase.js",
     ],
   },
 ];

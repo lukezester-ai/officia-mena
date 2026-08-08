@@ -7,6 +7,7 @@ import { requireTenant } from '@/lib/auth/get-tenant';
 import { generateSifCsv, WPSEmployee } from '@/lib/hr/wps-generator';
 import { postPayrollAccrual } from '@/lib/accounting/postings';
 import { revalidatePath } from 'next/cache';
+import { requireRole } from '@/lib/auth/rbac';
 
 function employeePayrollTotal(employee: {
   basicSalary: string;
@@ -22,6 +23,7 @@ function employeePayrollTotal(employee: {
 
 export async function downloadWpsSif(month: number, year: number): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
 
     // Fetch active employees

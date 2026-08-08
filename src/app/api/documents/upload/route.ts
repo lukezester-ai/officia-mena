@@ -5,15 +5,24 @@ import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
 import { PDFParse } from 'pdf-parse';
 import { getErrorMessage } from '@/lib/errors';
+import { requireTenant } from '@/lib/auth/get-tenant';
+
+const MAX_PDF_BYTES = 10 * 1024 * 1024;
 
 export async function POST(req: Request) {
   try {
+    const tenant = await requireTenant();
     const formData = await req.formData();
     const file = formData.get('file') as File;
-    const tenantId = formData.get('tenantId') as string;
 
-    if (!file || !tenantId) {
-      return NextResponse.json({ error: 'Missing file or tenantId' }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: 'Missing file' }, { status: 400 });
+    }
+    if (file.type !== 'application/pdf' || !file.name.toLowerCase().endsWith('.pdf')) {
+      return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 415 });
+    }
+    if (file.size <= 0 || file.size > MAX_PDF_BYTES) {
+      return NextResponse.json({ error: 'PDF must be between 1 byte and 10 MB' }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -52,7 +61,7 @@ export async function POST(req: Request) {
 
     // Insert into DB
     const insertData = chunks.map((chunk, index) => ({
-      tenantId,
+      tenantId: tenant.id,
       fileName: file.name,
       content: chunk,
       embedding: embeddings[index],

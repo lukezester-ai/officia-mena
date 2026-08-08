@@ -12,6 +12,7 @@ import { generateObject } from 'ai';
 import { google } from '@ai-sdk/google';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
+import { requireRole } from '@/lib/auth/rbac';
 import {
   postApprovedExpense,
   postExpensePayment,
@@ -42,6 +43,7 @@ function addBalance(map: Map<string, number>, id: string, cents: number) {
 
 export async function runSmartReconciliation() {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
 
     const pendingTransactions = await db

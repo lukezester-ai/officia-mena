@@ -7,11 +7,24 @@ import { requireTenant } from '@/lib/auth/get-tenant';
 import { revalidatePath } from 'next/cache';
 import { generateZatcaQrCode, ZatcaTags } from '@/lib/accounting/zatca-qr';
 import { postIssuedInvoice, postInvoicePayment } from '@/lib/accounting/postings';
+import { z } from 'zod';
+import { requireRole } from '@/lib/auth/rbac';
+
+const invoiceInputSchema = z.object({
+  clientName: z.string().trim().min(1).max(255),
+  clientTrn: z.string().trim().max(50).optional(),
+  subtotal: z.number().finite().positive().max(999_999_999.99),
+  vatRate: z.number().finite().min(0).max(100),
+  isDraft: z.boolean(),
+  notes: z.string().trim().max(5000).optional(),
+  lateFeeAmount: z.number().finite().min(0).max(999_999_999.99).optional(),
+  lateFeeIsCharity: z.boolean().optional(),
+});
+const invoiceStatusSchema = z.enum(['draft', 'issued', 'paid', 'overdue', 'cancelled']);
 
 export async function getInvoices() {
   try {
     const tenant = await requireTenant();
-    
     const data = await db
       .select()
       .from(invoices)
@@ -36,7 +49,9 @@ export async function createInvoice(data: {
   lateFeeIsCharity?: boolean;
 }) {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
+    data = invoiceInputSchema.parse(data);
     
     const subtotal = data.subtotal;
     const vatAmount = subtotal * (data.vatRate / 100);
@@ -48,8 +63,8 @@ export async function createInvoice(data: {
     // Only generate ZATCA QR if it's actually issued (official)
     if (!data.isDraft) {
       const zatcaData: ZatcaTags = {
-        sellerName: 'Officia MENA Corp', // Hardcoded company name for now
-        vatNumber: '310123456700003', // Dummy TRN
+        sellerName: tenant.name,
+        vatNumber: tenant.trn || '',
         timestamp: new Date().toISOString(),
         invoiceTotal: totalAmount.toFixed(2),
         vatTotal: vatAmount.toFixed(2)
@@ -75,7 +90,8 @@ export async function createInvoice(data: {
       issueDate: new Date(),
       status: status,
       zatcaQrCode: qrCode,
-      isZatcaReported: !data.isDraft, // simplified: if issued, we consider it reported/compliant
+      isZatcaReported: false,
+      zatcaStatus: 'pending',
       notes: data.notes
     }).returning();
 
@@ -104,7 +120,9 @@ export async function createInvoice(data: {
 
 export async function updateInvoiceStatus(id: string, newStatus: string) {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
+    const validatedStatus = invoiceStatusSchema.parse(newStatus);
     
     // First, fetch the invoice to ensure it exists and get its details
     const invData = await db.select().from(invoices).where(and(eq(invoices.id, id), eq(invoices.tenantId, tenant.id))).limit(1);
@@ -118,26 +136,26 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
     let isReported = invoice.isZatcaReported;
     
     // If transitioning from draft to issued, generate QR code if it doesn't exist
-    if ((newStatus === 'issued' || newStatus === 'paid') && !qrCode) {
+    if ((validatedStatus === 'issued' || validatedStatus === 'paid') && !qrCode) {
       const zatcaData: ZatcaTags = {
-        sellerName: 'Officia MENA Corp',
-        vatNumber: '310123456700003',
+        sellerName: tenant.name,
+        vatNumber: tenant.trn || '',
         timestamp: new Date().toISOString(),
         invoiceTotal: invoice.totalAmount,
         vatTotal: invoice.vatAmount
       };
       qrCode = generateZatcaQrCode(zatcaData);
-      isReported = true;
+      isReported = false;
     }
     
     await db.update(invoices).set({
-      status: newStatus,
+      status: validatedStatus,
       zatcaQrCode: qrCode,
       isZatcaReported: isReported,
       updatedAt: new Date()
     }).where(and(eq(invoices.id, id), eq(invoices.tenantId, tenant.id)));
 
-    if ((newStatus === 'issued' || newStatus === 'paid') && !invoice.invoiceNumber.startsWith('POS-')) {
+    if ((validatedStatus === 'issued' || validatedStatus === 'paid') && !invoice.invoiceNumber.startsWith('POS-')) {
       await postIssuedInvoice({
         tenantId: tenant.id,
         invoiceId: invoice.id,
@@ -151,7 +169,7 @@ export async function updateInvoiceStatus(id: string, newStatus: string) {
       });
     }
 
-    if (newStatus === 'paid' && !invoice.invoiceNumber.startsWith('POS-')) {
+    if (validatedStatus === 'paid' && !invoice.invoiceNumber.startsWith('POS-')) {
       await postInvoicePayment({
         tenantId: tenant.id,
         invoiceId: invoice.id,

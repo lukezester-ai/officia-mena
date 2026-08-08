@@ -33,7 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!user) return null;
 
         // If it's the demo login, we bypass password check (only for demo user)
-        if (credentials.isDemo === "true" && emailStr === "demo@officia.mena") {
+        if (process.env.ENABLE_DEMO_LOGIN === "true" && credentials.isDemo === "true" && emailStr === "demo@officia.mena") {
           return { id: user.id, email: user.email, name: `${user.firstName || ''} ${user.lastName || ''}`.trim(), tenantId: user.tenantId };
         }
 

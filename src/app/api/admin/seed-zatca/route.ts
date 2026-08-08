@@ -4,6 +4,7 @@ import { documentChunks } from '@/lib/db/schema/documents';
 import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
 import { getErrorMessage } from '@/lib/errors';
+import { requireBearerSecret } from '@/lib/auth/api';
 
 const zatcaRules = [
   {
@@ -28,7 +29,9 @@ const zatcaRules = [
   }
 ];
 
-export async function POST() {
+export async function POST(request: Request) {
+  const unauthorized = requireBearerSecret(request, 'ADMIN_API_SECRET');
+  if (unauthorized) return unauthorized;
   try {
     // Generate embeddings for all ZATCA rules
     const chunks = zatcaRules.map(r => `${r.title}\n\n${r.content}`);

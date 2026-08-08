@@ -1,6 +1,7 @@
 import { stepCountIs, streamText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
-import { maestroTools } from '@/lib/ai/tools';
+import { createMaestroTools } from '@/lib/ai/tools';
+import { requireTenant } from '@/lib/auth/get-tenant';
 
 // We configure the SDK to use the user's API key if available
 // Make sure to add ANTHROPIC_API_KEY to your .env file
@@ -11,6 +12,7 @@ const anthropic = createAnthropic({
 export const maxDuration = 30; // Allow up to 30 seconds for the LLM to run tools
 
 export async function POST(req: Request) {
+  const tenant = await requireTenant();
   // Fallback to mock response if API key is missing or invalid
   if (!process.env.ANTHROPIC_API_KEY || !process.env.ANTHROPIC_API_KEY.startsWith('sk-ant')) {
     // Mock response for demo purposes
@@ -64,7 +66,7 @@ Remember: YOU MUST RESPOND ENTIRELY IN ARABIC. Always maintain a professional, h
     model: anthropic('claude-3-5-sonnet-20240620'), // Using stable Claude 3.5 Sonnet
     system: systemPrompt,
     messages,
-    tools: maestroTools,
+    tools: createMaestroTools(tenant.id),
     stopWhen: stepCountIs(5), // Allows the LLM to call a tool, get the result, and continue responding
   });
   

@@ -49,5 +49,6 @@ export const invoices = pgTable('invoices', {
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 }, (table) => [
-  uniqueIndex('invoices_tenant_idemp_idx').on(table.tenantId, table.idempotencyKey)
+  uniqueIndex('invoices_tenant_idemp_idx').on(table.tenantId, table.idempotencyKey),
+  uniqueIndex('invoices_tenant_number_unique').on(table.tenantId, table.invoiceNumber),
 ]);

@@ -23,6 +23,7 @@ import { payrollRuns } from '@/lib/db/schema/hr';
 import { invoices } from '@/lib/db/schema/invoices';
 import { products } from '@/lib/db/schema/inventory';
 import { getErrorMessage } from '@/lib/errors';
+import { requireRole } from '@/lib/auth/rbac';
 
 type ManualJournalLineInput = {
   accountId: string;
@@ -56,6 +57,7 @@ export async function getAccountingDashboard() {
 
 export async function seedChartOfAccounts() {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
     await ensureDefaultChartOfAccounts(tenant.id);
     revalidatePath('/dashboard/accounting');
@@ -66,6 +68,7 @@ export async function seedChartOfAccounts() {
 
 export async function createManualJournalEntry(input: ManualJournalEntryInput) {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
     const lines = input.lines
       .map((line) => ({
@@ -117,6 +120,7 @@ export async function createManualJournalEntry(input: ManualJournalEntryInput) {
 
 export async function reverseAccountingEntry(formData: FormData) {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
     const entryId = String(formData.get('entryId') || '');
 
@@ -137,6 +141,7 @@ export async function repairMissingAccountingPostings(): Promise<{
   error?: string;
 }> {
   try {
+    await requireRole('admin', 'finance');
     const tenant = await requireTenant();
     const summary: RepairSummary = {
       issuedInvoices: 0,
@@ -249,6 +254,7 @@ export async function repairMissingAccountingPostings(): Promise<{
 
 export async function updateProductCostPrice(formData: FormData) {
   try {
+    await requireRole('admin', 'finance', 'manager');
     const tenant = await requireTenant();
     const productId = String(formData.get('productId') || '');
     const costPrice = Number(formData.get('costPrice') || 0);

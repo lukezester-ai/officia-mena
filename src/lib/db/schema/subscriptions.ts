@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const subscriptions = pgTable('subscriptions', {
@@ -11,4 +11,8 @@ export const subscriptions = pgTable('subscriptions', {
   currentPeriodEnd: timestamp('current_period_end'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-});
+}, (table) => [
+  uniqueIndex('subscriptions_tenant_unique').on(table.tenantId),
+  uniqueIndex('subscriptions_customer_unique').on(table.stripeCustomerId),
+  uniqueIndex('subscriptions_stripe_id_unique').on(table.stripeSubscriptionId),
+]);

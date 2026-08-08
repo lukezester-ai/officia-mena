@@ -5,8 +5,11 @@ import { isNull, eq } from 'drizzle-orm';
 import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
 import { getErrorMessage } from '@/lib/errors';
+import { requireBearerSecret } from '@/lib/auth/api';
 
-export async function GET() {
+export async function POST(request: Request) {
+  const unauthorized = requireBearerSecret(request, 'ADMIN_API_SECRET');
+  if (unauthorized) return unauthorized;
   try {
     // Fetch invoices that don't have embeddings
     const invoicesWithoutEmbeddings = await db.select().from(invoices).where(isNull(invoices.embedding));

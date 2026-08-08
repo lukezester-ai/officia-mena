@@ -6,9 +6,10 @@ export const users = pgTable('users', {
   authId: uuid('auth_id').unique(),
   clerkId: varchar('clerk_id', { length: 255 }).unique(),
   tenantId: uuid('tenant_id').references(() => tenants.id),
-  email: varchar('email', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: varchar('password_hash', { length: 255 }), // Added for NextAuth credentials
   firstName: varchar('first_name', { length: 255 }),
   lastName: varchar('last_name', { length: 255 }),
+  role: varchar('role', { length: 20 }).notNull().default('member'),
   createdAt: timestamp('created_at').defaultNow(),
 });

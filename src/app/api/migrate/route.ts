@@ -4,8 +4,11 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import path from 'path';
 import { getErrorCause, getErrorMessage, getErrorStack } from '@/lib/errors';
+import { requireBearerSecret } from '@/lib/auth/api';
 
-export async function GET() {
+export async function POST(request: Request) {
+  const unauthorized = requireBearerSecret(request, 'ADMIN_API_SECRET');
+  if (unauthorized) return unauthorized;
   try {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
@@ -33,7 +36,7 @@ export async function GET() {
       causeMsg: cause.message,
       causeCode: cause.code,
       causeDetail: cause.detail,
-      stack: getErrorStack(error) 
+      ...(process.env.NODE_ENV === 'development' ? { stack: getErrorStack(error) } : {})
     }, { status: 500 });
   }
 }

@@ -24,9 +24,6 @@ export default function DocumentsPage() {
 
     const formData = new FormData();
     formData.append('file', file);
-    // Hardcode tenantId for demo purposes, normally comes from auth context
-    formData.append('tenantId', '11111111-1111-1111-1111-111111111111');
-
     try {
       const res = await fetch('/api/documents/upload', {
         method: 'POST',
