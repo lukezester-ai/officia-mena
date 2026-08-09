@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/financial-analysis",
       "schedule": "0 17 * * 5"
+    },
+    {
+      "path": "/api/cron/maestro-monitor",
+      "schedule": "0 4 * * *"
     }
   ]
 }

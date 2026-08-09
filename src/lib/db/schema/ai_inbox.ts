@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, jsonb, numeric } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, jsonb, numeric, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const aiInboxItems = pgTable('ai_inbox_items', {
@@ -13,6 +13,14 @@ export const aiInboxItems = pgTable('ai_inbox_items', {
   priority: varchar('priority', { length: 20 }).default('medium'), // low, medium, high, critical
   metaJson: jsonb('meta_json'), // additional structured data
   status: varchar('status', { length: 20 }).default('open'), // open, resolved, snoozed
+  fingerprint: varchar('fingerprint', { length: 255 }),
+  detectedAt: timestamp('detected_at').defaultNow(),
+  snoozedUntil: timestamp('snoozed_until'),
+  resolvedAt: timestamp('resolved_at'),
+  resolvedByUserId: uuid('resolved_by_user_id'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-});
+}, (table) => [
+  uniqueIndex('ai_inbox_tenant_fingerprint_unique').on(table.tenantId, table.fingerprint),
+  index('ai_inbox_tenant_status_priority_idx').on(table.tenantId, table.status, table.priority),
+]);

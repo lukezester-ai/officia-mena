@@ -69,7 +69,12 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="..."
 # AI Providers
 ANTHROPIC_API_KEY="..."
 GOOGLE_GENERATIVE_AI_API_KEY="..."
+
+# Protects scheduled Maestro and reporting endpoints
+CRON_SECRET="use-a-long-random-secret"
 ```
+
+Maestro's proactive monitor runs daily through `/api/cron/maestro-monitor`. It detects overdue receivables, delayed ZATCA reporting, expiring employee documents, low stock, and expiring inventory. The endpoint requires `Authorization: Bearer $CRON_SECRET`; authorized dashboard users can also trigger a scan from the Maestro inbox.
 
 ### 2. Database & Drizzle
 
