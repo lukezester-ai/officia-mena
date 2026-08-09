@@ -1,77 +1,49 @@
+import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db/db';
-import { documentChunks } from '@/lib/db/schema/documents';
+import { and, desc, eq } from 'drizzle-orm';
 import { embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
 import { PDFParse } from 'pdf-parse';
+import { z } from 'zod';
+import { db } from '@/lib/db/db';
+import { documentChunks, documentSources } from '@/lib/db/schema/documents';
 import { getErrorMessage } from '@/lib/errors';
 import { requireTenant } from '@/lib/auth/get-tenant';
+import { requireRole } from '@/lib/auth/rbac';
+import { chunkKnowledgePages } from '@/lib/knowledge/ingestion';
 
-const MAX_PDF_BYTES = 10 * 1024 * 1024;
+const MAX_PDF_BYTES = 20 * 1024 * 1024;
+const visibilitySchema = z.enum(['company', 'restricted']).default('company');
+const roleSchema = z.enum(['admin', 'finance', 'manager', 'member']);
 
 export async function POST(req: Request) {
   try {
-    const tenant = await requireTenant();
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-
-    if (!file) {
-      return NextResponse.json({ error: 'Missing file' }, { status: 400 });
-    }
-    if (file.type !== 'application/pdf' || !file.name.toLowerCase().endsWith('.pdf')) {
-      return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 415 });
-    }
-    if (file.size <= 0 || file.size > MAX_PDF_BYTES) {
-      return NextResponse.json({ error: 'PDF must be between 1 byte and 10 MB' }, { status: 413 });
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    // Parse the PDF
-    const parser = new PDFParse({ data: buffer });
-    const pdfData = await parser.getText();
-    await parser.destroy();
-    const text = pdfData.text;
-
-    // Simple chunking (e.g. by paragraphs or fixed length)
-    // Here we chunk by double newlines or split into chunks of ~1000 chars
-    const rawChunks = text.split(/\n\n+/).map(c => c.trim()).filter(c => c.length > 50);
-    
-    // If chunks are too large, we might want to split them further, but this is a simple demo
-    let chunks: string[] = [];
-    for (const raw of rawChunks) {
-      if (raw.length > 1500) {
-        // Split large chunks
-        const parts = raw.match(/.{1,1500}/g) || [];
-        chunks = chunks.concat(parts);
-      } else {
-        chunks.push(raw);
-      }
-    }
-
-    if (chunks.length === 0) {
-      return NextResponse.json({ error: 'No text extracted from PDF' }, { status: 400 });
-    }
-
-    // Generate Embeddings using Google Gemini
-    const { embeddings } = await embedMany({
-      model: google.embedding('text-embedding-004'),
-      values: chunks,
+    const user = await requireRole('admin', 'finance', 'manager'); const tenant = await requireTenant();
+    const formData = await req.formData(); const file = formData.get('file');
+    if (!(file instanceof File)) return NextResponse.json({ error: 'Missing file' }, { status: 400 });
+    if (file.type !== 'application/pdf' || !file.name.toLowerCase().endsWith('.pdf')) return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 415 });
+    if (file.size <= 0 || file.size > MAX_PDF_BYTES) return NextResponse.json({ error: 'PDF must be between 1 byte and 20 MB' }, { status: 413 });
+    const visibility = visibilitySchema.parse(formData.get('visibility') || 'company');
+    const allowedRoles = visibility === 'restricted' ? z.array(roleSchema).min(1).parse(String(formData.get('allowedRoles') || '').split(',').filter(Boolean)) : null;
+    const buffer = Buffer.from(await file.arrayBuffer()); const checksum = createHash('sha256').update(buffer).digest('hex');
+    const [duplicate] = await db.select({ id: documentSources.id, version: documentSources.version }).from(documentSources)
+      .where(and(eq(documentSources.tenantId, tenant.id), eq(documentSources.checksum, checksum))).limit(1);
+    if (duplicate) return NextResponse.json({ error: 'Identical document already exists', documentId: duplicate.id, version: duplicate.version }, { status: 409 });
+    const parser = new PDFParse({ data: buffer }); const pdf = await parser.getText(); await parser.destroy();
+    const chunks = chunkKnowledgePages(pdf.pages); if (!chunks.length) return NextResponse.json({ error: 'No searchable text extracted; OCR is required for this scanned PDF.' }, { status: 422 });
+    const { embeddings } = await embedMany({ model: google.embedding('text-embedding-004'), values: chunks.map((chunk) => chunk.content) });
+    const [previous] = await db.select().from(documentSources).where(and(eq(documentSources.tenantId, tenant.id), eq(documentSources.fileName, file.name)))
+      .orderBy(desc(documentSources.version)).limit(1);
+    const source = await db.transaction(async (tx) => {
+      if (previous?.status === 'active') await tx.update(documentSources).set({ status: 'superseded', updatedAt: new Date() }).where(eq(documentSources.id, previous.id));
+      const [created] = await tx.insert(documentSources).values({ tenantId: tenant.id, docType: 'user_document', fileName: file.name,
+        title: file.name.replace(/\.pdf$/i, ''), checksum, version: (previous?.version || 0) + 1, visibility, allowedRoles,
+        pageCount: pdf.total, supersedesId: previous?.id, uploadedByUserId: user.id }).returning();
+      await tx.insert(documentChunks).values(chunks.map((chunk, index) => ({ tenantId: tenant.id, docType: 'user_document', fileName: file.name,
+        documentId: created.id, chunkIndex: chunk.chunkIndex, pageNumber: chunk.pageNumber, sectionTitle: chunk.sectionTitle,
+        content: chunk.content, embedding: embeddings[index] })));
+      return created;
     });
-
-    // Insert into DB
-    const insertData = chunks.map((chunk, index) => ({
-      tenantId: tenant.id,
-      fileName: file.name,
-      content: chunk,
-      embedding: embeddings[index],
-    }));
-
-    await db.insert(documentChunks).values(insertData);
-
-    return NextResponse.json({ success: true, chunksCount: chunks.length });
-  } catch (error: unknown) {
-    console.error('Error processing document:', error);
-    return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 });
-  }
+    return NextResponse.json({ success: true, documentId: source.id, version: source.version, chunksCount: chunks.length, pages: pdf.total });
+  } catch (error) { console.error('Knowledge ingestion failed:', error); return NextResponse.json({ error: getErrorMessage(error) }, { status: 500 }); }
 }

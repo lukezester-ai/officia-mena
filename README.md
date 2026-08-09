@@ -96,6 +96,10 @@ Maestro's proactive monitor runs daily through `/api/cron/maestro-monitor`. It d
 
 Maestro routes each request to a finance, tax/ZATCA, HR, inventory, collections, or executive specialist and exposes only that specialist's required tools. The AI Control Center shows run status, latency, token usage, and routing without storing raw chat content. Memory is opt-in: users must explicitly ask Maestro to remember something, while company-wide memory can be changed only by admins and managers. Financial writes continue to require the Phase 2 approval workflow.
 
+### Enterprise Knowledge Engine
+
+Uploaded PDFs are registered by SHA-256 checksum, versioned by filename, split with overlap while preserving page citations, and embedded into pgvector. Retrieval combines vector similarity with PostgreSQL full-text search through Reciprocal Rank Fusion. Active/effective dates and role ACLs are enforced before results reach Maestro. Retrieval telemetry stores query hashes and citation metrics, never the raw question.
+
 ### 2. Database & Drizzle
 
 Ensure you have a PostgreSQL instance running.

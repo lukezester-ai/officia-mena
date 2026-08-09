@@ -1,12 +1,9 @@
-import { embed } from 'ai';
 import type { ToolSet } from 'ai';
-import { google } from '@ai-sdk/google';
-import { and, desc, eq, isNull, lte, or, sql } from 'drizzle-orm';
+import { and, desc, eq, lte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { getAccountingOverview } from '@/lib/accounting';
 import { db } from '@/lib/db/db';
 import { aiInboxItems } from '@/lib/db/schema/ai_inbox';
-import { documentChunks } from '@/lib/db/schema/documents';
 import { expenses } from '@/lib/db/schema/expenses';
 import { employeeDocuments, employees, payrollRuns } from '@/lib/db/schema/hr';
 import { inventoryLevels, products } from '@/lib/db/schema/inventory';
@@ -14,6 +11,7 @@ import { invoices } from '@/lib/db/schema/invoices';
 import { getErrorMessage } from '@/lib/errors';
 import { createMaestroProposal } from '@/lib/ai/actions';
 import { deleteMaestroMemory, saveMaestroMemory } from '@/lib/ai/memory';
+import { retrieveKnowledge } from '@/lib/knowledge/retrieval';
 
 type MaestroTenant = {
   id: string;
@@ -247,13 +245,19 @@ function createInboxTools(tenant: MaestroTenant) {
   };
 }
 
-function createDocumentTools(tenant: MaestroTenant) {
+function createDocumentTools(tenant: MaestroTenant, user: { id: string; role: string }) {
   return {
     searchDocuments: makeTool({
       description: 'Search only the current company’s uploaded documents and return excerpts with file citations.',
       parameters: z.object({ query: z.string().trim().min(2).max(500) }),
       execute: async ({ query }: { query: string }) => {
         try {
+          const retrieval = await retrieveKnowledge({ tenantId: tenant.id, userId: user.id, role: user.role, query, scope: 'user_document' });
+          return { ok: true, data: retrieval.results, generatedAt: retrieval.generatedAt, retrieval: retrieval.retrieval,
+            sources: retrieval.results.map((row) => ({ type: 'document' as const, entity: 'document_source', id: row.documentId || row.id,
+              label: row.citation, href: '/dashboard/documents' })) };
+          /* legacy vector path retained below for migration reference */
+          /*
           const { embedding } = await embed({ model: google.embedding('text-embedding-004'), value: query });
           const similarity = sql<number>`1 - (${documentChunks.embedding} <=> ${JSON.stringify(embedding)})`;
           const results = await db.select({ id: documentChunks.id, fileName: documentChunks.fileName, content: documentChunks.content, similarity })
@@ -266,6 +270,7 @@ function createDocumentTools(tenant: MaestroTenant) {
             generatedAt: generatedAt(),
             sources: results.map((row) => ({ type: 'document' as const, entity: 'document_chunk', id: row.id, label: row.fileName, href: '/dashboard/documents' })),
           };
+          */
         } catch (error) {
           return toolFailure('document_search', error);
         }
@@ -276,6 +281,10 @@ function createDocumentTools(tenant: MaestroTenant) {
       parameters: z.object({ query: z.string().trim().min(2).max(500) }),
       execute: async ({ query }: { query: string }) => {
         try {
+          const retrieval = await retrieveKnowledge({ tenantId: tenant.id, userId: user.id, role: user.role, query, scope: 'zatca_regulation', limit: 6 });
+          return { ok: true, data: retrieval.results, generatedAt: retrieval.generatedAt, retrieval: retrieval.retrieval,
+            sources: retrieval.results.map((row) => ({ type: 'regulation' as const, entity: 'document_source', id: row.documentId || row.id, label: row.citation })) };
+          /*
           const { embedding } = await embed({ model: google.embedding('text-embedding-004'), value: query });
           const similarity = sql<number>`1 - (${documentChunks.embedding} <=> ${JSON.stringify(embedding)})`;
           const results = await db.select({ id: documentChunks.id, fileName: documentChunks.fileName, content: documentChunks.content, similarity })
@@ -288,6 +297,7 @@ function createDocumentTools(tenant: MaestroTenant) {
             generatedAt: generatedAt(),
             sources: results.map((row) => ({ type: 'regulation' as const, entity: 'zatca_regulation', id: row.id, label: row.fileName })),
           };
+          */
         } catch (error) {
           return toolFailure('zatca_search', error);
         }
@@ -395,7 +405,7 @@ export const createMaestroTools = (tenant: MaestroTenant, user: { id: string; ro
   ...createHrTools(tenant),
   ...createInventoryTools(tenant),
   ...createInboxTools(tenant),
-  ...createDocumentTools(tenant),
+  ...createDocumentTools(tenant, user),
   ...createProposalTools(tenant, user.id),
   ...createMemoryTools(tenant, user),
 });

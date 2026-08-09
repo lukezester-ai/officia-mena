@@ -1,125 +1,18 @@
 'use client';
-
-
-import React, { useState } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-
+import { useEffect, useState, useTransition } from 'react';
+import { Archive, FileText, Loader2, Search, ShieldCheck, Upload } from 'lucide-react';
+import { archiveKnowledgeDocument, getKnowledgeControlData } from './actions';
+type Source = { id: string; fileName: string; title: string; version: number; status: string; visibility: string; allowedRoles: unknown; pageCount: number | null; createdAt: Date };
+type Data = { sources: Source[]; metrics: { activeDocuments: number; retrievals: number; noResultRate: number; averageLatencyMs: number } };
 export default function DocumentsPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setStatus('idle');
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) return;
-
-    setStatus('uploading');
-    setMessage('جاري معالجة المستند وقراءته باستخدام الذكاء الاصطناعي...');
-
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await fetch('/api/documents/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setStatus('success');
-        setMessage(`تم رفع المستند بنجاح! تم استخراج ${data.chunksCount} مقطع للبحث.`);
-        setFile(null);
-      } else {
-        setStatus('error');
-        setMessage(data.error || 'حدث خطأ أثناء رفع المستند.');
-      }
-    } catch (err: unknown) {
-      setStatus('error');
-      setMessage(err instanceof Error ? err.message : 'Upload failed.');
-    }
-  };
-
-  return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-2">إدارة المستندات الذكية</h1>
-        <p className="text-[var(--color-desert-600)]">قم برفع العقود، السياسات، أو التقارير هنا. سيقوم المايسترو بقراءتها وفهمها لتتمكن من سؤاله عنها لاحقاً.</p>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-[var(--color-desert-200)] p-8">
-        <div 
-          className="border-2 border-dashed border-[var(--color-desert-300)] rounded-xl p-10 flex flex-col items-center justify-center text-center hover:bg-[var(--color-desert-50)] transition-colors cursor-pointer relative"
-        >
-          <input 
-            type="file" 
-            accept="application/pdf"
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            disabled={status === 'uploading'}
-          />
-          
-          <div className="w-16 h-16 rounded-full bg-[var(--color-desert-100)] flex items-center justify-center mb-4 text-[var(--color-gold-600)]">
-            <Upload size={28} />
-          </div>
-          
-          <h3 className="text-xl font-bold text-[var(--color-desert-900)] mb-2">
-            {file ? file.name : 'اسحب وأفلت ملف PDF هنا'}
-          </h3>
-          <p className="text-sm text-[var(--color-desert-500)] mb-6">
-            {file ? `حجم الملف: ${(file.size / 1024 / 1024).toFixed(2)} MB` : 'أو انقر لاختيار ملف من جهازك'}
-          </p>
-          
-          {file && status === 'idle' && (
-            <button 
-              onClick={(e) => { e.preventDefault(); handleUpload(); }}
-              className="px-6 py-2 bg-gradient-to-r from-[var(--color-gold-500)] to-[var(--color-gold-600)] text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all z-10 relative"
-            >
-              تحليل ورفع المستند
-            </button>
-          )}
-
-          {status === 'uploading' && (
-            <div className="flex items-center gap-3 text-[var(--color-gold-600)] z-10 relative">
-              <Loader2 className="animate-spin" size={20} />
-              <span className="font-medium">{message}</span>
-            </div>
-          )}
-
-          {status === 'success' && (
-            <div className="flex items-center gap-3 text-[var(--color-emerald-600)] bg-[var(--color-emerald-500)]/10 px-4 py-2 rounded-lg mt-4 z-10 relative">
-              <CheckCircle size={20} />
-              <span className="font-medium">{message}</span>
-            </div>
-          )}
-
-          {status === 'error' && (
-            <div className="flex items-center gap-3 text-red-600 bg-red-50 px-4 py-2 rounded-lg mt-4 z-10 relative">
-              <AlertCircle size={20} />
-              <span className="font-medium">{message}</span>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      <div className="mt-8 bg-[var(--color-desert-50)] p-6 rounded-xl border border-[var(--color-desert-200)]">
-        <h3 className="font-bold text-[var(--color-desert-900)] flex items-center gap-2 mb-3">
-          <FileText size={18} className="text-[var(--color-gold-600)]" />
-          كيف تعمل هذه الميزة؟
-        </h3>
-        <ul className="text-sm text-[var(--color-desert-700)] space-y-2 list-disc list-inside">
-          <li>يقوم النظام باستخراج النصوص من ملفات الـ PDF الخاصة بك.</li>
-          <li>يتم تحويل النصوص إلى متجهات رياضية باستخدام تقنية Google Gemini Embeddings.</li>
-          <li>يتم حفظ المتجهات في قاعدة بيانات آمنة خاصة بك.</li>
-          <li>عندما تطرح سؤالاً على المايسترو، سيقوم بالبحث الدلالي للعثور على الإجابة الدقيقة من مستنداتك!</li>
-        </ul>
-      </div>
-    </div>
-  );
+  const [file,setFile]=useState<File|null>(null); const [visibility,setVisibility]=useState('company'); const [roles,setRoles]=useState(['admin','finance','manager']);
+  const [data,setData]=useState<Data|null>(null); const [message,setMessage]=useState(''); const [pending,startTransition]=useTransition();
+  const load=async()=>{const result=await getKnowledgeControlData();if(result.success&&result.data)setData(result.data as Data);else setMessage(result.error||'Load failed.');}; useEffect(()=>{void load();},[]);
+  const upload=()=>startTransition(async()=>{if(!file)return;setMessage('Обработване, chunking и embeddings…');const body=new FormData();body.append('file',file);body.append('visibility',visibility);body.append('allowedRoles',roles.join(','));const response=await fetch('/api/documents/upload',{method:'POST',body});const result=await response.json();setMessage(response.ok?`Готово: v${result.version}, ${result.pages} страници, ${result.chunksCount} chunks.`:result.error||'Upload failed.');if(response.ok){setFile(null);await load();}});
+  const archive=(id:string)=>startTransition(async()=>{const result=await archiveKnowledgeDocument(id);if(!result.success)setMessage(result.error||'Archive failed.');await load();});
+  const toggleRole=(role:string)=>setRoles(current=>current.includes(role)?current.filter(item=>item!==role):[...current,role]);
+  return <main className="mx-auto max-w-7xl space-y-6 p-6"><div><h1 className="text-3xl font-black">Enterprise Knowledge Engine</h1><p className="mt-1 text-stone-600">Версии, ACL, hybrid search, точни citations и retrieval telemetry.</p></div>
+  <section className="grid gap-4 sm:grid-cols-4">{[['Активни документи',data?.metrics.activeDocuments||0,FileText],['Retrievals',data?.metrics.retrievals||0,Search],['Без резултат',`${data?.metrics.noResultRate||0}%`,ShieldCheck],['Средна латентност',`${data?.metrics.averageLatencyMs||0} ms`,Loader2]].map(([label,value,Icon])=>{const I=Icon as typeof FileText;return <div key={String(label)} className="rounded-3xl border bg-white p-5"><I className="text-emerald-600"/><p className="mt-2 text-xs font-bold text-stone-500">{String(label)}</p><p className="text-2xl font-black">{String(value)}</p></div>})}</section>
+  <section className="rounded-3xl border bg-white p-6"><h2 className="text-xl font-black">Качи PDF версия</h2><div className="mt-4 grid gap-4 md:grid-cols-3"><input type="file" accept="application/pdf" onChange={event=>setFile(event.target.files?.[0]||null)} className="rounded-xl border p-3"/><select value={visibility} onChange={event=>setVisibility(event.target.value)} className="rounded-xl border p-3"><option value="company">Цялата компания</option><option value="restricted">Ограничен достъп</option></select><button disabled={!file||pending} onClick={upload} className="flex items-center justify-center gap-2 rounded-xl bg-black p-3 font-bold text-white disabled:opacity-40"><Upload size={18}/>Ingest</button></div>{visibility==='restricted'&&<div className="mt-3 flex gap-3">{['admin','finance','manager','member'].map(role=><label key={role} className="flex gap-1 text-sm"><input type="checkbox" checked={roles.includes(role)} onChange={()=>toggleRole(role)}/>{role}</label>)}</div>}{message&&<p className="mt-4 rounded-xl bg-stone-100 p-3 text-sm font-bold">{message}</p>}</section>
+  <section className="rounded-3xl border bg-white p-6"><h2 className="text-xl font-black">Document registry</h2><div className="mt-4 overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="border-b"><th className="p-3">Документ</th><th className="p-3">Версия</th><th className="p-3">Страници</th><th className="p-3">Достъп</th><th className="p-3">Статус</th><th></th></tr></thead><tbody>{data?.sources.map(source=><tr key={source.id} className="border-b last:border-0"><td className="p-3 font-bold">{source.title}</td><td className="p-3">v{source.version}</td><td className="p-3">{source.pageCount||'—'}</td><td className="p-3">{source.visibility}</td><td className="p-3">{source.status}</td><td className="p-3">{source.status==='active'&&<button disabled={pending} onClick={()=>archive(source.id)} className="rounded-lg border p-2 text-rose-700"><Archive size={15}/></button>}</td></tr>)}</tbody></table></div></section></main>;
 }
