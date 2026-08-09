@@ -73,6 +73,10 @@ export default async function ZakatReportPage() {
         </div>
       </div>
 
+      <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-100" dir="ltr">
+        Planning estimate only. The 2.5% calculation is not an official ZATCA/Zakat assessment and must be reviewed by a qualified adviser using the entity&apos;s current regulatory basis.
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Main Calculation Card */}

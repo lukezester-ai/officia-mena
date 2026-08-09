@@ -1,5 +1,6 @@
 import { index, integer, numeric, pgTable, text, timestamp, uniqueIndex, uuid, varchar, boolean } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
+import { sql } from 'drizzle-orm';
 
 export const accounts = pgTable('accounts', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -41,6 +42,8 @@ export const journalEntries = pgTable('journal_entries', {
 }, (table) => [
   uniqueIndex('journal_entries_tenant_number_unique').on(table.tenantId, table.entryNumber),
   uniqueIndex('journal_entries_tenant_idemp_idx').on(table.tenantId, table.idempotencyKey),
+  uniqueIndex('journal_entries_tenant_source_unique').on(table.tenantId, table.sourceType, table.sourceId)
+    .where(sql`${table.sourceType} is not null and ${table.sourceId} is not null`),
   index('journal_entries_tenant_date_idx').on(table.tenantId, table.entryDate),
   index('journal_entries_source_idx').on(table.tenantId, table.sourceType, table.sourceId),
 ]);

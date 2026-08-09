@@ -19,7 +19,7 @@ Officia MENA is built on a modern, robust web stack:
 - **Language**: TypeScript
 - **Database**: PostgreSQL
 - **ORM**: Drizzle ORM
-- **Authentication**: Supabase (via `next-auth` / Supabase auth)
+- **Authentication**: NextAuth Credentials with Drizzle-backed users and bcrypt password verification
 - **Billing & Subscriptions**: Stripe
 - **AI Integration**: Vercel AI SDK (Anthropic & Google providers for fallback and cost optimization)
 - **Styling**: Tailwind CSS v4, Framer Motion
@@ -35,7 +35,7 @@ officia-mena/
 │   ├── lib/                # Core Business Logic & Infrastructure
 │   │   ├── accounting/     # Ledger, postings, chart of accounts
 │   │   ├── ai/             # AI tools, prompts, providers
-│   │   ├── auth/           # Supabase/NextAuth integrations
+│   │   ├── auth/           # NextAuth, tenant resolution and RBAC
 │   │   ├── billing/        # Subscription management
 │   │   ├── db/             # Drizzle config and schema definitions
 │   │   │   └── schema/     # Domain-driven DB schemas (tenants, users, invoices, etc.)
@@ -56,10 +56,9 @@ Create a `.env.local` file based on the required variables (check `.env.vercel` 
 # Database
 DATABASE_URL="postgres://user:password@localhost:5432/officia"
 
-# Supabase Auth
-NEXT_PUBLIC_SUPABASE_URL="..."
-NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
-SUPABASE_SERVICE_ROLE_KEY="..."
+# Authentication
+AUTH_SECRET="use-a-long-random-secret"
+ENABLE_DEMO_LOGIN="false"
 
 # Stripe
 STRIPE_SECRET_KEY="..."
@@ -145,7 +144,7 @@ npm run ci
 
 The platform utilizes a dual-provider AI setup (Anthropic and Google) via the Vercel AI SDK. This allows the system to intelligently switch models based on task complexity (e.g., OCR extraction vs. financial analysis) and handle API rate limits gracefully.
 
-*Note: AI tools currently operate without human-in-the-loop approvals for some actions. A safety governance layer is planned to prevent autonomous irreversible financial postings.*
+Maestro uses a human-in-the-loop governance layer. Financial drafts, external email, and ZATCA submissions are proposed first, approved by an authorized user, and executed by deterministic services with audit and idempotency controls. Maestro has no payment-initiation tool.
 
 ## 💳 Stripe Webhooks
 
@@ -157,10 +156,10 @@ Stripe is used for tenant subscriptions. Webhooks must be configured in your Str
 - Database domain modeling (separated by business domains like HR, Inventory, Invoices).
 - Multi-tenant foundational schemas (`tenants`, `users`, `rbac`).
 - Modern Next.js 15 + React 19 integration.
-- Supabase Authentication flow.
+- NextAuth Credentials authentication with fail-closed tenant resolution and RBAC.
 
 **🧪 Experimental / Under Refactoring:**
 - **Accounting Engine**: Large modules (`ledger.ts`, `postings.ts`) are currently monolithic and are scheduled for decomposition.
-- **Tenant Isolation**: While the `tenants` table exists, strict row-level security (RLS) and application-level scoping are being audited.
+- **Tenant Isolation**: Application queries are tenant-scoped and defense-in-depth RLS migrations are included; production DB roles and policies must still be validated in deployment tests.
 - **ZATCA Phase 2**: Full XML clearance flow is pending.
 - **Contracts Engine**: Currently relies on a Git submodule (`agrinexus-law`). Integration boundaries are being redefined.

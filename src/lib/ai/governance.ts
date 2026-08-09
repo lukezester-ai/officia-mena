@@ -39,7 +39,7 @@ export async function approveAiAction(tenantId: string, requestId: string, revie
       reviewerNotes: notes,
       updatedAt: new Date(),
     })
-    .where(and(eq(aiApprovals.id, requestId), eq(aiApprovals.tenantId, tenantId)))
+    .where(and(eq(aiApprovals.id, requestId), eq(aiApprovals.tenantId, tenantId), eq(aiApprovals.status, 'pending')))
     .returning();
 
   if (!request) {
@@ -61,7 +61,7 @@ export async function rejectAiAction(tenantId: string, requestId: string, review
       reviewerNotes: notes,
       updatedAt: new Date(),
     })
-    .where(and(eq(aiApprovals.id, requestId), eq(aiApprovals.tenantId, tenantId)))
+    .where(and(eq(aiApprovals.id, requestId), eq(aiApprovals.tenantId, tenantId), eq(aiApprovals.status, 'pending')))
     .returning();
 
   if (!request) {

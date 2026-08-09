@@ -59,6 +59,7 @@ export async function createJournalEntry(input: CreateJournalEntryInput) {
         totalCredit: centsToMoney(totalCredit),
         postedAt: status === 'posted' ? new Date() : null,
         createdBy: input.createdBy,
+        idempotencyKey: input.sourceType && input.sourceId ? `${input.sourceType}:${input.sourceId}` : undefined,
       })
       .returning();
 
@@ -107,5 +108,13 @@ export async function createJournalEntryOnce(input: CreateJournalEntryInput) {
     }
   }
 
-  return createJournalEntry(input);
+  try {
+    return await createJournalEntry(input);
+  } catch (error) {
+    if (input.sourceType && input.sourceId) {
+      const winner = await findJournalEntryBySource(input.tenantId, input.sourceType, input.sourceId);
+      if (winner) return winner;
+    }
+    throw error;
+  }
 }
