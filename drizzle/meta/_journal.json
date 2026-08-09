@@ -127,6 +127,13 @@
       "when": 1786917600000,
       "tag": "0017_tenant_runtime_context",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1787004000000,
+      "tag": "0018_invoice_embedding_column",
+      "breakpoints": true
     }
   ]
 }
