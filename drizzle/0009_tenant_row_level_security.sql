@@ -1,3 +1,30 @@
+-- Bootstrap tables that existed in the Drizzle schema but were missing from the
+-- historical SQL migration chain. Keep these definitions idempotent so both
+-- fresh databases and already-provisioned environments can run this migration.
+CREATE EXTENSION IF NOT EXISTS vector;
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenants(id),
+  stripe_customer_id varchar(255),
+  stripe_subscription_id varchar(255),
+  plan_id varchar(50) NOT NULL DEFAULT 'free',
+  status varchar(50) NOT NULL DEFAULT 'active',
+  current_period_end timestamp,
+  created_at timestamp DEFAULT now(),
+  updated_at timestamp DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS document_chunks (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid REFERENCES tenants(id),
+  doc_type varchar(50) NOT NULL DEFAULT 'user_document',
+  file_name varchar(255) NOT NULL,
+  content text NOT NULL,
+  embedding vector(768),
+  created_at timestamp DEFAULT now()
+);
+--> statement-breakpoint
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role varchar(20) NOT NULL DEFAULT 'member';
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_unique ON users (lower(email));
@@ -30,26 +57,58 @@ ALTER TABLE expenses ADD CONSTRAINT expenses_status_check CHECK (status IN ('pen
 --> statement-breakpoint
 -- Defense-in-depth tenant isolation. The application DB role must set
 -- `SET LOCAL app.tenant_id = '<uuid>'` inside each tenant transaction.
-DO $$
-DECLARE
-  table_name text;
-BEGIN
-  FOREACH table_name IN ARRAY ARRAY[
-    'accounts', 'journal_entries', 'journal_lines', 'ai_approvals',
-    'ai_inbox_items', 'approvals', 'audit_logs', 'bank_accounts',
-    'bank_transactions', 'clients', 'expenses', 'employees',
-    'employee_documents', 'payroll_runs', 'installments', 'warehouses',
-    'products', 'inventory_levels', 'stock_movements', 'invoices',
-    'purchase_orders', 'quotations', 'roles', 'subscriptions', 'users'
-  ]
-  LOOP
-    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', table_name);
-    EXECUTE format(
-      'CREATE POLICY tenant_isolation ON %I USING (tenant_id = nullif(current_setting(''app.tenant_id'', true), '''')::uuid) WITH CHECK (tenant_id = nullif(current_setting(''app.tenant_id'', true), '''')::uuid)',
-      table_name
-    );
-  END LOOP;
-END $$;
+-- These statements are intentionally explicit so migration runners can parse,
+-- audit and report each protected table without dynamic SQL.
+ALTER TABLE accounts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON accounts USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE journal_entries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON journal_entries USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE journal_lines ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON journal_lines USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE ai_approvals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON ai_approvals USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE ai_inbox_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON ai_inbox_items USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE approvals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON approvals USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON audit_logs USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE bank_accounts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON bank_accounts USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE bank_transactions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON bank_transactions USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON clients USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON expenses USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON employees USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE employee_documents ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON employee_documents USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE payroll_runs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON payroll_runs USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE installments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON installments USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE warehouses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON warehouses USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON products USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE inventory_levels ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON inventory_levels USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE stock_movements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON stock_movements USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON invoices USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE purchase_orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON purchase_orders USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE quotations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON quotations USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON roles USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON subscriptions USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON users USING (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid) WITH CHECK (tenant_id = nullif(current_setting('app.tenant_id', true), '')::uuid);
 --> statement-breakpoint
 ALTER TABLE document_chunks ENABLE ROW LEVEL SECURITY;
 --> statement-breakpoint
