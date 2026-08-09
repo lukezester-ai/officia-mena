@@ -50,11 +50,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user }) {
+      if (!user.email) return false;
+
+      const normalizedEmail = user.email.trim().toLowerCase();
+      const [appUser] = await withUserLookupDb(normalizedEmail, (authDb) => authDb
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, normalizedEmail))
+        .limit(1));
+
+      // OAuth access is invite-only: the user must already exist in Officia.
+      return Boolean(appUser);
+    },
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        token.tenantId = (user as any).tenantId;
+      const email = user?.email ?? token.email;
+      if (email) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const [appUser] = await withUserLookupDb(normalizedEmail, (authDb) => authDb
+          .select({ id: users.id, tenantId: users.tenantId })
+          .from(users)
+          .where(eq(users.email, normalizedEmail))
+          .limit(1));
+
+        if (appUser) {
+          token.id = appUser.id;
+          token.tenantId = appUser.tenantId;
+        }
       }
       return token;
     },
