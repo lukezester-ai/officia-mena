@@ -1,10 +1,11 @@
 import { createHash } from 'node:crypto';
 import { and, eq, inArray, lte } from 'drizzle-orm';
 import { z } from 'zod';
-import { db } from '@/lib/db/db';
+import { db, withTenantContext } from '@/lib/db/db';
 import { integrationEvents, integrationJobs } from '@/lib/db/schema/ai_orchestration';
 import { auditLogs } from '@/lib/db/schema/audit_logs';
 import { invoices } from '@/lib/db/schema/invoices';
+import { tenants } from '@/lib/db/schema/tenants';
 import { sendIntegrationEmail, submitZatcaDocument } from './connectors';
 
 export const integrationJobTypeSchema = z.enum(['send_email', 'submit_zatca']);
@@ -45,26 +46,36 @@ async function executeJob(job: typeof integrationJobs.$inferSelect) {
 }
 
 export async function processDueIntegrationJobs(limit = 20) {
-  const due = await db.select().from(integrationJobs).where(and(inArray(integrationJobs.status, ['pending', 'retry']), lte(integrationJobs.nextAttemptAt, new Date()))).limit(limit);
   const results: Array<{ id: string; status: string }> = [];
-  for (const candidate of due) {
-    const [job] = await db.update(integrationJobs).set({ status: 'processing', startedAt: new Date(), attempts: candidate.attempts + 1, updatedAt: new Date() })
-      .where(and(eq(integrationJobs.id, candidate.id), inArray(integrationJobs.status, ['pending', 'retry']))).returning();
-    if (!job) continue;
-    try {
-      const outcome = await executeJob(job);
-      await db.insert(integrationEvents).values({ tenantId: job.tenantId, provider: outcome.provider, externalId: outcome.externalId,
-        eventType: job.jobType, status: 'completed', metadata: outcome.metadata }).onConflictDoNothing();
-      await db.update(integrationJobs).set({ status: 'completed', externalId: outcome.externalId, completedAt: new Date(), lastError: null, updatedAt: new Date() }).where(eq(integrationJobs.id, job.id));
-      await db.insert(auditLogs).values({ tenantId: job.tenantId, userId: job.approvedByUserId, entityType: 'integration_job', entityId: job.id,
-        action: 'INTEGRATION_DONE', newValues: { jobType: job.jobType, externalId: outcome.externalId } });
-      results.push({ id: job.id, status: 'completed' });
-    } catch (error) {
-      const dead = job.attempts >= job.maxAttempts; const message = error instanceof Error ? error.message : String(error);
-      await db.update(integrationJobs).set({ status: dead ? 'dead_letter' : 'retry', lastError: message.slice(0, 2000),
-        nextAttemptAt: new Date(Date.now() + retryDelayMs(job.attempts)), updatedAt: new Date() }).where(eq(integrationJobs.id, job.id));
-      results.push({ id: job.id, status: dead ? 'dead_letter' : 'retry' });
-    }
+  const tenantRows = await db.select({ id: tenants.id }).from(tenants);
+  for (const tenant of tenantRows) {
+    if (results.length >= limit) break;
+    await withTenantContext(tenant.id, async () => {
+      const due = await db.select().from(integrationJobs)
+        .where(and(eq(integrationJobs.tenantId, tenant.id), inArray(integrationJobs.status, ['pending', 'retry']), lte(integrationJobs.nextAttemptAt, new Date())))
+        .limit(limit - results.length);
+      for (const candidate of due) {
+        const [job] = await db.update(integrationJobs).set({ status: 'processing', startedAt: new Date(), attempts: candidate.attempts + 1, updatedAt: new Date() })
+          .where(and(eq(integrationJobs.id, candidate.id), eq(integrationJobs.tenantId, tenant.id), inArray(integrationJobs.status, ['pending', 'retry']))).returning();
+        if (!job) continue;
+        try {
+          const outcome = await executeJob(job);
+          await db.insert(integrationEvents).values({ tenantId: job.tenantId, provider: outcome.provider, externalId: outcome.externalId,
+            eventType: job.jobType, status: 'completed', metadata: outcome.metadata }).onConflictDoNothing();
+          await db.update(integrationJobs).set({ status: 'completed', externalId: outcome.externalId, completedAt: new Date(), lastError: null, updatedAt: new Date() })
+            .where(and(eq(integrationJobs.id, job.id), eq(integrationJobs.tenantId, tenant.id)));
+          await db.insert(auditLogs).values({ tenantId: job.tenantId, userId: job.approvedByUserId, entityType: 'integration_job', entityId: job.id,
+            action: 'INTEGRATION_DONE', newValues: { jobType: job.jobType, externalId: outcome.externalId } });
+          results.push({ id: job.id, status: 'completed' });
+        } catch (error) {
+          const dead = job.attempts >= job.maxAttempts; const message = error instanceof Error ? error.message : String(error);
+          await db.update(integrationJobs).set({ status: dead ? 'dead_letter' : 'retry', lastError: message.slice(0, 2000),
+            nextAttemptAt: new Date(Date.now() + retryDelayMs(job.attempts)), updatedAt: new Date() })
+            .where(and(eq(integrationJobs.id, job.id), eq(integrationJobs.tenantId, tenant.id)));
+          results.push({ id: job.id, status: dead ? 'dead_letter' : 'retry' });
+        }
+      }
+    });
   }
   return results;
 }

@@ -1,18 +1,15 @@
-import { db } from '../db/db';
+import { db, setTenantContext } from '../db/db';
 import { tenants } from '../db/schema/tenants';
-import { users } from '../db/schema/users';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 
 export async function getTenant() {
   const session = await auth();
-  if (!session?.user?.email) return null;
-
-  const [userRecord] = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1);
-  const activeTenantId = userRecord?.tenantId;
+  const activeTenantId = (session?.user as { tenantId?: string | null } | undefined)?.tenantId;
 
   if (!activeTenantId) return null;
 
+  setTenantContext(activeTenantId);
   const [tenant] = await db.select().from(tenants).where(eq(tenants.id, activeTenantId)).limit(1);
   return tenant || null;
 }

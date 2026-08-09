@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { db } from "@/lib/db/db";
+import { withUserLookupDb } from "@/lib/db/db";
 import { users } from "@/lib/db/schema/users";
 import { eq } from "drizzle-orm";
 import { authConfig } from "./auth.config";
@@ -22,11 +22,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const emailStr = credentials.email as string;
         
         // Find user by email
-        const userRecords = await db
+        const userRecords = await withUserLookupDb(emailStr, (authDb) => authDb
           .select()
           .from(users)
-          .where(eq(users.email, emailStr))
-          .limit(1);
+          .where(eq(users.email, emailStr.trim().toLowerCase()))
+          .limit(1));
 
         const user = userRecords[0];
         

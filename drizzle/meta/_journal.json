@@ -120,6 +120,13 @@
       "when": 1786831200000,
       "tag": "0016_review_security_followup",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1786917600000,
+      "tag": "0017_tenant_runtime_context",
+      "breakpoints": true
     }
   ]
 }

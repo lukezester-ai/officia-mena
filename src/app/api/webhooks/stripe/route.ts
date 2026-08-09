@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/server';
-import { db } from '@/lib/db/db';
+import { db, withTenantDb } from '@/lib/db/db';
 import { subscriptions } from '@/lib/db/schema/subscriptions';
 import { stripeEvents } from '@/lib/db/schema/stripe_events';
 import { eq } from 'drizzle-orm';
@@ -53,30 +53,18 @@ export async function POST(req: Request) {
     const planId = session.metadata?.planId;
 
     if (tenantId && planId) {
-      // Create or update the subscription in our database
-      const existingSub = await db.select().from(subscriptions).where(eq(subscriptions.tenantId, tenantId)).limit(1);
-      
-      if (existingSub.length > 0) {
-        await db.update(subscriptions)
-          .set({
-            stripeSubscriptionId: subscription.id,
-            stripeCustomerId: subscription.customer as string,
-            planId: planId,
-            status: subscription.status,
-            currentPeriodEnd: getCurrentPeriodEnd(subscription),
-            updatedAt: new Date()
-          })
-          .where(eq(subscriptions.tenantId, tenantId));
-      } else {
-        await db.insert(subscriptions).values({
-          tenantId: tenantId,
-          stripeSubscriptionId: subscription.id,
-          stripeCustomerId: subscription.customer as string,
-          planId: planId,
-          status: subscription.status,
-          currentPeriodEnd: getCurrentPeriodEnd(subscription)
-        });
-      }
+      await withTenantDb(tenantId, async () => {
+        const existingSub = await db.select().from(subscriptions).where(eq(subscriptions.tenantId, tenantId)).limit(1);
+        if (existingSub.length > 0) {
+          await db.update(subscriptions).set({ stripeSubscriptionId: subscription.id, stripeCustomerId: subscription.customer as string,
+            planId, status: subscription.status, currentPeriodEnd: getCurrentPeriodEnd(subscription), updatedAt: new Date() })
+            .where(eq(subscriptions.tenantId, tenantId));
+        } else {
+          await db.insert(subscriptions).values({ tenantId, stripeSubscriptionId: subscription.id,
+            stripeCustomerId: subscription.customer as string, planId, status: subscription.status,
+            currentPeriodEnd: getCurrentPeriodEnd(subscription) });
+        }
+      });
 
       // Send payment receipt email
       try {
@@ -136,19 +124,13 @@ export async function POST(req: Request) {
 
   if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object as Stripe.Subscription;
-    
-    // Find our subscription record by stripeCustomerId
-    const existingSub = await db.select().from(subscriptions).where(eq(subscriptions.stripeCustomerId, subscription.customer as string)).limit(1);
-    
-    if (existingSub.length > 0) {
-      await db.update(subscriptions)
-        .set({
-          status: subscription.status,
-          currentPeriodEnd: getCurrentPeriodEnd(subscription),
-          updatedAt: new Date()
-        })
+    const tenantId = subscription.metadata?.tenantId;
+    if (!tenantId) return new NextResponse('Subscription tenant metadata is required', { status: 400 });
+    await withTenantDb(tenantId, async () => {
+      await db.update(subscriptions).set({ status: subscription.status,
+        currentPeriodEnd: getCurrentPeriodEnd(subscription), updatedAt: new Date() })
         .where(eq(subscriptions.stripeCustomerId, subscription.customer as string));
-    }
+    });
   }
 
   return new NextResponse('Webhook processed', { status: 200 });

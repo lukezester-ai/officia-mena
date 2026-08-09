@@ -3,7 +3,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { generateText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { Resend } from 'resend';
-import { db } from '@/lib/db/db';
+import { db, withTenantDb } from '@/lib/db/db';
 import { expenses } from '@/lib/db/schema/expenses';
 import { invoices } from '@/lib/db/schema/invoices';
 import { tenants } from '@/lib/db/schema/tenants';
@@ -22,13 +22,13 @@ export async function GET(request: Request) {
     const results: Array<{ tenantId: string; delivered: boolean }> = [];
 
     for (const tenant of tenantRows) {
-      const [tenantExpenses, tenantInvoices, recipients] = await Promise.all([
-        db.select().from(expenses).where(eq(expenses.tenantId, tenant.id)),
-        db.select().from(invoices).where(eq(invoices.tenantId, tenant.id)),
-        db.select({ email: users.email }).from(users).where(
-          and(eq(users.tenantId, tenant.id), inArray(users.role, ['admin', 'finance']))
-        ),
-      ]);
+      const [tenantExpenses, tenantInvoices, recipients] = await withTenantDb(tenant.id, () => Promise.all([
+          db.select().from(expenses).where(eq(expenses.tenantId, tenant.id)),
+          db.select().from(invoices).where(eq(invoices.tenantId, tenant.id)),
+          db.select({ email: users.email }).from(users).where(
+            and(eq(users.tenantId, tenant.id), inArray(users.role, ['admin', 'finance']))
+          ),
+        ]));
 
       const totalExpenses = tenantExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
       const totalInvoices = tenantInvoices.reduce((sum, invoice) => sum + Number(invoice.totalAmount), 0);

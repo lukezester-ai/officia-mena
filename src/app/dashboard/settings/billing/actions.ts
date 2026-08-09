@@ -39,7 +39,8 @@ export async function createCheckoutSession(planId: string) {
     mode: 'subscription',
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/settings/billing?success=true`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/dashboard/settings/billing?canceled=true`,
-    metadata: { tenantId: tenant.id, planId }
+    metadata: { tenantId: tenant.id, planId },
+    subscription_data: { metadata: { tenantId: tenant.id, planId } }
   });
 
   if (session.url) {
