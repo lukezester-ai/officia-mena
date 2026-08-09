@@ -30,6 +30,7 @@ export async function approveMaestroProposal(requestId: string, notes?: string) 
     revalidatePath('/dashboard/invoices');
     revalidatePath('/dashboard/expenses');
     revalidatePath('/dashboard/inventory/purchase-orders');
+    revalidatePath('/dashboard/ai-maestro/integrations');
     return { success: true, data: request };
   } catch (error) { return { success: false, error: getErrorMessage(error) }; }
 }

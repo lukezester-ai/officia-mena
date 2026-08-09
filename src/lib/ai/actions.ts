@@ -7,8 +7,9 @@ import { auditLogs } from '@/lib/db/schema/audit_logs';
 import { expenses } from '@/lib/db/schema/expenses';
 import { invoices } from '@/lib/db/schema/invoices';
 import { purchaseOrders } from '@/lib/db/schema/purchase_orders';
+import { integrationJobs } from '@/lib/db/schema/ai_orchestration';
 
-export const actionTypeSchema = z.enum(['draft_invoice', 'draft_expense', 'draft_purchase_order']);
+export const actionTypeSchema = z.enum(['draft_invoice', 'draft_expense', 'draft_purchase_order', 'send_email', 'submit_zatca']);
 export type MaestroActionType = z.infer<typeof actionTypeSchema>;
 
 const draftInvoiceSchema = z.object({
@@ -30,11 +31,15 @@ const draftPurchaseOrderSchema = z.object({
   vatRate: z.number().finite().min(0).max(100).default(15),
   notes: z.string().trim().max(5000).optional(),
 });
+const sendEmailSchema = z.object({ to: z.string().email(), subject: z.string().trim().min(1).max(200), text: z.string().trim().min(1).max(20_000) });
+const submitZatcaSchema = z.object({ invoiceId: z.string().uuid(), mode: z.enum(['clearance', 'reporting']) });
 
 export const actionPayloadSchemas = {
   draft_invoice: draftInvoiceSchema,
   draft_expense: draftExpenseSchema,
   draft_purchase_order: draftPurchaseOrderSchema,
+  send_email: sendEmailSchema,
+  submit_zatca: submitZatcaSchema,
 } as const;
 
 export function validateActionPayload(actionType: MaestroActionType, payload: unknown) {
@@ -134,7 +139,7 @@ export async function approveAndExecuteMaestroProposal(input: { tenantId: string
         category: data.category, expenseDate: new Date(`${data.expenseDate}T00:00:00.000Z`), status: 'pending',
       }).returning();
       result = { id: row.id, entityType: 'expense', values: row };
-    } else {
+    } else if (actionType === 'draft_purchase_order') {
       const data = draftPurchaseOrderSchema.parse(payload);
       const vatAmount = data.subtotal * data.vatRate / 100;
       const [row] = await tx.insert(purchaseOrders).values({
@@ -143,6 +148,13 @@ export async function approveAndExecuteMaestroProposal(input: { tenantId: string
         vatAmount: vatAmount.toFixed(2), totalAmount: (data.subtotal + vatAmount).toFixed(2), status: 'draft', notes: data.notes,
       }).returning();
       result = { id: row.id, entityType: 'purchase_order', values: row };
+    } else {
+      const jobType = actionType;
+      const [row] = await tx.insert(integrationJobs).values({ tenantId: input.tenantId, jobType, payload,
+        idempotencyKey: createHash('sha256').update(`${input.tenantId}:${request.id}:${jobType}`).digest('hex'),
+        approvedByUserId: input.reviewerId }).onConflictDoNothing({ target: [integrationJobs.tenantId, integrationJobs.idempotencyKey] }).returning();
+      if (!row) throw new Error('Integration job already exists.');
+      result = { id: row.id, entityType: 'integration_job', values: row };
     }
 
     await tx.insert(auditLogs).values({

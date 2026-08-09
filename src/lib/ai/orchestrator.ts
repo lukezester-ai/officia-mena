@@ -17,11 +17,11 @@ const domains: Array<{ specialist: MaestroSpecialist; intent: string; pattern: R
 
 const specialistTools: Record<MaestroSpecialist, string[]> = {
   finance: ['getFinancialOverview', 'getRecentTransactions', 'getAssistantInbox', 'searchDocuments', 'proposeDraftExpense'],
-  tax: ['getFinancialOverview', 'getRecentTransactions', 'searchZatcaRegulations', 'searchDocuments', 'getAssistantInbox'],
+  tax: ['getFinancialOverview', 'getRecentTransactions', 'searchZatcaRegulations', 'searchDocuments', 'getAssistantInbox', 'proposeZatcaSubmission'],
   hr: ['getExpiringEmployeeDocuments', 'getPayrollSummary', 'searchDocuments', 'getAssistantInbox'],
   inventory: ['getInventoryRisks', 'getRecentTransactions', 'searchDocuments', 'getAssistantInbox', 'proposeDraftPurchaseOrder'],
-  collections: ['getReceivablesAging', 'getRecentTransactions', 'getFinancialOverview', 'searchDocuments', 'getAssistantInbox', 'proposeDraftInvoice'],
-  executive: ['getFinancialOverview', 'getReceivablesAging', 'getRecentTransactions', 'getExpiringEmployeeDocuments', 'getPayrollSummary', 'getInventoryRisks', 'getAssistantInbox', 'searchDocuments', 'searchZatcaRegulations', 'proposeDraftInvoice', 'proposeDraftExpense', 'proposeDraftPurchaseOrder'],
+  collections: ['getReceivablesAging', 'getRecentTransactions', 'getFinancialOverview', 'searchDocuments', 'getAssistantInbox', 'proposeDraftInvoice', 'proposeEmailSend'],
+  executive: ['getFinancialOverview', 'getReceivablesAging', 'getRecentTransactions', 'getExpiringEmployeeDocuments', 'getPayrollSummary', 'getInventoryRisks', 'getAssistantInbox', 'searchDocuments', 'searchZatcaRegulations', 'proposeDraftInvoice', 'proposeDraftExpense', 'proposeDraftPurchaseOrder', 'proposeEmailSend', 'proposeZatcaSubmission'],
 };
 
 const instructions: Record<MaestroSpecialist, string> = {

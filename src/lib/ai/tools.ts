@@ -340,6 +340,24 @@ function createProposalTools(tenant: MaestroTenant, requestedByUserId: string) {
         } catch (error) { return toolFailure('propose_draft_purchase_order', error); }
       },
     }),
+    proposeEmailSend: makeTool({
+      description: 'Create a human-review proposal to send an external email. Never call unless the user explicitly asks to send and has confirmed recipient, subject and exact body.',
+      parameters: z.object({ to: z.string().email(), subject: z.string().trim().min(1).max(200), text: z.string().trim().min(1).max(20_000), reasoning, confidenceScore }),
+      execute: async ({ reasoning: why, confidenceScore: confidence, ...payload }) => {
+        try { const proposal = await createMaestroProposal({ tenantId: tenant.id, actionType: 'send_email', payload, reasoning: why, confidenceScore: confidence, requestedByUserId });
+          return { ok: true, requiresHumanApproval: true, proposalId: proposal.id, status: proposal.status, reviewUrl: '/dashboard/ai-maestro/approvals', generatedAt: generatedAt() };
+        } catch (error) { return toolFailure('propose_email_send', error); }
+      },
+    }),
+    proposeZatcaSubmission: makeTool({
+      description: 'Create a human-review proposal to submit an already issued and signed invoice to ZATCA clearance or reporting. Never submit directly.',
+      parameters: z.object({ invoiceId: z.string().uuid(), mode: z.enum(['clearance', 'reporting']), reasoning, confidenceScore }),
+      execute: async ({ reasoning: why, confidenceScore: confidence, ...payload }) => {
+        try { const proposal = await createMaestroProposal({ tenantId: tenant.id, actionType: 'submit_zatca', payload, reasoning: why, confidenceScore: confidence, requestedByUserId });
+          return { ok: true, requiresHumanApproval: true, proposalId: proposal.id, status: proposal.status, reviewUrl: '/dashboard/ai-maestro/approvals', generatedAt: generatedAt() };
+        } catch (error) { return toolFailure('propose_zatca_submission', error); }
+      },
+    }),
   };
 }
 

@@ -23,4 +23,10 @@ describe('Maestro action validation', () => {
   it('only permits the supported proposal actions', () => {
     expect(actionTypeSchema.safeParse('delete_invoice').success).toBe(false);
   });
+
+  it('validates external actions without executing them', () => {
+    expect(validateActionPayload('send_email', { to: 'finance@example.com', subject: 'Reminder', text: 'Please review.' }))
+      .toMatchObject({ to: 'finance@example.com' });
+    expect(() => validateActionPayload('submit_zatca', { invoiceId: 'not-a-uuid', mode: 'clearance' })).toThrow();
+  });
 });

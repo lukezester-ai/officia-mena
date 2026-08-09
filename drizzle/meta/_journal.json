@@ -99,6 +99,13 @@
       "when": 1786572000000,
       "tag": "0013_phase_five_reliability_integrations",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1786658400000,
+      "tag": "0014_phase_six_integration_jobs",
+      "breakpoints": true
     }
   ]
 }

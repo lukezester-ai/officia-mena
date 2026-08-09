@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/maestro-monitor",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/integration-worker",
+      "schedule": "*/10 * * * *"
     }
   ]
 }

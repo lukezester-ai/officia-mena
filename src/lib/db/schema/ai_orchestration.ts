@@ -59,5 +59,16 @@ export const integrationEvents = pgTable('integration_events', {
   provider: varchar('provider', { length: 30 }).notNull(), externalId: varchar('external_id', { length: 255 }).notNull(),
   eventType: varchar('event_type', { length: 100 }).notNull(), status: varchar('status', { length: 20 }).notNull(),
   metadata: jsonb('metadata'), createdAt: timestamp('created_at').defaultNow().notNull(),
-}, (table) => [uniqueIndex('integration_events_provider_external_unique').on(table.provider, table.externalId),
+}, (table) => [uniqueIndex('integration_events_tenant_provider_external_unique').on(table.tenantId, table.provider, table.externalId),
   index('integration_events_tenant_created_idx').on(table.tenantId, table.createdAt)]);
+
+export const integrationJobs = pgTable('integration_jobs', {
+  id: uuid('id').primaryKey().defaultRandom(), tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  jobType: varchar('job_type', { length: 30 }).notNull(), payload: jsonb('payload').notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('pending'), attempts: integer('attempts').notNull().default(0),
+  maxAttempts: integer('max_attempts').notNull().default(5), nextAttemptAt: timestamp('next_attempt_at').defaultNow().notNull(),
+  idempotencyKey: varchar('idempotency_key', { length: 64 }).notNull(), externalId: varchar('external_id', { length: 255 }),
+  approvedByUserId: uuid('approved_by_user_id').notNull(), lastError: text('last_error'),
+  createdAt: timestamp('created_at').defaultNow().notNull(), startedAt: timestamp('started_at'), completedAt: timestamp('completed_at'), updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => [uniqueIndex('integration_jobs_tenant_idempotency_unique').on(table.tenantId, table.idempotencyKey),
+  index('integration_jobs_due_idx').on(table.status, table.nextAttemptAt)]);

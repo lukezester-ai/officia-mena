@@ -81,10 +81,12 @@ RESEND_API_KEY="..."
 REPORT_FROM_EMAIL="Officia MENA <reports@your-verified-domain.com>"
 OPEN_BANKING_API_URL="https://your-certified-provider.example"
 OPEN_BANKING_ACCESS_TOKEN="..."
+OPEN_BANKING_TENANT_ID="tenant-uuid-owning-this-consent"
 OPEN_BANKING_ENV="sandbox"
 ZATCA_API_URL="https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal"
 ZATCA_CSID="..."
 ZATCA_CSID_SECRET="..."
+ZATCA_TENANT_ID="tenant-uuid-owning-this-csid"
 ZATCA_ENV="sandbox"
 ```
 
