@@ -3,6 +3,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 import { createMaestroTools } from '@/lib/ai/tools';
 import { requireTenant } from '@/lib/auth/get-tenant';
+import { requireRole } from '@/lib/auth/rbac';
 
 const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY || undefined });
 export const maxDuration = 30;
@@ -16,6 +17,7 @@ const chatRequestSchema = z.object({
 
 export async function POST(req: Request) {
   const tenant = await requireTenant();
+  const user = await requireRole('admin', 'finance', 'manager', 'member');
   if (!process.env.ANTHROPIC_API_KEY?.startsWith('sk-ant')) {
     return Response.json({ error: 'Maestro AI is not configured. Set ANTHROPIC_API_KEY.' }, { status: 503 });
   }
@@ -38,9 +40,11 @@ TRUTH AND EVIDENCE RULES:
 5. State the returned data timestamp.
 6. If data is empty, say no records were found. Never substitute demo data.
 7. If a tool returns ok=false, explain that the requested data could not be verified.
-8. This phase is read-only. Never claim you created, changed, approved, submitted or sent anything.
-9. For ZATCA or tax questions, search the regulations tool and distinguish sourced requirements from general guidance.
-10. For internal documents, use document search and cite filenames.
+8. You may create a proposal only when the user explicitly asks to prepare a draft. A proposal never changes business records.
+9. Before proposing, restate the exact payload and financial effect. The proposal requires an authorized human review in Maestro Approvals.
+10. Never claim a proposal is executed, approved, submitted or sent. Only say it is waiting for approval and include the review URL.
+11. For ZATCA or tax questions, search the regulations tool and distinguish sourced requirements from general guidance.
+12. For internal documents, use document search and cite filenames.
 
 Respond in the language used by the user. Be concise, concrete and professionally cautious.
 `;
@@ -49,7 +53,7 @@ Respond in the language used by the user. Be concise, concrete and professionall
     model: anthropic(process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest'),
     system: systemPrompt,
     messages: parsed.data.messages,
-    tools: createMaestroTools(tenant),
+    tools: createMaestroTools(tenant, user.id),
     stopWhen: stepCountIs(6),
   });
 

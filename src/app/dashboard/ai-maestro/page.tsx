@@ -103,9 +103,7 @@ export default function AiMaestroPage() {
             <p className="text-sm text-[var(--color-desert-600)]">Проверим, tenant-isolated бизнес помощник · read-only режим</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800">
-          <ShieldCheck size={16} /> Данните не се променят без одобрение
-        </div>
+        <div className="flex flex-wrap items-center gap-2"><Link href="/dashboard/ai-maestro/approvals" className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Преглед на предложенията</Link><div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800"><ShieldCheck size={16} /> Данните не се променят без одобрение</div></div>
       </header>
 
       {briefing && (
@@ -140,7 +138,7 @@ export default function AiMaestroPage() {
 
         <aside className="space-y-4">
           <div className="rounded-3xl border border-[var(--color-desert-200)] bg-white p-5 shadow-sm"><h2 className="font-black">Maestro Inbox</h2><p className="mt-1 text-xs text-[var(--color-desert-500)]">Отворени сигнали, подредени за човешки преглед</p><div className="mt-4 space-y-3">{briefing?.alerts.length ? briefing.alerts.map((alert) => <div key={alert.id} className="rounded-2xl border border-stone-200 p-3"><div className="flex items-center justify-between gap-2"><span className="font-bold">{alert.title}</span><span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase ${alert.priority === 'critical' ? 'bg-rose-100 text-rose-800' : alert.priority === 'high' ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-700'}`}>{alert.priority || 'medium'}</span></div><p className="mt-2 text-xs leading-5 text-stone-600">{alert.description}</p>{alert.confidence && <p className="mt-2 text-[10px] font-bold text-stone-400">Confidence {Math.round(Number(alert.confidence) * 100)}%</p>}</div>) : <p className="rounded-2xl bg-emerald-50 p-4 text-sm font-bold text-emerald-800">Няма отворени сигнали.</p>}</div></div>
-          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-900"><div className="flex items-center gap-2 font-black"><ShieldCheck size={17} /> Фаза 1: read-only</div><p className="mt-2 leading-6">Maestro може да анализира и обяснява. Създаването и промяната на записи ще бъдат добавени във Фаза 2 чрез approval workflow.</p></div>
+          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-900"><div className="flex items-center gap-2 font-black"><ShieldCheck size={17} /> Фаза 2: human-in-the-loop</div><p className="mt-2 leading-6">Maestro може да подготвя структурирани предложения. Само упълномощен човек може да ги одобри и изпълни; всяко действие влиза в audit log.</p></div>
         </aside>
       </div>
     </div>

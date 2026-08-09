@@ -12,6 +12,7 @@ import { employeeDocuments, employees, payrollRuns } from '@/lib/db/schema/hr';
 import { inventoryLevels, products } from '@/lib/db/schema/inventory';
 import { invoices } from '@/lib/db/schema/invoices';
 import { getErrorMessage } from '@/lib/errors';
+import { createMaestroProposal } from '@/lib/ai/actions';
 
 type MaestroTenant = {
   id: string;
@@ -294,10 +295,58 @@ function createDocumentTools(tenant: MaestroTenant) {
   };
 }
 
-export const createMaestroTools = (tenant: MaestroTenant) => ({
+function createProposalTools(tenant: MaestroTenant, requestedByUserId: string) {
+  const reasoning = z.string().trim().min(5).max(2000);
+  const confidenceScore = z.number().min(0).max(100);
+  return {
+    proposeDraftInvoice: makeTool({
+      description: 'Create a human-review proposal for a DRAFT invoice. This does not create or issue an invoice. Always summarize the exact amounts before calling.',
+      parameters: z.object({
+        clientName: z.string().trim().min(1).max(255), clientTrn: z.string().trim().max(50).optional(),
+        subtotal: z.number().positive(), vatRate: z.number().min(0).max(100).default(15), notes: z.string().max(5000).optional(),
+        reasoning, confidenceScore,
+      }),
+      execute: async ({ reasoning: why, confidenceScore: confidence, ...payload }) => {
+        try {
+          const proposal = await createMaestroProposal({ tenantId: tenant.id, actionType: 'draft_invoice', payload, reasoning: why, confidenceScore: confidence, requestedByUserId });
+          return { ok: true, requiresHumanApproval: true, proposalId: proposal.id, status: proposal.status, reviewUrl: '/dashboard/ai-maestro/approvals', generatedAt: generatedAt() };
+        } catch (error) { return toolFailure('propose_draft_invoice', error); }
+      },
+    }),
+    proposeDraftExpense: makeTool({
+      description: 'Create a human-review proposal for a pending expense record. This does not write the expense until an authorized reviewer approves it.',
+      parameters: z.object({
+        description: z.string().trim().min(1).max(1000), amount: z.number().positive(), category: z.string().trim().min(1).max(50),
+        expenseDate: z.string().date(), reasoning, confidenceScore,
+      }),
+      execute: async ({ reasoning: why, confidenceScore: confidence, ...payload }) => {
+        try {
+          const proposal = await createMaestroProposal({ tenantId: tenant.id, actionType: 'draft_expense', payload, reasoning: why, confidenceScore: confidence, requestedByUserId });
+          return { ok: true, requiresHumanApproval: true, proposalId: proposal.id, status: proposal.status, reviewUrl: '/dashboard/ai-maestro/approvals', generatedAt: generatedAt() };
+        } catch (error) { return toolFailure('propose_draft_expense', error); }
+      },
+    }),
+    proposeDraftPurchaseOrder: makeTool({
+      description: 'Create a human-review proposal for a DRAFT purchase order. No order is sent and inventory is not changed.',
+      parameters: z.object({
+        supplierName: z.string().trim().min(1).max(255), subtotal: z.number().positive(), vatRate: z.number().min(0).max(100).default(15),
+        notes: z.string().max(5000).optional(), reasoning, confidenceScore,
+      }),
+      execute: async ({ reasoning: why, confidenceScore: confidence, ...payload }) => {
+        try {
+          const proposal = await createMaestroProposal({ tenantId: tenant.id, actionType: 'draft_purchase_order', payload, reasoning: why, confidenceScore: confidence, requestedByUserId });
+          return { ok: true, requiresHumanApproval: true, proposalId: proposal.id, status: proposal.status, reviewUrl: '/dashboard/ai-maestro/approvals', generatedAt: generatedAt() };
+        } catch (error) { return toolFailure('propose_draft_purchase_order', error); }
+      },
+    }),
+  };
+}
+
+export const createMaestroTools = (tenant: MaestroTenant, requestedByUserId: string) => ({
   ...createFinancialTools(tenant),
   ...createHrTools(tenant),
   ...createInventoryTools(tenant),
   ...createInboxTools(tenant),
   ...createDocumentTools(tenant),
+  ...createProposalTools(tenant, requestedByUserId),
 });

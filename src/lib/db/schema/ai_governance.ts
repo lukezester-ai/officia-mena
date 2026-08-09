@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, numeric, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, jsonb, uniqueIndex, index } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const aiApprovals = pgTable('ai_approvals', {
@@ -26,7 +26,18 @@ export const aiApprovals = pgTable('ai_approvals', {
   
   // Notes from the human reviewer
   reviewerNotes: text('reviewer_notes'),
+  requestedByUserId: uuid('requested_by_user_id'),
+
+  idempotencyKey: varchar('idempotency_key', { length: 255 }),
+  executionStatus: varchar('execution_status', { length: 20 }).default('not_started').notNull(),
+  executedAt: timestamp('executed_at'),
+  resultEntityType: varchar('result_entity_type', { length: 50 }),
+  resultEntityId: uuid('result_entity_id'),
+  executionError: text('execution_error'),
   
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex('ai_approvals_tenant_idempotency_unique').on(table.tenantId, table.idempotencyKey),
+  index('ai_approvals_tenant_status_idx').on(table.tenantId, table.status, table.createdAt),
+]);
