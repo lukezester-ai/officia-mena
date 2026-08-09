@@ -46,7 +46,9 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
+  // `usePathname` can briefly be null while the router hydrates after an OAuth
+  // redirect. Keep navigation rendering deterministic during that transition.
+  const pathname = usePathname() ?? '/dashboard';
 
   return (
     <div className="executive-shell flex h-screen w-full overflow-hidden text-foreground dark" dir="rtl">
