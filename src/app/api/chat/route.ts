@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto';
 import { stepCountIs, streamText } from 'ai';
-import { createAnthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 import { createMaestroTools } from '@/lib/ai/tools';
 import { requireTenant } from '@/lib/auth/get-tenant';
@@ -10,8 +9,8 @@ import { maestroAiRuns } from '@/lib/db/schema/ai_orchestration';
 import { eq } from 'drizzle-orm';
 import { filterTools, routeMaestroRequest } from '@/lib/ai/orchestrator';
 import { formatMemoryContext, loadMaestroMemory } from '@/lib/ai/memory';
-
-const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY || undefined });
+import { resolveMaestroModel } from '@/lib/ai/model-router';
+import { evaluateMaestroRun } from '@/lib/ai/evaluation';
 export const maxDuration = 30;
 
 const chatRequestSchema = z.object({
@@ -24,10 +23,6 @@ const chatRequestSchema = z.object({
 export async function POST(req: Request) {
   const tenant = await requireTenant();
   const user = await requireRole('admin', 'finance', 'manager', 'member');
-  if (!process.env.ANTHROPIC_API_KEY?.startsWith('sk-ant')) {
-    return Response.json({ error: 'Maestro AI is not configured. Set ANTHROPIC_API_KEY.' }, { status: 503 });
-  }
-
   const parsed = chatRequestSchema.safeParse(await req.json());
   if (!parsed.success) {
     return Response.json({ error: 'Invalid chat request', details: parsed.error.flatten() }, { status: 400 });
@@ -35,7 +30,10 @@ export async function POST(req: Request) {
 
   const lastUserMessage = [...parsed.data.messages].reverse().find((message) => message.role === 'user')?.content || '';
   const route = routeMaestroRequest(lastUserMessage);
-  const modelName = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-latest';
+  let modelRoute;
+  try { modelRoute = resolveMaestroModel(); }
+  catch (error) { return Response.json({ error: error instanceof Error ? error.message : 'AI provider is not configured.' }, { status: 503 }); }
+  const modelName = modelRoute.modelName;
   const startedAt = Date.now();
   const inputHash = createHash('sha256').update(JSON.stringify(parsed.data.messages)).digest('hex');
   const memories = await loadMaestroMemory(tenant.id, user.id);
@@ -73,7 +71,8 @@ Respond in the language used by the user. Be concise, concrete and professionall
 `;
 
   const result = streamText({
-    model: anthropic(modelName),
+    model: modelRoute.model,
+    providerOptions: modelRoute.providerOptions,
     system: systemPrompt,
     messages: parsed.data.messages,
     tools: filterTools(createMaestroTools(tenant, { id: user.id, role: user.role }), route.toolNames),
@@ -81,13 +80,16 @@ Respond in the language used by the user. Be concise, concrete and professionall
     onFinish: async (event) => {
       const finished = event as unknown as {
         totalUsage?: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
-        steps?: Array<{ toolCalls?: Array<{ toolName?: string }> }>;
+        text?: string; steps?: Array<{ toolCalls?: Array<{ toolName?: string }>; response?: { modelId?: string } }>;
       };
       const toolCalls = finished.steps?.flatMap((step) => step.toolCalls || []).map((call) => call.toolName).filter(Boolean) || [];
+      const evaluation = evaluateMaestroRun({ text: finished.text || '', toolNames: toolCalls as string[], intent: route.intent });
+      const actualModel = finished.steps?.at(-1)?.response?.modelId;
       await db.update(maestroAiRuns).set({
         status: 'completed', latencyMs: Date.now() - startedAt, promptTokens: finished.totalUsage?.inputTokens,
         completionTokens: finished.totalUsage?.outputTokens, totalTokens: finished.totalUsage?.totalTokens,
-        toolCalls, completedAt: new Date(),
+        toolCalls, completedAt: new Date(), evaluationScore: evaluation.score, evaluationFlags: evaluation.flags,
+        fallbackUsed: actualModel && actualModel !== modelName ? actualModel : null,
       }).where(eq(maestroAiRuns.id, run.id)).catch((error) => console.error('Maestro telemetry completion failed:', error));
     },
     onError: async () => {

@@ -24,10 +24,13 @@ export async function getMaestroControlData() {
     const completed = runs.filter((run) => run.status === 'completed');
     const failed = runs.filter((run) => run.status === 'failed');
     const measured = completed.filter((run) => run.latencyMs !== null);
+    const evaluated = completed.filter((run) => run.evaluationScore !== null);
     return { success: true, data: { runs, memories, metrics: {
       totalRuns: runs.length, successRate: runs.length ? Math.round(completed.length / runs.length * 1000) / 10 : 100,
       failedRuns: failed.length, averageLatencyMs: measured.length ? Math.round(measured.reduce((sum, run) => sum + (run.latencyMs || 0), 0) / measured.length) : 0,
       totalTokens: runs.reduce((sum, run) => sum + (run.totalTokens || 0), 0),
+      averageEvaluation: evaluated.length ? Math.round(evaluated.reduce((sum, run) => sum + (run.evaluationScore || 0), 0) / evaluated.length) : 0,
+      fallbackRuns: runs.filter((run) => Boolean(run.fallbackUsed)).length,
     } } };
   } catch (error) { return { success: false, error: getErrorMessage(error) }; }
 }

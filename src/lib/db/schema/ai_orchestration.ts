@@ -36,9 +36,28 @@ export const maestroAiRuns = pgTable('maestro_ai_runs', {
   latencyMs: integer('latency_ms'),
   toolCalls: jsonb('tool_calls'),
   errorCode: varchar('error_code', { length: 100 }),
+  fallbackUsed: varchar('fallback_used', { length: 100 }),
+  evaluationScore: integer('evaluation_score'),
+  evaluationFlags: jsonb('evaluation_flags'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   completedAt: timestamp('completed_at'),
 }, (table) => [
   index('maestro_ai_runs_tenant_created_idx').on(table.tenantId, table.createdAt),
   index('maestro_ai_runs_tenant_status_idx').on(table.tenantId, table.status),
 ]);
+
+export const integrationConnections = pgTable('integration_connections', {
+  id: uuid('id').primaryKey().defaultRandom(), tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  provider: varchar('provider', { length: 30 }).notNull(), status: varchar('status', { length: 20 }).notNull().default('not_configured'),
+  environment: varchar('environment', { length: 20 }).notNull().default('sandbox'), config: jsonb('config'),
+  lastCheckedAt: timestamp('last_checked_at'), lastSuccessAt: timestamp('last_success_at'), lastError: text('last_error'),
+  createdAt: timestamp('created_at').defaultNow().notNull(), updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => [uniqueIndex('integration_connections_tenant_provider_unique').on(table.tenantId, table.provider)]);
+
+export const integrationEvents = pgTable('integration_events', {
+  id: uuid('id').primaryKey().defaultRandom(), tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  provider: varchar('provider', { length: 30 }).notNull(), externalId: varchar('external_id', { length: 255 }).notNull(),
+  eventType: varchar('event_type', { length: 100 }).notNull(), status: varchar('status', { length: 20 }).notNull(),
+  metadata: jsonb('metadata'), createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => [uniqueIndex('integration_events_provider_external_unique').on(table.provider, table.externalId),
+  index('integration_events_tenant_created_idx').on(table.tenantId, table.createdAt)]);

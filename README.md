@@ -69,9 +69,23 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="..."
 # AI Providers
 ANTHROPIC_API_KEY="..."
 GOOGLE_GENERATIVE_AI_API_KEY="..."
+AI_GATEWAY_API_KEY="..." # enables cross-provider fallback
+AI_GATEWAY_PRIMARY_MODEL="anthropic/claude-sonnet-4.5"
+AI_GATEWAY_FALLBACK_MODEL="google/gemini-2.5-flash"
 
 # Protects scheduled Maestro and reporting endpoints
 CRON_SECRET="use-a-long-random-secret"
+
+# Production connectors
+RESEND_API_KEY="..."
+REPORT_FROM_EMAIL="Officia MENA <reports@your-verified-domain.com>"
+OPEN_BANKING_API_URL="https://your-certified-provider.example"
+OPEN_BANKING_ACCESS_TOKEN="..."
+OPEN_BANKING_ENV="sandbox"
+ZATCA_API_URL="https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal"
+ZATCA_CSID="..."
+ZATCA_CSID_SECRET="..."
+ZATCA_ENV="sandbox"
 ```
 
 Maestro's proactive monitor runs daily through `/api/cron/maestro-monitor`. It detects overdue receivables, delayed ZATCA reporting, expiring employee documents, low stock, and expiring inventory. The endpoint requires `Authorization: Bearer $CRON_SECRET`; authorized dashboard users can also trigger a scan from the Maestro inbox.
