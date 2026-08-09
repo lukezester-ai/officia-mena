@@ -103,7 +103,7 @@ export default function AiMaestroPage() {
             <p className="text-sm text-[var(--color-desert-600)]">Проверим, tenant-isolated бизнес помощник · read-only режим</p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2"><Link href="/dashboard/ai-maestro/inbox" className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-900">Проактивен inbox</Link><Link href="/dashboard/ai-maestro/approvals" className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Преглед на предложенията</Link><div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800"><ShieldCheck size={16} /> Данните не се променят без одобрение</div></div>
+        <div className="flex flex-wrap items-center gap-2"><Link href="/dashboard/ai-maestro/control" className="rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-900">AI Control Center</Link><Link href="/dashboard/ai-maestro/inbox" className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-900">Проактивен inbox</Link><Link href="/dashboard/ai-maestro/approvals" className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-900">Преглед на предложенията</Link><div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800"><ShieldCheck size={16} /> Данните не се променят без одобрение</div></div>
       </header>
 
       {briefing && (

@@ -13,6 +13,7 @@ import { inventoryLevels, products } from '@/lib/db/schema/inventory';
 import { invoices } from '@/lib/db/schema/invoices';
 import { getErrorMessage } from '@/lib/errors';
 import { createMaestroProposal } from '@/lib/ai/actions';
+import { deleteMaestroMemory, saveMaestroMemory } from '@/lib/ai/memory';
 
 type MaestroTenant = {
   id: string;
@@ -342,11 +343,41 @@ function createProposalTools(tenant: MaestroTenant, requestedByUserId: string) {
   };
 }
 
-export const createMaestroTools = (tenant: MaestroTenant, requestedByUserId: string) => ({
+function createMemoryTools(tenant: MaestroTenant, user: { id: string; role: string }) {
+  return {
+    rememberExplicitPreference: makeTool({
+      description: 'Store a memory ONLY when the user explicitly asks Maestro to remember it. Never infer or silently store personal, financial, health, credential or secret data.',
+      parameters: z.object({
+        scope: z.enum(['user', 'company']).default('user'), category: z.enum(['preference', 'policy', 'workflow']).default('preference'),
+        key: z.string().trim().min(2).max(120), value: z.string().trim().min(1).max(2000),
+      }),
+      execute: async ({ scope, category, key, value }) => {
+        try {
+          if (scope === 'company' && !['admin', 'manager'].includes(user.role)) throw new Error('Only admins and managers can change company memory.');
+          const memory = await saveMaestroMemory({ tenantId: tenant.id, userId: user.id, scope, category, key, value });
+          return { ok: true, stored: true, memoryId: memory.id, scope, key, generatedAt: generatedAt(), sources: [] };
+        } catch (error) { return toolFailure('memory_save', error); }
+      },
+    }),
+    forgetExplicitMemory: makeTool({
+      description: 'Delete a stored memory only when the user explicitly asks Maestro to forget it and provides its memory ID.',
+      parameters: z.object({ memoryId: z.string().uuid() }),
+      execute: async ({ memoryId }) => {
+        try {
+          await deleteMaestroMemory({ tenantId: tenant.id, userId: user.id, memoryId, canManageCompany: ['admin', 'manager'].includes(user.role) });
+          return { ok: true, deleted: true, memoryId, generatedAt: generatedAt(), sources: [] };
+        } catch (error) { return toolFailure('memory_delete', error); }
+      },
+    }),
+  };
+}
+
+export const createMaestroTools = (tenant: MaestroTenant, user: { id: string; role: string }) => ({
   ...createFinancialTools(tenant),
   ...createHrTools(tenant),
   ...createInventoryTools(tenant),
   ...createInboxTools(tenant),
   ...createDocumentTools(tenant),
-  ...createProposalTools(tenant, requestedByUserId),
+  ...createProposalTools(tenant, user.id),
+  ...createMemoryTools(tenant, user),
 });

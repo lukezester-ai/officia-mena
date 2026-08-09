@@ -1,0 +1,44 @@
+import { index, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core';
+import { tenants } from './tenants';
+
+export const maestroMemories = pgTable('maestro_memories', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  ownerUserId: uuid('owner_user_id'),
+  scope: varchar('scope', { length: 20 }).notNull().default('user'),
+  category: varchar('category', { length: 50 }).notNull().default('preference'),
+  memoryKey: varchar('memory_key', { length: 120 }).notNull(),
+  value: text('value').notNull(),
+  fingerprint: varchar('fingerprint', { length: 64 }).notNull(),
+  source: varchar('source', { length: 30 }).notNull().default('explicit_user'),
+  status: varchar('status', { length: 20 }).notNull().default('active'),
+  createdByUserId: uuid('created_by_user_id').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('maestro_memories_tenant_fingerprint_unique').on(table.tenantId, table.fingerprint),
+  index('maestro_memories_context_idx').on(table.tenantId, table.ownerUserId, table.status),
+]);
+
+export const maestroAiRuns = pgTable('maestro_ai_runs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  userId: uuid('user_id').notNull(),
+  specialist: varchar('specialist', { length: 30 }).notNull(),
+  intent: varchar('intent', { length: 50 }).notNull(),
+  model: varchar('model', { length: 100 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('running'),
+  inputHash: varchar('input_hash', { length: 64 }).notNull(),
+  messageCount: integer('message_count').notNull(),
+  promptTokens: integer('prompt_tokens'),
+  completionTokens: integer('completion_tokens'),
+  totalTokens: integer('total_tokens'),
+  latencyMs: integer('latency_ms'),
+  toolCalls: jsonb('tool_calls'),
+  errorCode: varchar('error_code', { length: 100 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
+}, (table) => [
+  index('maestro_ai_runs_tenant_created_idx').on(table.tenantId, table.createdAt),
+  index('maestro_ai_runs_tenant_status_idx').on(table.tenantId, table.status),
+]);

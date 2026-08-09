@@ -17,4 +17,5 @@ export * from './subscriptions';
 export * from './tenants';
 export * from './users';
 export * from './ai_governance';
+export * from './ai_orchestration';
 export * from './stripe_events';

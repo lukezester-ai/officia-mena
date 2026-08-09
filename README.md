@@ -76,6 +76,10 @@ CRON_SECRET="use-a-long-random-secret"
 
 Maestro's proactive monitor runs daily through `/api/cron/maestro-monitor`. It detects overdue receivables, delayed ZATCA reporting, expiring employee documents, low stock, and expiring inventory. The endpoint requires `Authorization: Bearer $CRON_SECRET`; authorized dashboard users can also trigger a scan from the Maestro inbox.
 
+### Maestro orchestration
+
+Maestro routes each request to a finance, tax/ZATCA, HR, inventory, collections, or executive specialist and exposes only that specialist's required tools. The AI Control Center shows run status, latency, token usage, and routing without storing raw chat content. Memory is opt-in: users must explicitly ask Maestro to remember something, while company-wide memory can be changed only by admins and managers. Financial writes continue to require the Phase 2 approval workflow.
+
 ### 2. Database & Drizzle
 
 Ensure you have a PostgreSQL instance running.
