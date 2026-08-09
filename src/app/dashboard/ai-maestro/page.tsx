@@ -1,211 +1,147 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import { BrainCircuit, Send, User, Sparkles, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { AlertCircle, BrainCircuit, Clock3, Database, Send, ShieldCheck, Sparkles, User } from 'lucide-react';
+
+type ChatMessage = { id: string; role: 'user' | 'assistant'; content: string };
+type Briefing = {
+  company: { name: string; country: string | null };
+  generatedAt: string;
+  metrics: { revenue: string; netIncome: string; cash: string; receivables: string; payables: string; vat: string; controlIssues: number };
+  alerts: Array<{ id: string; title: string; description: string; priority: string | null; confidence: string | null }>;
+  sources: Array<{ label: string; href: string }>;
+};
+
+const prompts = [
+  'Дай ми финансов обзор с източници.',
+  'Кои фактури са просрочени и какъв е общият риск?',
+  'Провери за складови и регулаторни рискове.',
+  'Има ли изтичащи Iqama или други HR документи?',
+];
+
+function metricLabel(key: keyof Briefing['metrics']) {
+  return ({ revenue: 'Приходи', netIncome: 'Нетен резултат', cash: 'Парични средства', receivables: 'Вземания', payables: 'Задължения', vat: 'Нетен VAT', controlIssues: 'Контролни сигнали' })[key];
+}
 
 export default function AiMaestroPage() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
+  const [error, setError] = useState<string | null>(null);
+  const [briefing, setBriefing] = useState<Briefing | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    fetch('/api/maestro/briefing').then(async (response) => {
+      if (!response.ok) throw new Error('Briefing unavailable');
+      setBriefing(await response.json());
+    }).catch(() => setBriefing(null));
+  }, []);
 
-  const append = async (message: { role: string; content: string }) => {
+  useEffect(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages]);
+
+  async function ask(content: string) {
+    if (!content.trim() || isLoading) return;
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), role: 'user', content: content.trim() };
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
+    setInput('');
     setIsLoading(true);
     setError(null);
-    const newMessages = [...messages, { id: Date.now().toString(), ...message }];
-    setMessages(newMessages);
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: nextMessages.map(({ role, content: text }) => ({ role, content: text })) }),
       });
-
       if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.error || `Maestro returned ${response.status}`);
       }
+      if (!response.body) throw new Error('Maestro returned no response body');
 
-      if (!response.body) throw new Error('No response body');
-
+      const assistantId = crypto.randomUUID();
+      setMessages((current) => [...current, { id: assistantId, role: 'assistant', content: '' }]);
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      
-      const assistantMessage = { id: (Date.now() + 1).toString(), role: 'assistant', content: '' };
-      setMessages((prev) => [...prev, assistantMessage]);
+      let buffered = '';
+      let answer = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        
-        const chunk = decoder.decode(value, { stream: true });
-        // Parse Vercel AI SDK stream format
-        const lines = chunk.split('\n');
+        buffered += decoder.decode(value, { stream: true });
+        const lines = buffered.split('\n');
+        buffered = lines.pop() || '';
         for (const line of lines) {
-          if (line.startsWith('0:')) {
-            try {
-              const text = JSON.parse(line.slice(2));
-              assistantMessage.content += text;
-              setMessages((prev) => prev.map(m => m.id === assistantMessage.id ? { ...assistantMessage } : m));
-            } catch {
-              // Ignore parse errors on partial chunks
-            }
-          }
+          if (!line.startsWith('0:')) continue;
+          try { answer += JSON.parse(line.slice(2)); } catch { /* wait for the next complete frame */ }
         }
+        setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, content: answer } : message));
       }
-    } catch (err: any) {
-      console.error(err);
-      setError(err);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unknown Maestro error');
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
-  const handleSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!input.trim() || isLoading) return;
-    const currentInput = input;
-    setInput('');
-    append({ role: 'user', content: currentInput });
-  };
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    void ask(input);
+  }
 
   return (
-    <div className="max-w-5xl mx-auto h-[85vh] flex flex-col">
-      <div className="flex items-center gap-4 mb-6 shrink-0">
-        <div className="p-3 bg-[var(--color-gold-50)] rounded-2xl border border-[var(--color-gold-200)]">
-          <BrainCircuit size={32} className="text-[var(--color-gold-600)]" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-1 flex items-center gap-2">
-            مركز القيادة الذكي (المايسترو)
-            <Sparkles size={18} className="text-amber-500 animate-pulse" />
-          </h1>
-          <p className="text-[var(--color-desert-600)] text-sm">تحدث مع مدير الذكاء الاصطناعي الذي يشرف على جميع الأقسام (الموارد البشرية، المخزون، الضرائب).</p>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 mb-4 flex items-start gap-3 shrink-0">
-          <AlertCircle className="text-rose-600 mt-1" />
+    <div className="mx-auto max-w-7xl space-y-6">
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="rounded-2xl border border-amber-300/40 bg-black p-3 text-amber-400"><BrainCircuit size={32} /></div>
           <div>
-            <h3 className="font-bold text-rose-800">خطأ في الاتصال</h3>
-            <p className="text-sm text-rose-600">
-              يرجى التأكد من إضافة مفتاح <code>ANTHROPIC_API_KEY</code> في ملف <code>.env</code> أو Vercel.
-              <br/>
-              {error.message}
-            </p>
+            <h1 className="flex items-center gap-2 text-3xl font-black text-[var(--color-desert-900)]">Maestro <Sparkles size={18} className="text-amber-500" /></h1>
+            <p className="text-sm text-[var(--color-desert-600)]">Проверим, tenant-isolated бизнес помощник · read-only режим</p>
           </div>
         </div>
+        <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800">
+          <ShieldCheck size={16} /> Данните не се променят без одобрение
+        </div>
+      </header>
+
+      {briefing && (
+        <section className="rounded-3xl border border-[var(--color-desert-200)] bg-white p-5 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div><h2 className="text-lg font-black text-[var(--color-desert-900)]">Оперативен briefing · {briefing.company.name}</h2><p className="text-xs text-[var(--color-desert-500)]">Изчислен директно от счетоводните записи</p></div>
+            <span className="flex items-center gap-1 text-xs text-[var(--color-desert-500)]"><Clock3 size={13} /> {new Date(briefing.generatedAt).toLocaleString()}</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+            {(Object.entries(briefing.metrics) as Array<[keyof Briefing['metrics'], string | number]>).map(([key, value]) => (
+              <div key={key} className="rounded-2xl border border-[var(--color-desert-100)] bg-[var(--color-desert-50)] p-3">
+                <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-desert-500)]">{metricLabel(key)}</div>
+                <div className="mt-2 text-lg font-black text-[var(--color-desert-900)]">{value}{key !== 'controlIssues' ? ' SAR' : ''}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs"><Database size={14} className="text-emerald-600" />{briefing.sources.map((source) => <Link key={source.href} href={source.href} className="font-bold text-emerald-700 hover:underline">{source.label}</Link>)}</div>
+        </section>
       )}
 
-      {/* Chat History */}
-      <div className="flex-1 bg-white border border-[var(--color-desert-200)] rounded-3xl shadow-sm overflow-hidden flex flex-col">
-        <div className="flex-1 p-6 overflow-y-auto space-y-6">
-          {messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-              <BrainCircuit size={64} className="text-[var(--color-gold-500)] opacity-80" />
-              <div>
-                <p className="text-2xl font-bold text-[var(--color-desert-900)] mb-3">أهلاً بك أيها المدير</p>
-                <p className="text-base text-[var(--color-desert-700)] max-w-md mx-auto leading-relaxed">
-                  أنا المايسترو. يمكنني الغوص في قواعد البيانات الخاصة بالشركة واستخراج تقارير حية عن المخاطر، الرواتب، والإقامات.
-                </p>
-              </div>
-              <div className="flex flex-wrap justify-center gap-3 mt-8">
-                <button 
-                  onClick={() => append({ role: 'user', content: 'حلل المخاطر القانونية اليوم' })}
-                  className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm hover:bg-[var(--color-gold-100)] transition-colors text-center"
-                >
-                  &quot;حلل المخاطر القانونية اليوم&quot;
-                </button>
-                <button 
-                  onClick={() => append({ role: 'user', content: 'ما هو وضع الرواتب والإقامات؟' })}
-                  className="bg-[var(--color-gold-50)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl text-sm font-bold border border-[var(--color-gold-200)] shadow-sm hover:bg-[var(--color-gold-100)] transition-colors text-center"
-                >
-                  &quot;ما هو وضع الرواتب والإقامات؟&quot;
-                </button>
-              </div>
-            </div>
-          ) : (
-            messages.map((m: any) => (
-              <div key={m.id} className={`flex gap-4 ${m.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                  m.role === 'user' 
-                    ? 'bg-[var(--color-desert-100)] border-[var(--color-desert-300)] text-[var(--color-desert-700)]' 
-                    : 'bg-black border-[var(--color-gold-500)] text-[var(--color-gold-500)]'
-                }`}>
-                  {m.role === 'user' ? <User size={20} /> : <BrainCircuit size={20} />}
-                </div>
-                
-                <div className={`max-w-[80%] rounded-2xl p-4 ${
-                  m.role === 'user'
-                    ? 'bg-[var(--color-desert-900)] text-white rounded-tr-none'
-                    : 'bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] text-[var(--color-desert-900)] rounded-tl-none'
-                }`}>
-                  <div 
-                    className="whitespace-pre-wrap text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ 
-                      __html: m.content
-                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                        .replace(/- (.*?)\n/g, '<li class="ml-4 list-disc">$1</li>\n')
-                    }} 
-                  />
-                </div>
-              </div>
-            ))
-          )}
-          
-          {isLoading && !messages.some((m: any) => m.role === 'assistant' && !m.content) && (
-            <div className="flex gap-4">
-               <div className="shrink-0 w-10 h-10 rounded-full bg-black border-2 border-[var(--color-gold-500)] text-[var(--color-gold-500)] flex items-center justify-center">
-                  <BrainCircuit size={20} className="animate-pulse" />
-               </div>
-               <div className="bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-2xl rounded-tl-none p-4 w-24 flex items-center justify-center gap-1">
-                 <div className="w-2 h-2 bg-[var(--color-gold-500)] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                 <div className="w-2 h-2 bg-[var(--color-gold-500)] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                 <div className="w-2 h-2 bg-[var(--color-gold-500)] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-               </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-[var(--color-desert-200)] bg-white">
-          <form 
-            onSubmit={handleSubmit}
-            className="relative flex items-center"
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              disabled={isLoading}
-              placeholder="اكتب طلبك للمايسترو هنا... (مثال: هل يوجد بضائع ممنوعة في المخزون؟)"
-              className="w-full bg-[var(--color-desert-50)] text-[var(--color-desert-900)] placeholder:text-[var(--color-desert-400)] border border-[var(--color-desert-200)] rounded-2xl py-4 pr-4 pl-14 text-sm focus:outline-none focus:border-[var(--color-gold-500)] disabled:opacity-50"
-              dir="rtl"
-            />
-            <button 
-              type="submit" 
-              disabled={isLoading || !(input || '').trim()}
-              className="absolute left-2 w-10 h-10 flex items-center justify-center bg-[var(--color-gold-500)] text-black rounded-xl hover:bg-[var(--color-gold-600)] transition-colors disabled:opacity-50 disabled:hover:bg-[var(--color-gold-500)]"
-            >
-              <Send size={18} className="mr-1" />
-            </button>
-          </form>
-          <div className="text-center mt-2">
-            <p className="text-[10px] text-[var(--color-desert-400)]">
-              المايسترو يستخدم Vercel AI SDK للاتصال بوكلاء الأقسام في الوقت الفعلي.
-            </p>
+      <div className="grid min-h-[620px] gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="flex min-h-[620px] flex-col overflow-hidden rounded-3xl border border-[var(--color-desert-200)] bg-white shadow-sm">
+          <div className="flex-1 space-y-5 overflow-y-auto p-5">
+            {messages.length === 0 && <div className="flex h-full flex-col items-center justify-center gap-6 text-center"><BrainCircuit size={58} className="text-amber-500" /><div><h2 className="text-2xl font-black">Какво искате да проверим?</h2><p className="mt-2 max-w-lg text-sm text-[var(--color-desert-600)]">Maestro ще използва реалните фирмени записи и ще посочи източниците. При липса на данни няма да измисля резултат.</p></div><div className="flex max-w-2xl flex-wrap justify-center gap-2">{prompts.map((prompt) => <button key={prompt} onClick={() => void ask(prompt)} className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900 hover:bg-amber-100">{prompt}</button>)}</div></div>}
+            {messages.map((message) => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}><div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${message.role === 'user' ? 'bg-stone-200' : 'bg-black text-amber-400'}`}>{message.role === 'user' ? <User size={18} /> : <BrainCircuit size={18} />}</div><div className={`max-w-[84%] whitespace-pre-wrap rounded-2xl p-4 text-sm leading-7 ${message.role === 'user' ? 'bg-stone-900 text-white' : 'border border-stone-200 bg-stone-50 text-stone-900'}`}>{message.content || 'Проверявам източниците…'}</div></div>)}
+            {isLoading && !messages.some((message) => message.role === 'assistant' && !message.content) && <div className="text-sm font-bold text-amber-700">Maestro анализира проверимите данни…</div>}
+            <div ref={messagesEndRef} />
           </div>
-        </div>
+          {error && <div className="mx-5 mb-3 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"><AlertCircle size={17} />{error}</div>}
+          <form onSubmit={submit} className="flex gap-3 border-t border-stone-200 p-4"><input value={input} onChange={(event) => setInput(event.target.value)} maxLength={20000} placeholder="Попитайте за финанси, фактури, склад, HR или документи…" className="min-w-0 flex-1 rounded-xl border border-stone-300 px-4 py-3 outline-none focus:border-amber-500" /><button disabled={isLoading || !input.trim()} className="flex items-center gap-2 rounded-xl bg-black px-5 py-3 font-bold text-amber-400 disabled:opacity-40"><Send size={18} /> Изпрати</button></form>
+        </section>
+
+        <aside className="space-y-4">
+          <div className="rounded-3xl border border-[var(--color-desert-200)] bg-white p-5 shadow-sm"><h2 className="font-black">Maestro Inbox</h2><p className="mt-1 text-xs text-[var(--color-desert-500)]">Отворени сигнали, подредени за човешки преглед</p><div className="mt-4 space-y-3">{briefing?.alerts.length ? briefing.alerts.map((alert) => <div key={alert.id} className="rounded-2xl border border-stone-200 p-3"><div className="flex items-center justify-between gap-2"><span className="font-bold">{alert.title}</span><span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase ${alert.priority === 'critical' ? 'bg-rose-100 text-rose-800' : alert.priority === 'high' ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-700'}`}>{alert.priority || 'medium'}</span></div><p className="mt-2 text-xs leading-5 text-stone-600">{alert.description}</p>{alert.confidence && <p className="mt-2 text-[10px] font-bold text-stone-400">Confidence {Math.round(Number(alert.confidence) * 100)}%</p>}</div>) : <p className="rounded-2xl bg-emerald-50 p-4 text-sm font-bold text-emerald-800">Няма отворени сигнали.</p>}</div></div>
+          <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-900"><div className="flex items-center gap-2 font-black"><ShieldCheck size={17} /> Фаза 1: read-only</div><p className="mt-2 leading-6">Maestro може да анализира и обяснява. Създаването и промяната на записи ще бъдат добавени във Фаза 2 чрез approval workflow.</p></div>
+        </aside>
       </div>
     </div>
   );
