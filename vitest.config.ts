@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    exclude: ['**/node_modules/**', '**/agrinexus-law/**'],
+    exclude: ['**/node_modules/**', '**/agrinexus-law/**', '**/e2e/**', '**/playwright-report/**', '**/test-results/**'],
   },
   resolve: {
     alias: {
