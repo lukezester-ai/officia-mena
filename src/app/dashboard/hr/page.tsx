@@ -5,7 +5,7 @@ import { Users, Search, UserPlus, CreditCard, X } from 'lucide-react';
 import Link from 'next/link';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { employees as employeesTable } from '@/lib/db/schema/hr';
-import { getEmployees, createEmployee } from './hr-actions';
+import { createEmployee } from './hr-actions';
 
 type Employee = InferSelectModel<typeof employeesTable>;
 
@@ -42,10 +42,15 @@ export default function HrPage() {
     setLoadError(null);
 
     try {
-      const res = await getEmployees();
+      const response = await fetch('/api/hr/employees', {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        cache: 'no-store',
+      });
+      const res = await response.json();
       if (!isActive()) return;
 
-      if (res.success && res.data) {
+      if (response.ok && Array.isArray(res.data)) {
         setEmployees(res.data);
       } else {
         setLoadError(res.error || 'تعذر تحميل بيانات الموظفين.');
