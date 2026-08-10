@@ -12,6 +12,7 @@ type Employee = InferSelectModel<typeof employeesTable>;
 export default function HrPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   
   // Modal State
   const [showModal, setShowModal] = useState(false);
@@ -27,16 +28,35 @@ export default function HrPage() {
   });
 
   useEffect(() => {
-    fetchEmployees();
+    let active = true;
+
+    void fetchEmployees(() => active);
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (isActive: () => boolean = () => true) => {
     setLoading(true);
-    const res = await getEmployees();
-    if (res.success && res.data) {
-      setEmployees(res.data);
+    setLoadError(null);
+
+    try {
+      const res = await getEmployees();
+      if (!isActive()) return;
+
+      if (res.success && res.data) {
+        setEmployees(res.data);
+      } else {
+        setLoadError(res.error || 'تعذر تحميل بيانات الموظفين.');
+      }
+    } catch (error) {
+      if (!isActive()) return;
+      console.error('Failed to load employees', error);
+      setLoadError('تعذر تحميل بيانات الموظفين. يرجى إعادة المحاولة.');
+    } finally {
+      if (isActive()) setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -59,7 +79,7 @@ export default function HrPage() {
         firstName: '', lastName: '', nationality: '', nationalIdNumber: '',
         basicSalary: '', housingAllowance: '0', transportAllowance: '0'
       });
-      fetchEmployees();
+      void fetchEmployees();
     } else {
       alert('فشل في إضافة الموظف: ' + res.error);
     }
@@ -67,7 +87,8 @@ export default function HrPage() {
   };
 
   const formatMoney = (val: string | number) => {
-    return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(Number(val));
+    const amount = Number(val);
+    return new Intl.NumberFormat('ar-SA', { style: 'currency', currency: 'SAR' }).format(Number.isFinite(amount) ? amount : 0);
   };
 
   return (
@@ -107,6 +128,15 @@ export default function HrPage() {
             />
           </div>
         </div>
+
+        {loadError && (
+          <div className="m-4 flex items-center justify-between gap-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-bold text-rose-800">
+            <span>{loadError}</span>
+            <button type="button" onClick={() => void fetchEmployees()} className="rounded-lg border border-rose-300 px-3 py-2">
+              إعادة المحاولة
+            </button>
+          </div>
+        )}
         
         <div className="overflow-x-auto">
           <table className="w-full text-right text-sm whitespace-nowrap">
