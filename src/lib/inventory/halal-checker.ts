@@ -38,14 +38,16 @@ export function checkHalalComplianceForSale(product: HalalProductData): HalalChe
     };
   }
 
-  // 3. Simple Mock Hijri Check
-  // In a real application, we would use a Hijri calendar library (like umalqura or moment-hijri)
-  // to compare the current Hijri date with product.expiryDateHijri.
-  // For this mock, we assume year 1445 has passed, and 1446+ is valid.
   if (product.expiryDateHijri) {
-    const year = parseInt(product.expiryDateHijri.split('-')[0], 10);
-    // Assuming current Hijri year is 1446
-    if (year < 1446) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(product.expiryDateHijri)) {
+      return { isValid: false, reason: 'Invalid Hijri expiry date format.', severity: 'BLOCK' };
+    }
+    const parts = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+      year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Riyadh'
+    }).formatToParts(now);
+    const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value || '00';
+    const currentHijriDate = `${value('year')}-${value('month')}-${value('day')}`;
+    if (product.expiryDateHijri < currentHijriDate) {
       return {
         isValid: false,
         reason: `Hijri expiry date (${product.expiryDateHijri}) has passed. Product is unfit for sale.`,

@@ -12,8 +12,8 @@ export async function getDashboardStats() {
   try {
     const tenant = await requireTenant();
 
-    // Check if using mock tenant (demo mode)
-    if (tenant.id === 'mock-tenant-id') {
+    // Development-only demo tenant; never reachable in production.
+    if (process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_LOGIN === 'true' && tenant.id === 'mock-tenant-id') {
       return {
         success: true,
         data: {

@@ -9,6 +9,9 @@ import { redirect } from 'next/navigation';
 
 export async function createInvoice(formData: FormData) {
   const tenant = await requireTenant();
+  if (!tenant.trn) {
+    throw new Error('يجب إضافة الرقم الضريبي للمنشأة قبل إصدار فاتورة ضريبية.');
+  }
   
   // Extract data from form
   const clientName = formData.get('clientName') as string;
@@ -34,7 +37,7 @@ export async function createInvoice(formData: FormData) {
   // Generate ZATCA QR Code (Phase 1)
   const qrHash = generateZatcaQrCode({
     sellerName: tenant.name,
-    vatRegistrationNumber: tenant.trn || '300000000000003', // fallback to demo TRN
+    vatRegistrationNumber: tenant.trn,
     timestamp: issueDate.toISOString(),
     invoiceTotal: totalAmount.toFixed(2),
     vatTotal: vatAmount.toFixed(2),

@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 import { tenants } from "@/lib/db/schema/tenants";
 
 async function ensureDemoUser() {
-  if (process.env.ENABLE_DEMO_LOGIN !== "true") return;
+  if (process.env.NODE_ENV === 'production' || process.env.ENABLE_DEMO_LOGIN !== "true") return;
   const email = "demo@officia.mena";
   const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
   
@@ -60,7 +60,7 @@ export default async function LoginPage() {
 
         <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 p-8 rounded-3xl shadow-2xl space-y-6">
           
-          {process.env.ENABLE_DEMO_LOGIN === "true" && <form
+          {process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_LOGIN === "true" && <form
             action={async (formData) => {
               "use server"
               try {

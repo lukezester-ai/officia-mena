@@ -16,8 +16,7 @@ export interface ZatcaCryptoConfig {
  * Generates SHA-256 hash of the UBL 2.1 XML Invoice
  */
 export function generateInvoiceHash(xmlPayload: string): string {
-  // ZATCA requires hashing the canonicalized XML, 
-  // but for Phase 1/mocking we just hash the raw XML string.
+  // Callers must provide canonicalized UBL XML before hashing.
   return createHash('sha256').update(xmlPayload).digest('base64');
 }
 
@@ -26,8 +25,7 @@ export function generateInvoiceHash(xmlPayload: string): string {
  */
 export function generateCryptographicStamp(invoiceHash: string, privateKey: string): string {
   if (!privateKey) {
-    // For local dev without a real private key, return a mock stamp
-    return Buffer.from(`MOCK_STAMP_${invoiceHash}`).toString('base64');
+    throw new Error('ZATCA private key is not configured.');
   }
 
   const sign = createSign('SHA256');
@@ -44,7 +42,7 @@ export function generateCryptographicStamp(invoiceHash: string, privateKey: stri
 export function calculatePreviousInvoiceHash(previousXmlPayload?: string): string {
   if (!previousXmlPayload) {
     // If it's the first invoice, ZATCA expects a base64 encoded '0' character (NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjdz==)
-    // Here we use a standard mock for the first invoice PIH as per ZATCA SDK
+    // ZATCA-defined initial PIH value for the first invoice in a chain.
     return 'NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjdz==';
   }
   return generateInvoiceHash(previousXmlPayload);

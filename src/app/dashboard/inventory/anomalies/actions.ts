@@ -71,7 +71,9 @@ export async function detectStockAnomalies() {
 
     return { success: true, data: object.anomalies };
   } catch (error: unknown) {
-    console.error('Anomaly detection error (DB likely not set up), falling back to mock data:', error);
+    console.error('Anomaly detection failed:', error);
+    return { success: false, error: 'تعذر تحليل المخزون من البيانات الفعلية حالياً.' };
+    /* istanbul ignore next -- legacy mock payload retained temporarily for migration history
     // Return mock data so the UI doesn't crash while DB is unavailable
     return { 
       success: true, 
@@ -102,6 +104,6 @@ export async function detectStockAnomalies() {
           capitalTiedUp: -200
         }
       ] 
-    };
+    }; */
   }
 }

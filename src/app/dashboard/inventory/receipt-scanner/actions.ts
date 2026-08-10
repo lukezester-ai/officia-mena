@@ -59,6 +59,8 @@ export async function analyzeReceiptImage(base64Image: string) {
     return { success: true, data: object };
   } catch (error: unknown) {
     console.error('AI Vision Error:', error);
+    return { success: false, error: 'تعذر قراءة الإيصال. تحقق من إعداد خدمة الذكاء الاصطناعي وحاول مجدداً.' };
+    /* istanbul ignore next -- legacy mock payload retained temporarily for migration history
     
     // Fallback for demo if API fails
     return { 
@@ -72,7 +74,7 @@ export async function analyzeReceiptImage(base64Image: string) {
           { name: 'حبر طابعة أسود', qty: 2, unitPrice: 175.25, isPetroleum: false, isFertilizer: false }
         ]
       }
-    };
+    }; */
   }
 }
 

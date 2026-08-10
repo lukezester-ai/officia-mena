@@ -115,7 +115,7 @@ export default function DashboardLayout({
         {/* Top Header */}
         <header className="h-20 flex-shrink-0 border-b border-white/5 bg-background/70 backdrop-blur-xl flex items-center justify-between px-6 z-10 sticky top-0">
           
-          {/* Mock Search Panel for now */}
+          {/* Search entry point; results are served by the authenticated search API. */}
           <div className="relative flex items-center w-full max-w-xl">
             <Search className="w-4 h-4 absolute right-3 text-muted-foreground pointer-events-none z-10" />
             <input

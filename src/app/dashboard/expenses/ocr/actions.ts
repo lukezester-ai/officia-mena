@@ -9,11 +9,14 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 
 const anthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'fake-key-to-allow-build',
+  apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 export async function processReceiptImage(base64Image: string) {
   try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return { success: false, error: 'خدمة قراءة الإيصالات غير مهيأة حالياً.' };
+    }
     const tenant = await requireTenant();
 
     // Remove the data:image/jpeg;base64, prefix if present

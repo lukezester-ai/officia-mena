@@ -3,7 +3,7 @@ import { invoices } from '@/lib/db/schema/invoices';
 import { clients } from '@/lib/db/schema/clients';
 import { products } from '@/lib/db/schema/inventory';
 import { requireTenant } from '@/lib/auth/get-tenant';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, gte, sql } from 'drizzle-orm';
 import { FileText, Users, Package, Wallet, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
@@ -28,9 +28,22 @@ export default async function DashboardPage() {
   const totalClients = Number(clientsResult[0]?.count || 0);
   const totalProducts = Number(productsResult[0]?.count || 0);
 
-  // Mock data for the chart to make it look beautiful
-  const chartPoints = [20, 35, 25, 45, 40, 60, 55, 75, 70, 85, 80, 100];
-  const maxPoint = Math.max(...chartPoints);
+  const chartStart = new Date();
+  chartStart.setUTCMonth(chartStart.getUTCMonth() - 11, 1);
+  chartStart.setUTCHours(0, 0, 0, 0);
+  const chartInvoices = await db.select({ issueDate: invoices.issueDate, total: invoices.totalAmount })
+    .from(invoices)
+    .where(and(eq(invoices.tenantId, tenant.id), gte(invoices.issueDate, chartStart)));
+  const monthlyRevenue = new Map<string, number>();
+  for (const invoice of chartInvoices) {
+    const key = `${invoice.issueDate.getUTCFullYear()}-${invoice.issueDate.getUTCMonth()}`;
+    monthlyRevenue.set(key, (monthlyRevenue.get(key) || 0) + Number(invoice.total || 0));
+  }
+  const chartPoints = Array.from({ length: 12 }, (_, index) => {
+    const month = new Date(Date.UTC(chartStart.getUTCFullYear(), chartStart.getUTCMonth() + index, 1));
+    return monthlyRevenue.get(`${month.getUTCFullYear()}-${month.getUTCMonth()}`) || 0;
+  });
+  const maxPoint = Math.max(...chartPoints, 1);
   
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8" dir="rtl">

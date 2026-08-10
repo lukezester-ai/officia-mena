@@ -156,6 +156,8 @@ export async function generateProductWithAi(prompt: string) {
     return { success: true, data: parsed };
   } catch (error: unknown) {
     console.error('AI Error:', error);
+    return { success: false, error: 'تعذر تحليل وصف المنتج بالذكاء الاصطناعي حالياً.' };
+    /* istanbul ignore next -- legacy demo rules retained temporarily for migration history
     
     // Fallback for demo if API key fails
     if (prompt.includes('ديزل') || prompt.includes('بترول') || prompt.includes('diesel')) {
@@ -165,6 +167,6 @@ export async function generateProductWithAi(prompt: string) {
        return { success: true, data: { name: 'نترات الأمونيوم (سماد)', sku: 'FRT-044', unitPrice: 150, isPetroleum: false, apiGravity: null, isFertilizer: true, category: 'كيماويات زراعية' } };
     }
     
-    return { success: false, error: (error instanceof Error ? error.message : String(error)) };
+    return { success: false, error: (error instanceof Error ? error.message : String(error)) }; */
   }
 }

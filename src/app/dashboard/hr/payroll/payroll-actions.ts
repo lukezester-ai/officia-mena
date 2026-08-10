@@ -49,9 +49,10 @@ export async function downloadWpsSif(month: number, year: number): Promise<{ suc
       return { success: false, error: 'لا يوجد موظفين نشطين لإنشاء ملف.' };
     }
 
-    // Generate SIF CSV
-    // Using a dummy establishment ID for now
-    const establishmentId = '7001234567';
+    const establishmentId = process.env.WPS_ESTABLISHMENT_ID?.trim();
+    if (!establishmentId) {
+      return { success: false, error: 'يجب إعداد رقم المنشأة WPS قبل إنشاء ملف الرواتب.' };
+    }
     
     // The DB returns decimal types as strings, which maps perfectly to our WPSEmployee interface
     const csvData = generateSifCsv(activeEmployees as WPSEmployee[], establishmentId, month, year);

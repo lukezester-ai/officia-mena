@@ -39,14 +39,17 @@ export default function PayrollPage() {
   const handleGenerateWPS = async () => {
     setIsGenerating(true);
     try {
-      const res = await downloadWpsSif(7, 2026); // Hardcoded July 2026 for UI demo
+      const payrollPeriod = new Date();
+      const month = payrollPeriod.getMonth() + 1;
+      const year = payrollPeriod.getFullYear();
+      const res = await downloadWpsSif(month, year);
       if (res.success && res.data) {
         // Create Blob and trigger download
         const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `WPS_SIF_2026_07.csv`;
+        a.download = `WPS_SIF_${year}_${month.toString().padStart(2, '0')}.csv`;
         a.click();
         URL.revokeObjectURL(url);
         

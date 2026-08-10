@@ -42,7 +42,7 @@ export default function ForecastPage() {
   const fetchForecast = async () => {
     setLoading(true);
     const res = await generateCashflowForecast();
-    if (res.success) {
+    if (res.success && res.data) {
       setData(res.data);
     } else {
       setError('error' in res && typeof res.error === 'string' ? res.error : 'Unknown error');

@@ -32,7 +32,7 @@ export function cashFlowCategory(sourceType: string | null) {
 }
 
 export async function getAccountingOverview(tenantId: string) {
-  if (tenantId === 'mock-tenant-id') {
+  if (process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_LOGIN === 'true' && tenantId === 'mock-tenant-id') {
     return {
       accounts: [], journalEntries: [], recentJournalEntries: [], trialBalance: [],
       totals: { debit: '0.00', credit: '0.00', isBalanced: true },

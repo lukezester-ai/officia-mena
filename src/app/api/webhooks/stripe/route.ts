@@ -9,7 +9,7 @@ import Stripe from 'stripe';
 import { Resend } from 'resend';
 import { getErrorMessage } from '@/lib/errors';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 function getCurrentPeriodEnd(subscription: Stripe.Subscription) {
   const currentPeriodEnd = subscription.items.data[0]?.current_period_end;
@@ -68,6 +68,7 @@ export async function POST(req: Request) {
 
       // Send payment receipt email
       try {
+        if (!resend) throw new Error('RESEND_API_KEY is not configured.');
         const amount = (session.amount_total || 0) / 100;
         const currency = (session.currency || 'EUR').toUpperCase();
         const invoiceNumber = `INV-${new Date().toISOString().slice(0,10).replace(/-/g, '')}-${Math.floor(Math.random() * 10000)}`;

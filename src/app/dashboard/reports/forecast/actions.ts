@@ -63,7 +63,9 @@ export async function generateCashflowForecast() {
 
     return { success: true, data: object };
   } catch (error: unknown) {
-    console.error('Forecast error (DB likely not set up), falling back to mock data:', error);
+    console.error('Forecast generation failed:', error);
+    return { success: false, error: 'تعذر إنشاء توقع التدفق النقدي من البيانات الفعلية حالياً.' };
+    /* istanbul ignore next -- legacy mock payload retained temporarily for migration history
     return { 
       success: true, 
       data: {
@@ -78,6 +80,6 @@ export async function generateCashflowForecast() {
           'يُنصح باستثمار 30% من الفائض النقدي المتوقع في شهر أكتوبر لتوسيع المخزون استعداداً لموسم المبيعات.'
         ]
       }
-    };
+    }; */
   }
 }

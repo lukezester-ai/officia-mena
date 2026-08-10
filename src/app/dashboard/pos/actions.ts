@@ -47,20 +47,6 @@ export async function getPosProducts() {
       qty: p.qty || 0
     }));
       
-    // If no products exist, we can return some dummy ones for the UI demo
-    if (data.length === 0) {
-      return {
-        success: true,
-        data: [
-          { id: '1', name: 'Arabica Coffee Beans', unitPrice: '45.00', category: 'Beverages' },
-          { id: '2', name: 'Premium Dates (1kg)', unitPrice: '120.00', category: 'Food' },
-          { id: '3', name: 'Office Chair (Ergonomic)', unitPrice: '450.00', category: 'Furniture' },
-          { id: '4', name: 'Logitech Mouse', unitPrice: '150.00', category: 'Electronics' },
-          { id: '5', name: 'A4 Printer Paper (Box)', unitPrice: '65.00', category: 'Office Supplies' },
-          { id: '6', name: 'Oud Perfume (50ml)', unitPrice: '300.00', category: 'Cosmetics' }
-        ]
-      };
-    }
     return { success: true, data: mapped };
   } catch (error: unknown) {
     return { success: false, error: (error instanceof Error ? error.message : String(error)) };

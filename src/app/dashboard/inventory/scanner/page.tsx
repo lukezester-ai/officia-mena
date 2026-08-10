@@ -1,24 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Camera, X, ScanBarcode, CheckCircle2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BarcodeScannerPage() {
-  const [scannedCode, setScannedCode] = useState<string | null>(null);
+  const [scannedCode] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(true);
-
-  // Simulate scanning a barcode after 3 seconds
-  useEffect(() => {
-    if (!isScanning) return;
-    
-    const timer = setTimeout(() => {
-      setScannedCode('884116362489'); // Mock barcode for Dell XPS
-      setIsScanning(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [isScanning]);
 
   return (
     <div className="max-w-md mx-auto mt-10">
