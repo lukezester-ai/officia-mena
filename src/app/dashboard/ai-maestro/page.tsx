@@ -31,15 +31,33 @@ export default function AiMaestroPage() {
   const [error, setError] = useState<string | null>(null);
   const [briefing, setBriefing] = useState<Briefing | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useRef(true);
+  const chatAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    fetch('/api/maestro/briefing').then(async (response) => {
+    mountedRef.current = true;
+    const controller = new AbortController();
+
+    fetch('/api/maestro/briefing', { signal: controller.signal }).then(async (response) => {
       if (!response.ok) throw new Error('Briefing unavailable');
-      setBriefing(await response.json());
-    }).catch(() => setBriefing(null));
+      const data = await response.json();
+      if (mountedRef.current) setBriefing(data);
+    }).catch((caught) => {
+      if (mountedRef.current && !(caught instanceof DOMException && caught.name === 'AbortError')) setBriefing(null);
+    });
+
+    return () => {
+      mountedRef.current = false;
+      controller.abort();
+      chatAbortRef.current?.abort();
+      chatAbortRef.current = null;
+    };
   }, []);
 
-  useEffect(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages]);
+  useEffect(() => {
+    const target = messagesEndRef.current;
+    if (target && typeof target.scrollIntoView === 'function') target.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   async function ask(content: string) {
     if (!content.trim() || isLoading) return;
@@ -49,12 +67,16 @@ export default function AiMaestroPage() {
     setInput('');
     setIsLoading(true);
     setError(null);
+    chatAbortRef.current?.abort();
+    const controller = new AbortController();
+    chatAbortRef.current = controller;
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: nextMessages.map(({ role, content: text }) => ({ role, content: text })) }),
+        signal: controller.signal,
       });
       if (!response.ok) {
         const body = await response.json().catch(() => null);
@@ -63,6 +85,7 @@ export default function AiMaestroPage() {
       if (!response.body) throw new Error('لم يُرجع Maestro استجابة');
 
       const assistantId = crypto.randomUUID();
+      if (!mountedRef.current) return;
       setMessages((current) => [...current, { id: assistantId, role: 'assistant', content: '' }]);
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -72,6 +95,10 @@ export default function AiMaestroPage() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+        if (!mountedRef.current) {
+          await reader.cancel();
+          break;
+        }
         buffered += decoder.decode(value, { stream: true });
         const lines = buffered.split('\n');
         buffered = lines.pop() || '';
@@ -79,12 +106,14 @@ export default function AiMaestroPage() {
           if (!line.startsWith('0:')) continue;
           try { answer += JSON.parse(line.slice(2)); } catch { /* wait for the next complete frame */ }
         }
-        setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, content: answer } : message));
+        if (mountedRef.current) setMessages((current) => current.map((message) => message.id === assistantId ? { ...message, content: answer } : message));
       }
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'حدث خطأ غير متوقع في Maestro');
+      const aborted = caught instanceof DOMException && caught.name === 'AbortError';
+      if (mountedRef.current && !aborted) setError(caught instanceof Error ? caught.message : 'حدث خطأ غير متوقع في Maestro');
     } finally {
-      setIsLoading(false);
+      if (chatAbortRef.current === controller) chatAbortRef.current = null;
+      if (mountedRef.current) setIsLoading(false);
     }
   }
 
