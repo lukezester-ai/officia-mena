@@ -11,6 +11,7 @@ import { filterTools, routeMaestroRequest } from '@/lib/ai/orchestrator';
 import { formatMemoryContext, loadMaestroMemory } from '@/lib/ai/memory';
 import { resolveMaestroModel } from '@/lib/ai/model-router';
 import { evaluateMaestroRun } from '@/lib/ai/evaluation';
+import { classifyAiError, getMaestroCircuitDecision } from '@/lib/ai/gateway-policy';
 export const maxDuration = 30;
 
 const chatRequestSchema = z.object({
@@ -31,7 +32,10 @@ export async function POST(req: Request) {
   const lastUserMessage = [...parsed.data.messages].reverse().find((message) => message.role === 'user')?.content || '';
   const route = routeMaestroRequest(lastUserMessage);
   let modelRoute;
-  try { modelRoute = resolveMaestroModel(); }
+  try {
+    const circuit = await getMaestroCircuitDecision(tenant.id);
+    modelRoute = resolveMaestroModel({ preferFallback: circuit.circuitOpen });
+  }
   catch (error) { return Response.json({ error: error instanceof Error ? error.message : 'AI provider is not configured.' }, { status: 503 }); }
   const modelName = modelRoute.modelName;
   const startedAt = Date.now();
@@ -40,6 +44,7 @@ export async function POST(req: Request) {
   const [run] = await db.insert(maestroAiRuns).values({
     tenantId: tenant.id, userId: user.id, specialist: route.specialist, intent: route.intent, model: modelName,
     inputHash, messageCount: parsed.data.messages.length,
+    fallbackUsed: modelRoute.circuitOpen ? modelName : null,
   }).returning({ id: maestroAiRuns.id });
 
   const systemPrompt = `
@@ -73,6 +78,8 @@ Respond in the language used by the user. Be concise, concrete and professionall
   const result = streamText({
     model: modelRoute.model,
     providerOptions: modelRoute.providerOptions,
+    maxRetries: modelRoute.maxRetries,
+    abortSignal: AbortSignal.any([req.signal, AbortSignal.timeout(modelRoute.timeoutMs)]),
     system: systemPrompt,
     messages: parsed.data.messages,
     tools: filterTools(createMaestroTools(tenant, { id: user.id, role: user.role }), route.toolNames),
@@ -89,12 +96,12 @@ Respond in the language used by the user. Be concise, concrete and professionall
         status: 'completed', latencyMs: Date.now() - startedAt, promptTokens: finished.totalUsage?.inputTokens,
         completionTokens: finished.totalUsage?.outputTokens, totalTokens: finished.totalUsage?.totalTokens,
         toolCalls, completedAt: new Date(), evaluationScore: evaluation.score, evaluationFlags: evaluation.flags,
-        fallbackUsed: actualModel && actualModel !== modelName ? actualModel : null,
+        fallbackUsed: actualModel && actualModel !== modelName ? actualModel : (modelRoute.circuitOpen ? modelName : null),
       }).where(eq(maestroAiRuns.id, run.id)).catch((error) => console.error('Maestro telemetry completion failed:', error));
     },
-    onError: async () => {
+    onError: async (event) => {
       await db.update(maestroAiRuns).set({ status: 'failed', latencyMs: Date.now() - startedAt,
-        errorCode: 'MODEL_STREAM_ERROR', completedAt: new Date() }).where(eq(maestroAiRuns.id, run.id))
+        errorCode: classifyAiError(event.error), completedAt: new Date() }).where(eq(maestroAiRuns.id, run.id))
         .catch((error) => console.error('Maestro telemetry failure update failed:', error));
     },
   });
