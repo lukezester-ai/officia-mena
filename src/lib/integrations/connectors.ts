@@ -24,10 +24,12 @@ export async function checkConnectors(tenantId?: string): Promise<ConnectorHealt
   return [email, banking, zatca];
 }
 
-export async function sendIntegrationEmail(input: { to: string; subject: string; text: string; idempotencyKey: string }) {
+export async function sendIntegrationEmail(input: { to: string | string[]; subject: string; text: string; html?: string; replyTo?: string; idempotencyKey: string }) {
   if (!process.env.RESEND_API_KEY || !process.env.REPORT_FROM_EMAIL) throw new Error('Email connector is not configured.');
+  const recipients = z.array(z.string().email()).min(1).max(50).parse(Array.isArray(input.to) ? input.to : [input.to]);
   const result = await new Resend(process.env.RESEND_API_KEY).emails.send({ from: process.env.REPORT_FROM_EMAIL,
-    to: z.string().email().parse(input.to), subject: input.subject.slice(0, 200), text: input.text.slice(0, 20_000),
+    to: recipients, subject: input.subject.slice(0, 200), text: input.text.slice(0, 20_000), html: input.html?.slice(0, 100_000),
+    replyTo: input.replyTo ? z.string().email().parse(input.replyTo) : undefined,
   }, { idempotencyKey: input.idempotencyKey });
   if (result.error) throw new Error(result.error.message);
   return result.data;

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { generateText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
-import { Resend } from 'resend';
 import { db, withTenantDb } from '@/lib/db/db';
 import { expenses } from '@/lib/db/schema/expenses';
 import { invoices } from '@/lib/db/schema/invoices';
@@ -10,6 +9,7 @@ import { tenants } from '@/lib/db/schema/tenants';
 import { users } from '@/lib/db/schema/users';
 import { requireBearerSecret } from '@/lib/auth/api';
 import { getErrorMessage } from '@/lib/errors';
+import { sendIntegrationEmail } from '@/lib/integrations/connectors';
 
 export async function GET(request: Request) {
   const unauthorized = requireBearerSecret(request, 'CRON_SECRET');
@@ -18,7 +18,6 @@ export async function GET(request: Request) {
   try {
     const tenantRows = await db.select().from(tenants);
     const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
     const results: Array<{ tenantId: string; delivered: boolean }> = [];
 
     for (const tenant of tenantRows) {
@@ -51,15 +50,16 @@ export async function GET(request: Request) {
       }
 
       const recipientEmails = recipients.map(({ email }) => email);
-      if (resend && recipientEmails.length > 0) {
-        await resend.emails.send({
-          from: process.env.REPORT_FROM_EMAIL || 'Officia MENA <onboarding@resend.dev>',
+      if (recipientEmails.length > 0) {
+        await sendIntegrationEmail({
           to: recipientEmails,
+          text: analysisText,
           subject: `Officia MENA weekly financial report — ${tenant.name}`,
           html: `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.6">${analysisText.replace(/\n/g, '<br>')}</div>`,
+          idempotencyKey: `weekly-report-${tenant.id}-${new Date().toISOString().slice(0, 10)}`,
         });
       }
-      results.push({ tenantId: tenant.id, delivered: Boolean(resend && recipientEmails.length > 0) });
+      results.push({ tenantId: tenant.id, delivered: recipientEmails.length > 0 });
     }
 
     return NextResponse.json({ success: true, tenantsProcessed: results.length, results });

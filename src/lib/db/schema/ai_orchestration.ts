@@ -62,6 +62,19 @@ export const integrationEvents = pgTable('integration_events', {
 }, (table) => [uniqueIndex('integration_events_tenant_provider_external_unique').on(table.tenantId, table.provider, table.externalId),
   index('integration_events_tenant_created_idx').on(table.tenantId, table.createdAt)]);
 
+export const emailDeliveryEvents = pgTable('email_delivery_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  providerEventId: varchar('provider_event_id', { length: 255 }).notNull(),
+  emailId: varchar('email_id', { length: 255 }).notNull(),
+  eventType: varchar('event_type', { length: 80 }).notNull(),
+  metadata: jsonb('metadata'),
+  occurredAt: timestamp('occurred_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex('email_delivery_events_provider_event_unique').on(table.providerEventId),
+  index('email_delivery_events_email_idx').on(table.emailId, table.occurredAt),
+]);
+
 export const integrationJobs = pgTable('integration_jobs', {
   id: uuid('id').primaryKey().defaultRandom(), tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
   jobType: varchar('job_type', { length: 30 }).notNull(), payload: jsonb('payload').notNull(),

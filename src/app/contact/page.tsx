@@ -17,9 +17,20 @@ export default function ContactPage() {
       email: formData.get('email'),
       company: formData.get('company'),
       message: formData.get('message'),
+      website: formData.get('website'),
     };
 
-    // Send via mailto as fallback
+    try {
+      const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      if (!response.ok) throw new Error('Contact request failed');
+      setSubmitted(true);
+    } catch {
+      alert('تعذر إرسال الرسالة حالياً. يرجى المحاولة لاحقاً.');
+    } finally {
+      setLoading(false);
+    }
+    return;
+    // Legacy mail client flow is unreachable and kept only until the UI migration is complete.
             const mailto = `mailto:info@agrinexus.eu?subject=${encodeURIComponent(`استفسار من ${data.name} - ${data.company}`)}&body=${encodeURIComponent(data.message as string + '\n\n---\n' + data.name + '\n' + data.email)}`;
     window.location.href = mailto;
     setLoading(false);
@@ -48,6 +59,7 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
                 <div>
                   <label className="block text-sm font-medium text-white/80 mb-2">الاسم الكامل</label>
                   <input name="name" required className="w-full bg-black/40 border border-gray-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[var(--color-gold-500)]/50 transition-colors" placeholder="أدخل اسمك" />

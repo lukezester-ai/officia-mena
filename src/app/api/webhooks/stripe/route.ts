@@ -6,10 +6,8 @@ import { subscriptions } from '@/lib/db/schema/subscriptions';
 import { stripeEvents } from '@/lib/db/schema/stripe_events';
 import { eq } from 'drizzle-orm';
 import Stripe from 'stripe';
-import { Resend } from 'resend';
 import { getErrorMessage } from '@/lib/errors';
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import { sendIntegrationEmail } from '@/lib/integrations/connectors';
 
 function getCurrentPeriodEnd(subscription: Stripe.Subscription) {
   const currentPeriodEnd = subscription.items.data[0]?.current_period_end;
@@ -68,16 +66,16 @@ export async function POST(req: Request) {
 
       // Send payment receipt email
       try {
-        if (!resend) throw new Error('RESEND_API_KEY is not configured.');
         const amount = (session.amount_total || 0) / 100;
         const currency = (session.currency || 'EUR').toUpperCase();
         const invoiceNumber = `INV-${new Date().toISOString().slice(0,10).replace(/-/g, '')}-${Math.floor(Math.random() * 10000)}`;
-        const customerEmail = session.customer_details?.email || 'customer@example.com';
+        const customerEmail = session.customer_details?.email;
+        if (!customerEmail) throw new Error('Stripe checkout session has no customer email.');
         
-        await resend.emails.send({
-          from: 'Agri Nexus Ltd <info@agrinexus.eu>',
-          to: [customerEmail],
+        await sendIntegrationEmail({
+          to: customerEmail,
           subject: `Invoice for Officia MENA Subscription - ${invoiceNumber}`,
+          text: `Officia MENA subscription ${planId}. Invoice ${invoiceNumber}. Total ${amount.toFixed(2)} ${currency}.`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; direction: ltr;">
               <h1 style="color: #d4af37;">Officia MENA</h1>
@@ -115,6 +113,7 @@ export async function POST(req: Request) {
               </div>
             </div>
           `,
+          idempotencyKey: `stripe-receipt-${event.id}`,
         });
         console.log(`Invoice sent to ${customerEmail}`);
       } catch (err) {
