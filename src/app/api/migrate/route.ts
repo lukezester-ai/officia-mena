@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message: 'Database migrated successfully! All tables created.' });
   } catch (error: unknown) {
     const cause = getErrorCause(error);
+    console.error('Production migration failed:', { message: getErrorMessage(error), causeCode: cause.code, causeMessage: cause.message });
     return NextResponse.json({ 
       success: false, 
       error: getErrorMessage(error),
