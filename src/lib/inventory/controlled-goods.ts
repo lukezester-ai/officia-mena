@@ -8,6 +8,7 @@ export interface PetroleumData {
   observedVolume: number; // Liters at current temp
   observedTempC: number;  // Current Temperature in Celsius
   apiGravity: number;     // Standard density measure
+  volumeCorrectionFactor: number; // From an approved ASTM/API calculation source
 }
 
 /**
@@ -16,16 +17,12 @@ export interface PetroleumData {
  * In reality, this uses complex ASTM Table 54B algorithms.
  */
 export function convertToStandardVolume15C(data: PetroleumData): number {
-  // Simplified thermal expansion coefficient (VCF - Volume Correction Factor)
-  // E.g., Diesel expands by ~0.00084 per degree C above 15.
-  const STANDARD_TEMP_C = 15;
-  const tempDiff = data.observedTempC - STANDARD_TEMP_C;
-  
-  // Fake coefficient based on API gravity (just for demo purposes)
-  const coefficient = (data.apiGravity / 1000) * 0.02; 
-  
-  const vcf = 1 - (tempDiff * coefficient);
-  return data.observedVolume * vcf;
+  if (!Number.isFinite(data.observedVolume) || data.observedVolume < 0) throw new Error('Observed volume must be a non-negative number.');
+  if (!Number.isFinite(data.observedTempC) || !Number.isFinite(data.apiGravity)) throw new Error('Observed temperature and API gravity are required.');
+  if (!Number.isFinite(data.volumeCorrectionFactor) || data.volumeCorrectionFactor <= 0 || data.volumeCorrectionFactor > 2) {
+    throw new Error('A verified ASTM/API volume correction factor is required.');
+  }
+  return data.observedVolume * data.volumeCorrectionFactor;
 }
 
 // 2. FERTILIZER SECURITY COMPLIANCE

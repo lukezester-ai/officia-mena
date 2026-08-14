@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { z } from 'zod';
+import { getOpenBankingProvider } from './open-banking-provider';
 
 export type ConnectorHealth = { provider: 'email' | 'banking' | 'zatca'; status: 'connected' | 'not_configured' | 'blocked' | 'error'; environment: 'sandbox' | 'production'; message: string };
 
@@ -11,10 +12,10 @@ export async function checkConnectors(tenantId?: string): Promise<ConnectorHealt
   let banking: ConnectorHealth = process.env.OPEN_BANKING_API_URL && process.env.OPEN_BANKING_ACCESS_TOKEN && (!tenantId || process.env.OPEN_BANKING_TENANT_ID === tenantId)
     ? { provider: 'banking', status: 'connected', environment: process.env.OPEN_BANKING_ENV === 'production' ? 'production' : 'sandbox', message: 'Provider endpoint and access token are configured.' }
     : { provider: 'banking', status: 'blocked', environment: 'sandbox', message: 'A certified Open Banking provider endpoint and access token are required.' };
-  if (banking.status === 'connected' && process.env.OPEN_BANKING_HEALTH_URL) {
+  if (banking.status === 'connected') {
     try {
-      const response = await fetch(process.env.OPEN_BANKING_HEALTH_URL, { headers: { Authorization: `Bearer ${process.env.OPEN_BANKING_ACCESS_TOKEN}` }, signal: AbortSignal.timeout(8000) });
-      if (!response.ok) banking = { ...banking, status: 'error', message: `Provider health check returned HTTP ${response.status}.` };
+      if (!tenantId) throw new Error('Tenant context is required for banking health checks.');
+      await getOpenBankingProvider(tenantId).health();
     } catch { banking = { ...banking, status: 'error', message: 'Provider health check failed.' }; }
   }
 
@@ -35,15 +36,8 @@ export async function sendIntegrationEmail(input: { to: string | string[]; subje
   return result.data;
 }
 
-const bankTransactionSchema = z.object({ id: z.string(), accountId: z.string().uuid(), bookedAt: z.string().datetime(),
-  description: z.string(), amount: z.number(), currency: z.string().length(3), direction: z.enum(['credit', 'debit']) });
 export async function fetchOpenBankingTransactions(tenantId: string, since: string) {
-  if (!process.env.OPEN_BANKING_API_URL || !process.env.OPEN_BANKING_ACCESS_TOKEN) throw new Error('Open Banking connector is not configured.');
-  if (process.env.OPEN_BANKING_TENANT_ID !== tenantId) throw new Error('Open Banking credentials are not scoped to this tenant.');
-  const url = new URL('/transactions', process.env.OPEN_BANKING_API_URL); url.searchParams.set('since', since);
-  const response = await fetch(url, { headers: { Authorization: `Bearer ${process.env.OPEN_BANKING_ACCESS_TOKEN}`, Accept: 'application/json' }, signal: AbortSignal.timeout(15_000) });
-  if (!response.ok) throw new Error(`Open Banking API returned HTTP ${response.status}.`);
-  return z.array(bankTransactionSchema).parse(await response.json());
+  return getOpenBankingProvider(tenantId).listTransactions(since);
 }
 
 export async function submitZatcaDocument(input: { tenantId: string; mode: 'clearance' | 'reporting'; invoiceHash: string; uuid: string; invoiceBase64: string }) {

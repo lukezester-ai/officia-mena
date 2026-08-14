@@ -12,6 +12,10 @@ const cspHeader = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  webpack(config) {
+    if (process.env.NEXT_DISABLE_BUILD_CACHE === 'true') config.cache = false;
+    return config;
+  },
   async headers() {
     return [
       {

@@ -5,9 +5,11 @@ import { requireTenant } from '@/lib/auth/get-tenant';
 import { requireRole } from '@/lib/auth/rbac';
 import { db } from '@/lib/db/db';
 import { integrationConnections, integrationJobs } from '@/lib/db/schema/ai_orchestration';
+import { bankingConsents } from '@/lib/db/schema/bank';
 import { checkConnectors } from '@/lib/integrations/connectors';
 import { getErrorMessage } from '@/lib/errors';
 import { syncOpenBankingForTenant } from '@/lib/integrations/bank-sync';
+import { getOpenBankingProvider } from '@/lib/integrations/open-banking-provider';
 
 export async function refreshIntegrationHealth() {
   try {
@@ -45,5 +47,31 @@ export async function retryIntegrationJob(id: string) {
 export async function syncBankTransactions() {
   try { await requireRole('admin', 'manager'); const tenant = await requireTenant();
     return { success: true, data: await syncOpenBankingForTenant(tenant.id) };
+  } catch (error) { return { success: false, error: getErrorMessage(error) }; }
+}
+
+export async function startBankingConsent() {
+  try {
+    await requireRole('admin'); const tenant = await requireTenant(); const provider = getOpenBankingProvider(tenant.id);
+    const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://officia-mena.com'}/dashboard/ai-maestro/integrations`;
+    const consent = await provider.createConsent(redirectUri);
+    await db.insert(bankingConsents).values({ tenantId: tenant.id, provider: provider.name, externalConsentId: consent.id,
+      status: consent.status, scopes: ['accounts:read', 'transactions:read'], expiresAt: consent.expiresAt ? new Date(consent.expiresAt) : null })
+      .onConflictDoUpdate({ target: [bankingConsents.tenantId, bankingConsents.provider, bankingConsents.externalConsentId],
+        set: { status: consent.status, expiresAt: consent.expiresAt ? new Date(consent.expiresAt) : null, updatedAt: new Date() } });
+    return { success: true, authorizationUrl: consent.authorizationUrl || null };
+  } catch (error) { return { success: false, error: getErrorMessage(error) }; }
+}
+
+export async function refreshBankingConsent() {
+  try {
+    await requireRole('admin', 'manager'); const tenant = await requireTenant(); const provider = getOpenBankingProvider(tenant.id);
+    const [stored] = await db.select().from(bankingConsents).where(and(eq(bankingConsents.tenantId, tenant.id), eq(bankingConsents.provider, provider.name)))
+      .orderBy(desc(bankingConsents.createdAt)).limit(1);
+    if (!stored) return { success: false, error: 'No Open Banking consent has been created.' };
+    const consent = await provider.getConsent(stored.externalConsentId);
+    await db.update(bankingConsents).set({ status: consent.status, expiresAt: consent.expiresAt ? new Date(consent.expiresAt) : null, updatedAt: new Date() })
+      .where(and(eq(bankingConsents.id, stored.id), eq(bankingConsents.tenantId, tenant.id)));
+    return { success: true, data: { status: consent.status, expiresAt: consent.expiresAt || null } };
   } catch (error) { return { success: false, error: getErrorMessage(error) }; }
 }
