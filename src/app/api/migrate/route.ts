@@ -7,7 +7,7 @@ import { getErrorCause, getErrorMessage, getErrorStack } from '@/lib/errors';
 import { requireBearerSecret } from '@/lib/auth/api';
 
 export async function POST(request: Request) {
-  const unauthorized = requireBearerSecret(request, 'ADMIN_API_SECRET');
+  const unauthorized = requireBearerSecret(request, 'MIGRATION_SECRET');
   if (unauthorized) return unauthorized;
   try {
     const connectionString = process.env.DATABASE_URL;
