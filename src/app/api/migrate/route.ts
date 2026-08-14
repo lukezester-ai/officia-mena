@@ -21,17 +21,44 @@ export async function POST(request: Request) {
       prepare: false
     });
     const requestedMigrations = ['0019_email_delivery_audit.sql', '0020_open_banking_consents.sql'] as const;
-    const statements: Array<{ migration: string; sql: string }> = [];
+    const statementsByMigration = new Map<string, string[]>();
     for (const migration of requestedMigrations) {
       const contents = await readFile(path.join(process.cwd(), 'drizzle', migration), 'utf8');
-      for (const statement of contents.split('--> statement-breakpoint').map((value) => value.trim()).filter(Boolean)) {
-        statements.push({ migration, sql: statement });
-      }
+      statementsByMigration.set(
+        migration,
+        contents.split('--> statement-breakpoint').map((value) => value.trim()).filter(Boolean)
+      );
     }
+    const applied: string[] = [];
+    const skipped: string[] = [];
+    let statementCount = 0;
     await migrationClient.begin(async (transaction) => {
-      for (const statement of statements) await transaction.unsafe(statement.sql);
+      await transaction.unsafe("SELECT pg_advisory_xact_lock(hashtext('officia_mena_scoped_migrations'))");
+      await transaction.unsafe(`
+        CREATE TABLE IF NOT EXISTS public.officia_migration_history (
+          migration varchar(255) PRIMARY KEY,
+          applied_at timestamp DEFAULT now() NOT NULL
+        )
+      `);
+      for (const migration of requestedMigrations) {
+        const existing = await transaction<{ migration: string }[]>`
+          SELECT migration FROM public.officia_migration_history WHERE migration = ${migration}
+        `;
+        if (existing.length > 0) {
+          skipped.push(migration);
+          continue;
+        }
+        for (const statement of statementsByMigration.get(migration) ?? []) {
+          await transaction.unsafe(statement);
+          statementCount += 1;
+        }
+        await transaction`
+          INSERT INTO public.officia_migration_history (migration) VALUES (${migration})
+        `;
+        applied.push(migration);
+      }
     });
-    return NextResponse.json({ success: true, applied: requestedMigrations, statements: statements.length });
+    return NextResponse.json({ success: true, applied, skipped, statements: statementCount });
   } catch (error: unknown) {
     const cause = getErrorCause(error);
     console.error('Production migration failed:', { message: getErrorMessage(error), causeCode: cause.code, causeMessage: cause.message });
