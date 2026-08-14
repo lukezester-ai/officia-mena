@@ -10,9 +10,9 @@ export async function POST(request: Request) {
   if (unauthorized) return unauthorized;
   let migrationClient: ReturnType<typeof postgres> | null = null;
   try {
-    const connectionString = process.env.DATABASE_URL;
+    const connectionString = process.env.MIGRATION_DATABASE_URL;
     if (!connectionString) {
-      return NextResponse.json({ error: 'DATABASE_URL is not set' }, { status: 500 });
+      return NextResponse.json({ error: 'MIGRATION_DATABASE_URL is not set' }, { status: 503 });
     }
 
     migrationClient = postgres(connectionString, {
