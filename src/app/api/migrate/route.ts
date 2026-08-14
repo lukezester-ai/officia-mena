@@ -1,33 +1,37 @@
 import { NextResponse } from 'next/server';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
 import path from 'path';
+import { readFile } from 'node:fs/promises';
 import { getErrorCause, getErrorMessage, getErrorStack } from '@/lib/errors';
 import { requireBearerSecret } from '@/lib/auth/api';
 
 export async function POST(request: Request) {
   const unauthorized = requireBearerSecret(request, 'MIGRATION_SECRET');
   if (unauthorized) return unauthorized;
+  let migrationClient: ReturnType<typeof postgres> | null = null;
   try {
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) {
       return NextResponse.json({ error: 'DATABASE_URL is not set' }, { status: 500 });
     }
 
-    const migrationClient = postgres(connectionString, { 
+    migrationClient = postgres(connectionString, {
       max: 1,
       ssl: 'require',
       prepare: false
     });
-    const db = drizzle(migrationClient);
-
-    // Run the migrations. In Vercel, the drizzle folder is at process.cwd() + '/drizzle'
-    await migrate(db, { migrationsFolder: path.join(process.cwd(), 'drizzle') });
-    
-    await migrationClient.end();
-
-    return NextResponse.json({ success: true, message: 'Database migrated successfully! All tables created.' });
+    const requestedMigrations = ['0019_email_delivery_audit.sql', '0020_open_banking_consents.sql'] as const;
+    const statements: Array<{ migration: string; sql: string }> = [];
+    for (const migration of requestedMigrations) {
+      const contents = await readFile(path.join(process.cwd(), 'drizzle', migration), 'utf8');
+      for (const statement of contents.split('--> statement-breakpoint').map((value) => value.trim()).filter(Boolean)) {
+        statements.push({ migration, sql: statement });
+      }
+    }
+    await migrationClient.begin(async (transaction) => {
+      for (const statement of statements) await transaction.unsafe(statement.sql);
+    });
+    return NextResponse.json({ success: true, applied: requestedMigrations, statements: statements.length });
   } catch (error: unknown) {
     const cause = getErrorCause(error);
     console.error('Production migration failed:', { message: getErrorMessage(error), causeCode: cause.code, causeMessage: cause.message });
@@ -39,5 +43,7 @@ export async function POST(request: Request) {
       causeDetail: cause.detail,
       ...(process.env.NODE_ENV === 'development' ? { stack: getErrorStack(error) } : {})
     }, { status: 500 });
+  } finally {
+    if (migrationClient) await migrationClient.end().catch(() => undefined);
   }
 }
