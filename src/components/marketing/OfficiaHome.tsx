@@ -212,11 +212,13 @@ export function OfficiaHome() {
           type="button"
           aria-label={menuOpen ? "إغلاق القائمة" : "فتح القائمة"}
           aria-expanded={menuOpen}
+          aria-controls="main-navigation"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X /> : <Menu />}
         </button>
         <nav
+          id="main-navigation"
           className={menuOpen ? "main-nav open" : "main-nav"}
           aria-label="التنقل الرئيسي"
         >
@@ -231,6 +233,9 @@ export function OfficiaHome() {
           </a>
           <a href="#faq" onClick={() => setMenuOpen(false)}>
             الأسئلة الشائعة
+          </a>
+          <a href="/dashboard" className="mobile-nav-cta" onClick={() => setMenuOpen(false)}>
+            ابدأ الآن <ArrowLeft size={15} />
           </a>
         </nav>
         <div className="header-actions">

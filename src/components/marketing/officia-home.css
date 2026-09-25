@@ -1337,4 +1337,392 @@
       left: 10px;
     }
   }
+
+  /* Responsive finishing pass: keep the approved desktop composition, but make
+     the small-screen reading order and touch targets feel intentional. */
+  .mobile-menu,
+  .main-nav a,
+  .button,
+  .text-link,
+  .faq-item button,
+  .feature-card a,
+  .site-footer a {
+    min-height: 44px;
+  }
+
+  .mobile-nav-cta {
+    display: none;
+  }
+
+  @media (min-width: 901px) and (max-width: 1040px) {
+    .site-header,
+    .hero-section,
+    .platform-section,
+    .pricing-section,
+    .faq-section {
+      padding-inline: 24px;
+    }
+
+    .site-header {
+      gap: 22px;
+    }
+
+    .main-nav {
+      gap: 16px;
+    }
+
+    .hero-section {
+      grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+      gap: 18px;
+      padding-top: 58px;
+    }
+
+    .hero-section h1 {
+      font-size: clamp(43px, 6vw, 64px);
+    }
+
+    .dashboard-shell {
+      transform: perspective(1100px) rotateY(-3deg) rotateX(1deg);
+    }
+
+    .platform-section,
+    .pricing-section {
+      padding-block: 94px;
+    }
+
+    .feature-grid {
+      grid-template-columns: repeat(2, 1fr);
+      margin-top: 46px;
+    }
+
+    .pricing-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .price-card {
+      padding: 22px 18px;
+    }
+  }
+
+  @media (min-width: 601px) and (max-width: 900px) {
+    .site-header {
+      gap: 20px;
+      padding-inline: 24px;
+    }
+
+    .mobile-menu {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      margin-right: auto;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(18, 36, 59, 0.72);
+      cursor: pointer;
+    }
+
+    .main-nav {
+      position: absolute;
+      top: 74px;
+      right: 20px;
+      left: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #0d1a2d;
+      box-shadow: 0 20px 40px #050a11;
+    }
+
+    .main-nav.open {
+      display: flex;
+    }
+
+    .main-nav a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 11px;
+    }
+
+    .main-nav .mobile-nav-cta {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 7px;
+      color: var(--ink);
+      background: var(--lime);
+      font-weight: 800;
+    }
+
+    .header-actions {
+      display: none;
+    }
+
+    .hero-section {
+      grid-template-columns: minmax(0, 1fr);
+      min-height: auto;
+      gap: 22px;
+      padding: 58px 24px 90px;
+    }
+
+    .hero-section h1 {
+      font-size: clamp(48px, 7vw, 65px);
+    }
+
+    .hero-visual {
+      width: 100%;
+      max-width: 680px;
+      margin: 20px auto 0;
+    }
+
+    .feature-grid,
+    .pricing-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .price-card.featured {
+      grid-column: span 2;
+    }
+
+    .signal-strip {
+      justify-content: flex-start;
+      overflow-x: auto;
+      padding-inline: 24px;
+      white-space: nowrap;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .site-header {
+      position: relative;
+      padding-inline: 16px;
+    }
+
+    .officia-logo {
+      font-size: 19px;
+    }
+
+    .logo-mark {
+      width: 27px;
+      height: 27px;
+    }
+
+    .mobile-menu {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      margin-right: auto;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(18, 36, 59, 0.72);
+      cursor: pointer;
+    }
+
+    .main-nav {
+      top: 74px;
+      right: 12px;
+      left: 12px;
+      gap: 2px;
+      padding: 10px;
+      background: rgba(13, 26, 45, 0.98);
+      backdrop-filter: blur(18px);
+    }
+
+    .main-nav a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .main-nav a:hover {
+      background: rgba(214, 239, 98, 0.08);
+    }
+
+    .main-nav .mobile-nav-cta {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 7px;
+      color: var(--ink);
+      background: var(--lime);
+      font-weight: 800;
+    }
+
+    .hero-section {
+      padding-inline: 16px;
+      padding-top: 42px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+    }
+
+    .hero-section h1 {
+      font-size: clamp(42px, 14vw, 56px);
+      letter-spacing: -0.07em;
+    }
+
+    .hero-actions .button {
+      width: 100%;
+      min-height: 50px;
+    }
+
+    .hero-actions .text-link {
+      justify-content: center;
+      min-height: 44px;
+    }
+
+    .hero-note {
+      justify-content: flex-start;
+      line-height: 1.5;
+    }
+
+    .hero-visual {
+      width: calc(100% + 8px);
+      margin-inline: -4px;
+    }
+
+    .dashboard-shell {
+      border-radius: 7px;
+    }
+
+    .dash-top {
+      height: 42px;
+      padding-inline: 10px;
+    }
+
+    .dash-brand {
+      font-size: 9px;
+    }
+
+    .dash-body {
+      grid-template-columns: 58px minmax(0, 1fr);
+      min-height: 292px;
+    }
+
+    .dash-nav span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dash-content {
+      min-width: 0;
+      padding: 12px 8px;
+    }
+
+    .dash-heading {
+      gap: 6px;
+    }
+
+    .dash-heading h3 {
+      font-size: 12px;
+    }
+
+    .dash-action {
+      padding: 7px 6px;
+      white-space: nowrap;
+    }
+
+    .metric-grid strong {
+      font-size: clamp(8px, 2.7vw, 10px);
+      white-space: nowrap;
+    }
+
+    .card-label {
+      font-size: 8px;
+    }
+
+    .signal-strip {
+      justify-content: flex-start;
+      overflow-x: auto;
+      min-height: 64px;
+      padding-inline: 16px;
+      scrollbar-width: none;
+      white-space: nowrap;
+    }
+
+    .signal-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .platform-section,
+    .pricing-section,
+    .faq-section {
+      padding-inline: 16px;
+    }
+
+    .section-intro h2,
+    .maestro-copy h2 {
+      font-size: clamp(32px, 10vw, 39px);
+    }
+
+    .feature-card {
+      min-height: 218px;
+      padding: 22px 18px;
+    }
+
+    .feature-card a,
+    .maestro-copy .text-link {
+      min-height: 44px;
+    }
+
+    .maestro-section {
+      padding-inline: 16px;
+    }
+
+    .maestro-art {
+      transform: scale(0.86);
+      transform-origin: center;
+      margin-block: 8px -12px;
+    }
+
+    .pricing-grid {
+      gap: 16px;
+    }
+
+    .price-card {
+      padding: 25px 20px;
+    }
+
+    .price-card .button {
+      min-height: 48px;
+    }
+
+    .faq-item button {
+      gap: 16px;
+      padding-block: 18px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .site-footer {
+      align-items: flex-start;
+      gap: 14px;
+      padding-inline: 16px;
+    }
+
+    .site-footer > div {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .site-footer > div a {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
 }
