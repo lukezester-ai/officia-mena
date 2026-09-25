@@ -67,7 +67,7 @@ export async function processDueIntegrationJobs(limit = 20) {
           await db.insert(auditLogs).values({ tenantId: job.tenantId, userId: job.approvedByUserId, entityType: 'integration_job', entityId: job.id,
             action: 'INTEGRATION_DONE', newValues: { jobType: job.jobType, externalId: outcome.externalId } });
           results.push({ id: job.id, status: 'completed' });
-        } catch (error) {
+        } catch (error: unknown) {
           const dead = job.attempts >= job.maxAttempts; const message = error instanceof Error ? error.message : String(error);
           await db.update(integrationJobs).set({ status: dead ? 'dead_letter' : 'retry', lastError: message.slice(0, 2000),
             nextAttemptAt: new Date(Date.now() + retryDelayMs(job.attempts)), updatedAt: new Date() })

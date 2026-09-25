@@ -10,7 +10,7 @@ export const documentSources = pgTable('document_sources', {
   status: varchar('status', { length: 20 }).notNull().default('active'), visibility: varchar('visibility', { length: 20 }).notNull().default('company'),
   allowedRoles: jsonb('allowed_roles'), pageCount: integer('page_count'), effectiveAt: timestamp('effective_at'), expiresAt: timestamp('expires_at'),
   supersedesId: uuid('supersedes_id'), uploadedByUserId: uuid('uploaded_by_user_id'), createdAt: timestamp('created_at').defaultNow().notNull(), updatedAt: timestamp('updated_at').defaultNow().notNull(),
-}, (table) => [uniqueIndex('document_sources_tenant_checksum_unique').on(table.tenantId, table.checksum),
+}, (table: any) => [uniqueIndex('document_sources_tenant_checksum_unique').on(table.tenantId, table.checksum),
   index('document_sources_tenant_status_idx').on(table.tenantId, table.status, table.docType)]);
 
 export const documentChunks = pgTable('document_chunks', {

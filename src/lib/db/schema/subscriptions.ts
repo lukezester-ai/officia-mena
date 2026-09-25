@@ -11,7 +11,7 @@ export const subscriptions = pgTable('subscriptions', {
   currentPeriodEnd: timestamp('current_period_end'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
-}, (table) => [
+}, (table: any) => [
   uniqueIndex('subscriptions_tenant_unique').on(table.tenantId),
   uniqueIndex('subscriptions_customer_unique').on(table.stripeCustomerId),
   uniqueIndex('subscriptions_stripe_id_unique').on(table.stripeSubscriptionId),

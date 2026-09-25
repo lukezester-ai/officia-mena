@@ -3,6 +3,7 @@ import { authConfig } from "./auth.config";
 
 const { auth } = NextAuth(authConfig);
 
+// @ts-expect-error - NextAuth middleware typing is complex
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isDashboardRoute = req.nextUrl.pathname.startsWith("/dashboard");
@@ -11,7 +12,7 @@ export default auth((req) => {
   if (isDashboardRoute && !isLoggedIn) {
     return Response.redirect(new URL("/login", req.nextUrl));
   }
-  
+
   if (isLoginRoute && isLoggedIn) {
     return Response.redirect(new URL("/dashboard", req.nextUrl));
   }

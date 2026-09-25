@@ -51,6 +51,6 @@ export async function retrieveKnowledge(input: { tenantId: string; userId: strin
   await db.insert(knowledgeRetrievalEvents).values({ tenantId: input.tenantId, userId: input.userId,
     queryHash: createHash('sha256').update(input.query).digest('hex'), scope: input.scope, resultCount: results.length,
     topScore: results[0]?.score, latencyMs: Date.now() - started, citations: results.map((row) => ({ documentId: row.documentId, page: row.page, score: row.score })) })
-    .catch((error) => console.error('Knowledge retrieval telemetry failed:', error));
+    .catch((error: unknown) => console.error('Knowledge retrieval telemetry failed:', error));
   return { results, generatedAt: new Date().toISOString(), retrieval: { strategy: 'hybrid_rrf', vectorCandidates: vectors.length, keywordCandidates: keywords.length } };
 }

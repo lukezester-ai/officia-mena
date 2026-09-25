@@ -2,10 +2,10 @@ import { expect, test } from '@playwright/test';
 
 const hasAuthState = Boolean(process.env.PLAYWRIGHT_AUTH_STATE);
 
-test('Maestro can be left for every primary dashboard page without a client crash', async ({ page }) => {
+test('Maestro can be left for every primary dashboard page without a client crash', async ({ page }: { page: any }) => {
   test.skip(!hasAuthState, 'PLAYWRIGHT_AUTH_STATE is required for authenticated navigation tests.');
   const errors: string[] = [];
-  page.on('pageerror', error => errors.push(error.message));
+  page.on('pageerror', (error: Error) => errors.push(error.message));
 
   const destinations = [
     '/dashboard/hr', '/dashboard/accounting', '/dashboard/approvals', '/dashboard/inventory',

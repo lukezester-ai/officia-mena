@@ -17,7 +17,7 @@ function tlvEncode(tag: number, value: string): Buffer {
   const valueBuffer = toBuffer(value);
   const tagBuffer = Buffer.from([tag]);
   const lengthBuffer = Buffer.from([valueBuffer.length]);
-  return Buffer.concat([tagBuffer, lengthBuffer, valueBuffer]);
+  return Buffer.concat([tagBuffer, lengthBuffer, valueBuffer] as Buffer[]);
 }
 
 export type ZatcaInvoiceData = {
@@ -43,6 +43,6 @@ export function generateZatcaQrCode(data: ZatcaInvoiceData): string {
     tlvEncode(5, data.vatTotal),
   ];
   
-  const combinedBuffer = Buffer.concat(tlvs);
+  const combinedBuffer = Buffer.concat(tlvs as Buffer[]);
   return combinedBuffer.toString('base64');
 }

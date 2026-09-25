@@ -28,7 +28,7 @@ export async function syncOpenBankingForTenant(tenantId: string, since = new Dat
     const [seen] = await db.select({ id: integrationEvents.id }).from(integrationEvents)
       .where(and(eq(integrationEvents.tenantId, tenantId), eq(integrationEvents.provider, 'banking'), eq(integrationEvents.externalId, item.id))).limit(1);
     if (seen) { skipped++; continue; }
-    await db.transaction(async (tx) => {
+    await db.transaction(async (tx: any) => {
       await tx.insert(bankTransactions).values({ tenantId, accountId, transactionDate: new Date(item.bookedAt),
         description: item.description, amount: Math.abs(item.amount).toFixed(2), type: item.direction === 'credit' ? 'IN' : 'OUT',
         reference: item.id, status: 'pending' });

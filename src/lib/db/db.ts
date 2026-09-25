@@ -15,8 +15,14 @@ type ChainStep = { kind: 'get'; property: PropertyKey } | { kind: 'call'; proper
 const tenantContext = new AsyncLocalStorage<TenantContext>();
 
 function createDb() {
-  const connectionString = process.env.STORAGE_POSTGRES_URL || process.env.POSTGRES_URL || process.env.DATABASE_URL;
-  if (!connectionString) throw new Error('Database URL environment variable is required.');
+  // Use STORAGE_POSTGRES_URL as primary, with fallbacks for compatibility
+  const connectionString = process.env.STORAGE_POSTGRES_URL
+    || process.env.POSTGRES_URL
+    || process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    throw new Error('Database URL environment variable is required. Set STORAGE_POSTGRES_URL, POSTGRES_URL, or DATABASE_URL.');
+  }
 
   const client = postgres(connectionString, {
     prepare: false,

@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('public site and login load without browser errors', async ({ page }) => {
+test('public site and login load without browser errors', async ({ page }: { page: any }) => {
   const errors: string[] = [];
-  page.on('pageerror', error => errors.push(error.message));
+  page.on('pageerror', (error: Error) => errors.push(error.message));
 
   await page.goto('/');
   await expect(page).toHaveTitle(/Officia MENA/i);
@@ -11,7 +11,7 @@ test('public site and login load without browser errors', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('dashboard is protected for anonymous visitors', async ({ page }) => {
+test('dashboard is protected for anonymous visitors', async ({ page }: { page: any }) => {
   await page.goto('/dashboard');
   await expect(page).toHaveURL(/\/login$/);
 });

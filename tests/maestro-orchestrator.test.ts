@@ -9,7 +9,7 @@ describe('Maestro specialist orchestration', () => {
     ['Провери складовите наличности', 'inventory'],
     ['What does ZATCA require?', 'tax'],
     ['Дай финансов отчет', 'finance'],
-  ])('routes %s to %s', (question, specialist) => {
+  ])('routes %s to %s', (question: string, specialist: string) => {
     expect(routeMaestroRequest(question).specialist).toBe(specialist);
   });
 

@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/migrate': ['./drizzle/**/*'],
   },
-  webpack(config) {
+  webpack(config: any) {
     if (process.env.NEXT_DISABLE_BUILD_CACHE === 'true') config.cache = false;
     return config;
   },
