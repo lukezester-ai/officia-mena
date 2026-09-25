@@ -19,8 +19,11 @@ import {
   ShoppingCart,
   ShieldCheck,
   BrainCircuit,
+  Menu,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import './dashboard.css';
 
 const NAV_ITEMS = [
   { path: '/dashboard', label: 'لوحة القيادة', icon: LayoutDashboard },
@@ -49,11 +52,47 @@ export default function DashboardLayout({
   // `usePathname` can briefly be null while the router hydrates after an OAuth
   // redirect. Keep navigation rendering deterministic during that transition.
   const pathname = usePathname() ?? '/dashboard';
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const [isMobileViewport, setIsMobileViewport] = React.useState(false);
+
+  React.useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)');
+    const syncViewport = () => setIsMobileViewport(media.matches);
+    syncViewport();
+    media.addEventListener('change', syncViewport);
+    return () => media.removeEventListener('change', syncViewport);
+  }, []);
+
+  React.useEffect(() => {
+    if (!mobileNavOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileNavOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [mobileNavOpen]);
+
+  if (/^\/dashboard\/invoices\/[^/]+\/print\/?$/.test(pathname)) {
+    return <div className="dashboard-print-route" dir="rtl">{children}</div>;
+  }
 
   return (
-    <div className="executive-shell flex h-screen w-full overflow-hidden text-foreground dark" dir="rtl">
+    <div className="dashboard-theme executive-shell flex min-h-[100dvh] h-screen w-full overflow-hidden text-foreground dark" dir="rtl">
+      {mobileNavOpen && (
+        <button
+          type="button"
+          aria-label="إغلاق القائمة الجانبية"
+          data-testid="button-close-mobile-nav-backdrop"
+          className="mobile-sidebar-backdrop fixed inset-0 z-30 hidden bg-[#080f1b]/70 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
       {/* Sidebar (Fixed Right) */}
-      <aside className="executive-sidebar w-[248px] h-full flex-shrink-0 border-l border-white/5 flex flex-col z-20">
+      <aside className={cn(
+        "executive-sidebar w-[248px] h-full flex-shrink-0 border-l border-white/5 flex flex-col z-40",
+        "max-md:fixed max-md:right-0 max-md:top-0 max-md:bottom-0 max-md:translate-x-full max-md:transition-transform",
+        mobileNavOpen && "max-md:translate-x-0"
+      )} inert={isMobileViewport && !mobileNavOpen ? true : undefined} aria-hidden={isMobileViewport && !mobileNavOpen ? true : undefined}>
         <div className="h-20 flex items-center px-5 border-b border-white/5">
           <Link href="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="brand-mark w-10 h-10 rounded-lg flex items-center justify-center font-black text-background text-xl">
@@ -68,6 +107,11 @@ export default function DashboardLayout({
               </div>
             </div>
           </Link>
+          <button type="button" aria-label="إغلاق القائمة" data-testid="button-close-mobile-nav"
+            className="mr-auto hidden max-md:flex h-10 w-10 items-center justify-center rounded-lg text-white/70 hover:text-white"
+            onClick={() => setMobileNavOpen(false)}>
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
         <nav className="flex-1 py-5 px-3 flex flex-col gap-1 overflow-y-auto">
@@ -86,6 +130,7 @@ export default function DashboardLayout({
                     ? "text-primary shadow-[inset_-3px_0_0_hsl(var(--primary))]" 
                     : "text-muted-foreground hover:text-white"
                 )}
+                onClick={() => setMobileNavOpen(false)}
               >
                 <Icon className={cn(
                   "w-5 h-5 transition-colors", 
@@ -113,7 +158,13 @@ export default function DashboardLayout({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full">
         {/* Top Header */}
-        <header className="h-20 flex-shrink-0 border-b border-white/5 bg-background/70 backdrop-blur-xl flex items-center justify-between px-6 z-10 sticky top-0">
+          <header className="h-20 flex-shrink-0 border-b border-white/5 bg-background/70 backdrop-blur-xl flex items-center justify-between px-6 z-10 sticky top-0 gap-3">
+          <button type="button" aria-label="فتح القائمة" data-testid="button-open-mobile-nav"
+            aria-expanded={mobileNavOpen}
+            className="hidden max-md:flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg top-command text-white"
+            onClick={() => setMobileNavOpen(true)}>
+            <Menu className="h-5 w-5" />
+          </button>
           
           {/* Search entry point; results are served by the authenticated search API. */}
           <div className="relative flex items-center w-full max-w-xl">
@@ -126,13 +177,13 @@ export default function DashboardLayout({
             />
           </div>
 
-          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
             <button className="top-command relative flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-white">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-background"></span>
             </button>
             <div className="h-5 w-px bg-white/10"></div>
-            <button className="top-command flex items-center gap-3 rounded-lg p-1 pr-3 transition-colors hover:bg-white/10">
+            <button aria-label="حساب المستخدم" data-testid="button-user-menu" className="top-command flex items-center gap-3 rounded-lg p-1 pr-3 transition-colors hover:bg-white/10">
               <div className="flex flex-col items-end">
                 <span className="text-xs font-medium leading-tight text-white">أحمد عبدالله</span>
                 <span className="text-[10px] text-muted-foreground leading-tight">المدير المالي</span>

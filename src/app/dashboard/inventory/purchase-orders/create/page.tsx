@@ -186,7 +186,7 @@ export default function CreatePOPage() {
                 </div>
               ) : (
                 items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 bg-black/20 p-2 rounded-xl border border-white/5">
+                  <div key={item.id} className="line-item-row flex items-center gap-3 bg-black/20 p-2 rounded-xl border border-white/5">
                     <div className="flex-1">
                       <input 
                         type="text" 

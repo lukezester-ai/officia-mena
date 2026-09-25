@@ -84,7 +84,7 @@ export default function BankPage() {
           <div className="h-48 bg-white border border-[var(--color-desert-200)] rounded-3xl animate-pulse"></div>
         ) : (
           accounts.map(acc => (
-            <div key={acc.id} className="relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between h-48 border border-[var(--color-gold-200)] shadow-sm bg-gradient-to-br from-white to-[var(--color-gold-50)] group hover:shadow-md transition-shadow">
+            <div key={acc.id} className="bank-account-card relative overflow-hidden rounded-3xl p-6 flex flex-col justify-between h-48 border border-[var(--color-gold-200)] shadow-sm bg-gradient-to-br from-white to-[var(--color-gold-50)] group hover:shadow-md transition-shadow">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-gold-200)] rounded-full blur-3xl opacity-20 -mr-10 -mt-10"></div>
               
               <div className="flex justify-between items-start z-10">

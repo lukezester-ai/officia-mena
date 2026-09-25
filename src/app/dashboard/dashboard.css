@@ -1,0 +1,217 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+.dashboard-theme {
+  --dash-ink: #080f1b;
+  --dash-navy: #0d1a2d;
+  --dash-panel: #12243b;
+  --dash-panel-soft: #172a42;
+  --dash-cream: #f5f2e9;
+  --dash-muted: #9eafc2;
+  --dash-line: rgba(180, 201, 221, 0.14);
+  --dash-lime: #d6ef62;
+  --dash-aqua: #55d4ce;
+  --dash-coral: #ff8e69;
+  min-height: 100dvh;
+  color: var(--dash-cream);
+  background:
+    radial-gradient(ellipse 58% 42% at 78% 0%, rgba(83, 67, 147, 0.34), transparent 70%),
+    radial-gradient(ellipse 38% 30% at 22% 20%, rgba(24, 69, 153, 0.2), transparent 72%),
+    linear-gradient(145deg, #080d20 0%, #0b1430 56%, #15152c 100%);
+  font-family: "Cairo", sans-serif;
+  isolation: isolate;
+}
+
+.dashboard-theme::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,.28) .5px, transparent .5px);
+  background-size: 5px 5px;
+  content: "";
+  opacity: .13;
+  pointer-events: none;
+}
+
+.dashboard-theme .executive-sidebar {
+  background: rgba(13, 26, 45, .94);
+  border-color: var(--dash-line);
+  box-shadow: -16px 0 44px rgba(0,0,0,.14);
+}
+
+.dashboard-theme .executive-shell,
+.dashboard-theme .dashboard-canvas { background: transparent; }
+.dashboard-theme .dashboard-canvas { scrollbar-color: rgba(214,239,98,.4) transparent; }
+.dashboard-theme header {
+  background: rgba(13, 26, 45, .72);
+  border-color: var(--dash-line);
+}
+.dashboard-theme .brand-mark {
+  background: conic-gradient(from 215deg, var(--dash-coral), #8d67d5 27% 47%, var(--dash-aqua) 47% 69%, var(--dash-lime) 69%);
+}
+.dashboard-theme .nav-item { color: var(--dash-muted); }
+.dashboard-theme .nav-item::before {
+  background: linear-gradient(90deg, rgba(214,239,98,.16), transparent);
+}
+.dashboard-theme .nav-item[data-active="true"],
+.dashboard-theme .nav-item[data-active="true"] svg { color: var(--dash-lime); }
+.dashboard-theme .top-command {
+  color: var(--dash-cream);
+  background: rgba(245,242,233,.06);
+  border-color: var(--dash-line);
+}
+.dashboard-theme .top-command:focus {
+  border-color: rgba(214,239,98,.65);
+  outline: 2px solid rgba(214,239,98,.16);
+}
+.dashboard-theme button:hover { border-color: rgba(214,239,98,.38); }
+
+/* Translation layer for legacy light/dark islands. Specific enough to avoid
+   charts and print canvases, while keeping existing server-backed markup intact. */
+.dashboard-theme main .bg-white:not(.print-sheet),
+.dashboard-theme main .bg-white\/95:not(.print-sheet),
+.dashboard-theme main .bg-white\/90:not(.print-sheet) {
+  color: var(--dash-cream);
+  background: rgba(18,36,59,.84);
+  border-color: var(--dash-line);
+}
+.dashboard-theme main .text-\[var\(--color-desert-900\)\],
+.dashboard-theme main .text-\[var\(--color-desert-700\)\],
+.dashboard-theme main .text-slate-900,
+.dashboard-theme main .text-zinc-900 { color: var(--dash-cream); }
+.dashboard-theme main .text-\[var\(--color-desert-400\)\] { color: #8fa3b8; }
+.dashboard-theme main .text-\[var\(--color-gold-600\)\] { color: var(--dash-lime); }
+.dashboard-theme main .text-amber-300 { color: #f3d77a; }
+.dashboard-theme main .text-\[var\(--color-desert-600\)\],
+.dashboard-theme main .text-\[var\(--color-desert-500\)\],
+.dashboard-theme main .text-slate-600,
+.dashboard-theme main .text-zinc-500 { color: var(--dash-muted); }
+.dashboard-theme main .text-white { color: var(--dash-cream); }
+.dashboard-theme main .text-blue-400,
+.dashboard-theme main .text-indigo-400,
+.dashboard-theme main .text-purple-400 { color: var(--dash-aqua); }
+.dashboard-theme main .text-emerald-400,
+.dashboard-theme main .text-emerald-500 { color: var(--dash-lime); }
+.dashboard-theme main .border-\[var\(--color-desert-200\)\],
+.dashboard-theme main .border-slate-200,
+.dashboard-theme main .border-zinc-800 { border-color: var(--dash-line); }
+.dashboard-theme main .bg-\[var\(--color-desert-50\)\],
+.dashboard-theme main .bg-slate-50,
+.dashboard-theme main .bg-zinc-900\/50,
+.dashboard-theme main .bg-zinc-900\/60 {
+  background: rgba(18,36,59,.72);
+}
+.dashboard-theme main .bg-card,
+.dashboard-theme main .bg-black\/20,
+.dashboard-theme main .bg-black\/30,
+.dashboard-theme main .bg-black\/40 {
+  background-color: rgba(18,36,59,.76);
+}
+.dashboard-theme main .bg-black\/40 { background-color: rgba(8,15,27,.62); }
+.dashboard-theme main .bg-zinc-950 { background-color: rgba(8,15,27,.92); }
+.dashboard-theme main .bank-account-card {
+  color: var(--dash-cream);
+  background: linear-gradient(145deg, rgba(18,36,59,.96), rgba(23,42,66,.78));
+  border-color: rgba(214,239,98,.24);
+}
+.dashboard-theme main button.bg-\[var\(--color-desert-900\)\],
+.dashboard-theme main button.bg-zinc-900,
+.dashboard-theme main a.bg-zinc-900 {
+  color: var(--dash-ink);
+  background: var(--dash-lime);
+}
+.dashboard-theme main button.bg-\[var\(--color-desert-900\)\]:hover,
+.dashboard-theme main button.bg-zinc-900:hover { background: #e2f68a; }
+.dashboard-theme main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+.dashboard-theme main select,
+.dashboard-theme main textarea {
+  color: var(--dash-cream);
+  background-color: rgba(8,15,27,.58);
+  border-color: var(--dash-line);
+}
+.dashboard-theme main input[type="checkbox"],
+.dashboard-theme main input[type="radio"],
+.dashboard-theme main input[type="file"],
+.dashboard-theme main input[type="range"] {
+  accent-color: var(--dash-lime);
+}
+.dashboard-theme main select option {
+  color: var(--dash-cream);
+  background: var(--dash-navy);
+}
+.dashboard-theme main select:focus {
+  border-color: rgba(214,239,98,.68);
+  outline: 2px solid rgba(214,239,98,.14);
+  outline-offset: 1px;
+}
+.dashboard-theme main input::placeholder,
+.dashboard-theme main textarea::placeholder { color: #8292a8; }
+.dashboard-theme main th { color: var(--dash-muted); }
+.dashboard-theme main tr:hover { background-color: rgba(85,212,206,.055); }
+
+@media (max-width: 767px) {
+  .dashboard-theme .dashboard-canvas { padding: 1rem; }
+  .dashboard-theme main h1 { font-size: clamp(1.45rem, 7vw, 2rem); }
+  .dashboard-theme .mobile-sidebar-backdrop { display: block; }
+  .dashboard-theme header { padding-inline: .75rem; }
+  .dashboard-theme header > div:first-of-type { min-width: 0; }
+  .dashboard-theme header input { min-width: 0; }
+  .dashboard-theme header .flex.flex-col { display: none; }
+  .dashboard-theme main .line-item-row {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .dashboard-theme main .line-item-row > .flex-1 {
+    flex-basis: 100%;
+    min-width: 100%;
+  }
+  .dashboard-theme main .line-item-row > .w-24,
+  .dashboard-theme main .line-item-row > .w-32,
+  .dashboard-theme main .line-item-row > .w-36 {
+    flex: 1 1 7rem;
+    width: auto;
+    min-width: 0;
+  }
+}
+
+@media print {
+  .dashboard-theme { min-height: auto; color: #172639; background: #fff; }
+  .dashboard-theme::before,
+  .dashboard-theme > aside,
+  .dashboard-theme > div > header { display: none !important; }
+  .dashboard-theme > div { display: block !important; }
+  .dashboard-theme .dashboard-canvas { overflow: visible; padding: 0; background: #fff; }
+  .dashboard-theme .dashboard-canvas > div { max-width: none; padding: 0; }
+  .dashboard-theme main,
+  .dashboard-theme main * { color: #172639 !important; }
+  .dashboard-theme main { background: #fff !important; }
+  .dashboard-theme main [data-printable-invoice],
+  .dashboard-theme main [data-printable-invoice] *,
+  .dashboard-theme main .print-sheet,
+  .dashboard-theme main .print-sheet * {
+    color: #172639 !important;
+    background: #fff !important;
+    border-color: #cbd5e1 !important;
+  }
+  .dashboard-theme main input,
+  .dashboard-theme main select,
+  .dashboard-theme main textarea { background: #fff !important; }
+}
+
+/* Exact invoice print route intentionally bypasses `.dashboard-theme`; these
+   rules also protect any future print page that opts into the route marker. */
+.dashboard-print-route {
+  min-height: 100dvh;
+  color: #172639;
+  background: #fff;
+}
+.dashboard-print-route,
+.dashboard-print-route * { box-sizing: border-box; }
+@media print {
+  .dashboard-print-route,
+  .dashboard-print-route * {
+    color: #172639 !important;
+    background-color: transparent !important;
+  }
+  .dashboard-print-route { background: #fff !important; }
+  .dashboard-print-route .print\:hidden { display: none !important; }
+}

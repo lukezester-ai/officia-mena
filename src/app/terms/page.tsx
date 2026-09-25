@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { PublicSiteShell } from '@/components/marketing/PublicSiteShell';
 
 export const metadata: Metadata = {
   title: 'الشروط والأحكام | Officia MENA',
@@ -8,13 +9,12 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#1A120B] text-white" dir="rtl">
-      <div className="max-w-4xl mx-auto px-6 py-24">
-        <Link href="/" className="text-[var(--color-gold-500)] hover:underline mb-8 inline-block">&larr; العودة للرئيسية</Link>
-        <h1 className="text-4xl md:text-5xl font-black mb-8">الشروط والأحكام</h1>
-        <p className="text-[var(--color-desert-400)] mb-12">آخر تحديث: 25 يوليو 2026</p>
+    <PublicSiteShell eyebrow="وثائق Officia MENA" title="الشروط والأحكام">
+      <div className="public-panel">
+        <Link href="/" className="public-back-link">&larr; العودة للرئيسية</Link>
+        <p className="public-meta">آخر تحديث: 25 يوليو 2026</p>
 
-        <div className="space-y-8 text-[var(--color-desert-200)] leading-relaxed">
+        <div className="public-content">
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">1. قبول الشروط</h2>
             <p>باستخدامك لمنصة Officia MENA، فإنك توافق على هذه الشروط والأحكام. إذا كنت لا توافق على أي جزء من هذه الشروط، يجب عليك التوقف عن استخدام المنصة فوراً.</p>
@@ -103,12 +103,12 @@ export default function TermsPage() {
           </section>
         </div>
 
-        <div className="mt-16 p-6 rounded-2xl border border-gray-800 bg-gray-900/50">
-          <p className="text-sm text-[var(--color-desert-400)]">
+        <div className="public-notice">
+          <p>
             <strong>ملاحظة:</strong> هذه مسودة شروط وأحكام. يوصى بمراجعتها من قبل مستشار قانوني مختص قبل النشر الرسمي.
           </p>
         </div>
       </div>
-    </div>
+    </PublicSiteShell>
   );
 }

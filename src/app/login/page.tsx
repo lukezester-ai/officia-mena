@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { tenants } from "@/lib/db/schema/tenants";
 import GoogleSignInButton from "./google-sign-in-button";
+import { PublicSiteShell } from "@/components/marketing/PublicSiteShell";
 
 async function ensureDemoUser() {
   if (process.env.NODE_ENV === 'production' || process.env.ENABLE_DEMO_LOGIN !== "true") return;
@@ -45,21 +46,20 @@ export default async function LoginPage() {
   await ensureDemoUser();
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden" dir="rtl">
+    <PublicSiteShell eyebrow="مساحة العمل" title="مرحباً بك في أوفيسيا">
       {/* Background Effects */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--color-gold-500)]/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
       
-      <div className="w-full max-w-md z-10">
+      <div className="login-wrap">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block p-4 bg-zinc-900 rounded-full border border-zinc-800 mb-6 shadow-2xl">
+          <Link href="/" className="login-mark">
             <ShieldCheck className="w-10 h-10 text-[var(--color-gold-500)]" />
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">مرحباً بك في أوفيسيا</h1>
-          <p className="text-zinc-400">النظام الشامل لإدارة الشركات في الشرق الأوسط</p>
+          <p className="login-subtitle">النظام الشامل لإدارة الشركات في الشرق الأوسط</p>
         </div>
 
-        <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 p-8 rounded-3xl shadow-2xl space-y-6">
+        <div className="login-card">
           
           {process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_LOGIN === "true" && <form
             action={async (formData) => {
@@ -79,24 +79,24 @@ export default async function LoginPage() {
           >
             {/* Show error if needed */}
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-2">البريد الإلكتروني</label>
+              <label htmlFor="login-email">البريد الإلكتروني</label>
               <input
                 type="email"
-                name="email"
+                 id="login-email" name="email"
                 required
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[var(--color-gold-500)] transition-all font-sans"
+                 className="login-input"
                 placeholder="name@company.com"
                 dir="ltr"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-2">كلمة المرور</label>
+              <label htmlFor="login-password">كلمة المرور</label>
               <input
                 type="password"
-                name="password"
+                 id="login-password" name="password"
                 required
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[var(--color-gold-500)] transition-all font-sans"
+                 className="login-input"
                 placeholder="••••••••"
                 dir="ltr"
               />
@@ -104,7 +104,7 @@ export default async function LoginPage() {
             
             <button
               type="submit"
-              className="w-full py-3 rounded-xl gold-gradient text-[#1A120B] font-bold hover:opacity-90 transition-all shadow-[0_0_20px_rgba(212,175,55,0.2)] flex items-center justify-center gap-2"
+               className="login-submit"
             >
               تسجيل الدخول <LogIn className="w-5 h-5" />
             </button>
@@ -134,7 +134,7 @@ export default async function LoginPage() {
           >
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold transition-all border border-zinc-700 flex items-center justify-center gap-2"
+               className="login-demo"
             >
               <User className="w-5 h-5" />
               الدخول السريع (Demo Admin)
@@ -146,12 +146,12 @@ export default async function LoginPage() {
 
         </div>
 
-        <p className="text-center text-zinc-500 text-sm mt-8">
-          <Link href="/" className="hover:text-[var(--color-gold-500)] transition-colors flex items-center justify-center gap-2">
+        <p className="login-return">
+          <Link href="/">
              العودة للصفحة الرئيسية <ArrowRight className="w-4 h-4" />
           </Link>
         </p>
       </div>
-    </div>
+    </PublicSiteShell>
   );
 }
