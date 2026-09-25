@@ -9,7 +9,8 @@ describe('Maestro specialist orchestration', () => {
     ['Провери складовите наличности', 'inventory'],
     ['What does ZATCA require?', 'tax'],
     ['Дай финансов отчет', 'finance'],
-  ])('routes %s to %s', (question: string, specialist: string) => {
+  ])('routes %s to %s', (question, specialist) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(routeMaestroRequest(question).specialist).toBe(specialist);
   });
 

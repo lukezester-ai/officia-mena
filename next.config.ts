@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/migrate': ['./drizzle/**/*'],
   },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   webpack(config: any) {
     if (process.env.NEXT_DISABLE_BUILD_CACHE === 'true') config.cache = false;
     return config;

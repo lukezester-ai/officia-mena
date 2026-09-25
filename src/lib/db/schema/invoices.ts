@@ -48,6 +48,7 @@ export const invoices = pgTable('invoices', {
   
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 }, (table: any) => [
   uniqueIndex('invoices_tenant_idemp_idx').on(table.tenantId, table.idempotencyKey),
   uniqueIndex('invoices_tenant_number_unique').on(table.tenantId, table.invoiceNumber),

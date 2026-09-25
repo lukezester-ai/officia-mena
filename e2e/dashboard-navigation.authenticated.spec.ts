@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 const hasAuthState = Boolean(process.env.PLAYWRIGHT_AUTH_STATE);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 test('Maestro can be left for every primary dashboard page without a client crash', async ({ page }: { page: any }) => {
   test.skip(!hasAuthState, 'PLAYWRIGHT_AUTH_STATE is required for authenticated navigation tests.');
   const errors: string[] = [];

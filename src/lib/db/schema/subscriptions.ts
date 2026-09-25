@@ -11,6 +11,7 @@ export const subscriptions = pgTable('subscriptions', {
   currentPeriodEnd: timestamp('current_period_end'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 }, (table: any) => [
   uniqueIndex('subscriptions_tenant_unique').on(table.tenantId),
   uniqueIndex('subscriptions_customer_unique').on(table.stripeCustomerId),

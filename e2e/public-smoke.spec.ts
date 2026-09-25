@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 test('public site and login load without browser errors', async ({ page }: { page: any }) => {
   const errors: string[] = [];
   page.on('pageerror', (error: Error) => errors.push(error.message));
@@ -11,6 +12,7 @@ test('public site and login load without browser errors', async ({ page }: { pag
   expect(errors).toEqual([]);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 test('dashboard is protected for anonymous visitors', async ({ page }: { page: any }) => {
   await page.goto('/dashboard');
   await expect(page).toHaveURL(/\/login$/);

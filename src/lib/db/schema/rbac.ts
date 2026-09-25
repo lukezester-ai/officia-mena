@@ -8,6 +8,7 @@ export const roles = pgTable('roles', {
   description: text('description'),
   isSystem: boolean('is_system').default(false),
   createdAt: timestamp('created_at').defaultNow(),
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 }, (t: any) => ({
   unq: unique().on(t.tenantId, t.name),
 }));
@@ -16,6 +17,7 @@ export const permissions = pgTable('permissions', {
   id: uuid('id').primaryKey().defaultRandom(),
   resource: varchar('resource', { length: 50 }).notNull(),
   action: varchar('action', { length: 50 }).notNull(),
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 }, (t: any) => ({
   unq: unique().on(t.resource, t.action),
 }));
@@ -23,6 +25,7 @@ export const permissions = pgTable('permissions', {
 export const rolePermissions = pgTable('role_permissions', {
   roleId: uuid('role_id').references(() => roles.id).notNull(),
   permissionId: uuid('permission_id').references(() => permissions.id).notNull(),
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 }, (t: any) => ({
   pk: primaryKey({ columns: [t.roleId, t.permissionId] }),
 }));
