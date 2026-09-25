@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { PublicSiteShell } from '@/components/marketing/PublicSiteShell';
 
 export const metadata: Metadata = {
   title: 'سياسة الخصوصية | Officia MENA',
@@ -8,13 +9,12 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#1A120B] text-white" dir="rtl">
-      <div className="max-w-4xl mx-auto px-6 py-24">
-        <Link href="/" className="text-[var(--color-gold-500)] hover:underline mb-8 inline-block">&larr; العودة للرئيسية</Link>
-        <h1 className="text-4xl md:text-5xl font-black mb-8">سياسة الخصوصية</h1>
-        <p className="text-[var(--color-desert-400)] mb-12">آخر تحديث: 25 يوليو 2026</p>
+    <PublicSiteShell eyebrow="وثائق Officia MENA" title="سياسة الخصوصية">
+      <div className="public-panel">
+        <Link href="/" className="public-back-link">&larr; العودة للرئيسية</Link>
+        <p className="public-meta">آخر تحديث: 25 يوليو 2026</p>
 
-        <div className="space-y-8 text-[var(--color-desert-200)] leading-relaxed">
+        <div className="public-content">
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">1. المقدمة</h2>
             <p>نحن في <strong>Agri Nexus Ltd</strong> (المشار إليها فيما يلي بـ &quot;نحن&quot; أو &quot;المنصة&quot;) نلتزم بحماية خصوصية مستخدمينا. توضح سياسة الخصوصية هذه كيفية جمع، استخدام، الكشف، وحماية معلوماتك عندما تستخدم منصتنا المحاسبية.</p>
@@ -114,12 +114,12 @@ export default function PrivacyPage() {
           </section>
         </div>
 
-        <div className="mt-16 p-6 rounded-2xl border border-gray-800 bg-gray-900/50">
-          <p className="text-sm text-[var(--color-desert-400)]">
+        <div className="public-notice">
+          <p>
             <strong>ملاحظة:</strong> هذه المسودة تستند إلى أفضل الممارسات. يوصى بمراجعة هذه السياسة من قبل مستشار قانوني مختص قبل النشر الرسمي.
           </p>
         </div>
       </div>
-    </div>
+    </PublicSiteShell>
   );
 }
