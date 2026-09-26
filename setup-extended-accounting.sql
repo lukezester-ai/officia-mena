@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS budgets (
 -- Budget Lines
 CREATE TABLE IF NOT EXISTS budget_lines (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  budget_id UUID NOT NULL REFERENCES budgets(id),
+  budget_id UUID NOT NULL REFERENCES budgets(id) ON DELETE CASCADE,
   account_id UUID NOT NULL,
   budgeted_amount NUMERIC(12,2) NOT NULL,
   variance_threshold NUMERIC(5,2) DEFAULT 10.00,
