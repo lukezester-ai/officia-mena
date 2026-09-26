@@ -1,6 +1,7 @@
 export * from './audit_logs';
 export * from './ai_inbox';
 export * from './accounting';
+export * from './accounting_reports';
 export * from './approvals';
 export * from './bank';
 export * from './documents';
