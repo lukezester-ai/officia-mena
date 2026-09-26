@@ -10,6 +10,7 @@ export * from './hr';
 export * from './installments';
 export * from './clients';
 export * from './inventory';
+export * from './inventory_extensions';
 export * from './invoices';
 export * from './invoice_extensions';
 export * from './purchase_orders';
