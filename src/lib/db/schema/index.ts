@@ -7,6 +7,7 @@ export * from './bank';
 export * from './documents';
 export * from './expenses';
 export * from './hr';
+export * from './hr_extensions';
 export * from './installments';
 export * from './clients';
 export * from './inventory';
