@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, Plus, CheckCircle2, Send } from 'lucide-react';
+import { Bell, Plus, CheckCircle2, Send, Edit } from 'lucide-react';
 
 export default function InvoiceRemindersPage() {
   const [reminders, setReminders] = useState([

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { auditLogEntries } from '@/lib/db/schema/accounting_reports';
 import { eq, and, desc, or, gte } from 'drizzle-orm';
