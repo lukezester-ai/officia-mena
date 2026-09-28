@@ -2,9 +2,8 @@ import { db } from '@/lib/db/db';
 import {
   inventoryAnalytics,
   inventoryForecasting,
-  inventoryLevels,
-  stockMovements,
 } from '@/lib/db/schema/inventory_extensions';
+import { inventoryLevels, stockMovements } from '@/lib/db/schema/inventory';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
 
 export interface AnalyticsInput {

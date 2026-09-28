@@ -1,5 +1,6 @@
 import { db } from '@/lib/db/db';
-import { reconciliationRules, bankTransactions, journalLines } from '@/lib/db/schema/accounting_reports';
+import { reconciliationRules } from '@/lib/db/schema/accounting_reports';
+import { accounting } from '@/lib/db/schema/accounting';
 import { and, eq, or, like } from 'drizzle-orm';
 
 export interface ReconciliationRuleInput {

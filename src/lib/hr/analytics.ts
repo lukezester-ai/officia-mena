@@ -1,5 +1,6 @@
 import { db } from '@/lib/db/db';
-import { hrAnalytics, employees } from '@/lib/db/schema/hr_extensions';
+import { hrAnalytics } from '@/lib/db/schema/hr_extensions';
+import { employees } from '@/lib/db/schema/hr';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface AnalyticsInput {
