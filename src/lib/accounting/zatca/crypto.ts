@@ -47,3 +47,10 @@ export function calculatePreviousInvoiceHash(previousXmlPayload?: string): strin
   }
   return generateInvoiceHash(previousXmlPayload);
 }
+
+/**
+ * Signs an invoice (alias for generateCryptographicStamp)
+ */
+export function signInvoice(invoiceHash: string, privateKey: string): string {
+  return generateCryptographicStamp(invoiceHash, privateKey);
+}

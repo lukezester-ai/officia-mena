@@ -171,7 +171,7 @@ export const subscriptionAnalytics = pgTable('subscription_analytics', {
   cancelledSubscriptions: integer('cancelled_subscriptions').default(0),
   totalRevenue: numeric('total_revenue', { precision: 15, scale: 2 }).default('0'),
   mrr: numeric('mrr', { precision: 15, scale: 2 }).default('0'), // Monthly Recurring Revenue
-  arr: numeric('arr', { precision: 15, 2 }).default('0), // Annual Recurring Revenue
+  arr: numeric('arr', { precision: 15, scale: 2 }).default('0'), // Annual Recurring Revenue
   churnRate: numeric('churn_rate', { precision: 5, scale: 2 }),
   data: jsonb('data').notNull(),
   createdAt: timestamp('created_at').defaultNow(),

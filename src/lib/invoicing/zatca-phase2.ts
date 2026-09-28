@@ -4,9 +4,9 @@
  */
 
 import { createHash } from 'node:crypto';
-import { generateUblXml } from './zatca/xml';
-import { generateZatcaQrCode } from './zatca-qr';
-import { signInvoice } from './zatca/crypto';
+import { generateUblXml } from '@/lib/accounting/zatca/xml';
+import { generateZatcaQrCode } from '@/lib/accounting/zatca-qr';
+import { signInvoice } from '@/lib/accounting/zatca/crypto';
 
 export interface ZatcaPhase2Invoice {
   invoiceNumber: string;
