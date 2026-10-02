@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
-import { invoiceWorkflows, invoiceWorkflowHistory, invoices } from '@/lib/db/schema/invoice_extensions';
+import { invoiceWorkflows, invoiceWorkflowHistory } from '@/lib/db/schema/invoice_extensions';
+import { invoices } from '@/lib/db/schema/invoices';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface WorkflowStage {

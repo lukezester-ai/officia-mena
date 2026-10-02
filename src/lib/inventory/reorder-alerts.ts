@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import {
   inventoryReorderSettings,
-  inventoryLevels,
   inventoryAlerts,
 } from '@/lib/db/schema/inventory_extensions';
+import { inventoryLevels } from '@/lib/db/schema/inventory';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
 
 export interface ReorderSettingsInput {

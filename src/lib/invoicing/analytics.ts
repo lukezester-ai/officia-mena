@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
-import { invoiceAnalytics, invoices } from '@/lib/db/schema/invoice_extensions';
+import { invoiceAnalytics } from '@/lib/db/schema/invoice_extensions'
+import { invoices } from '@/lib/db/schema/invoices';;
+import { invoices } from '@/lib/db/schema/invoices';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
 
 export interface AnalyticsInput {

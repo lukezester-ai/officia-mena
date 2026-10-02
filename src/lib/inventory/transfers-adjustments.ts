@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import {
   inventoryTransfers,
   inventoryAdjustments,
-  inventoryLevels,
-  stockMovements,
 } from '@/lib/db/schema/inventory_extensions';
+import { inventoryLevels, stockMovements } from '@/lib/db/schema/inventory';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface TransferInput {

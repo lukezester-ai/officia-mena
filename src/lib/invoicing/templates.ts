@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
-import { invoiceTemplates, invoices } from '@/lib/db/schema/invoice_extensions';
+import { invoiceTemplates } from '@/lib/db/schema/invoice_extensions';
+import { invoices } from '@/lib/db/schema/invoices';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface InvoiceTemplateInput {

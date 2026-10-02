@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
-import { invoiceReminders, invoices } from '@/lib/db/schema/invoice_extensions';
+import { invoiceReminders } from '@/lib/db/schema/invoice_extensions';
+import { invoices } from '@/lib/db/schema/invoices';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
 
 export interface ReminderInput {

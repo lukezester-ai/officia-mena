@@ -1,13 +1,34 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { reconciliationRules } from '@/lib/db/schema/accounting_reports';
 import { accounting } from '@/lib/db/schema/accounting';
 import { and, eq, or, like } from 'drizzle-orm';
 
+interface BankTransaction {
+  id: string;
+  amount: string;
+  transactionDate: Date;
+  description: string;
+}
+
+interface JournalLine {
+  id: string;
+  debit: string;
+  credit: string;
+  description: string;
+}
+
+interface ReconciliationRule {
+  id: string;
+  ruleType: string;
+  configuration: Record<string, unknown>;
+}
+
 export interface ReconciliationRuleInput {
   tenantId: string;
   name: string;
   ruleType: 'amount_match' | 'date_range' | 'description_match';
-  configuration: any;
+  configuration: Record<string, unknown>;
   userId: string;
 }
 
