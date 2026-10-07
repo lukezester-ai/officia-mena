@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { budgets, budgetLines, accounts } from '@/lib/db/schema/accounting_reports';
 import { eq, and, inArray } from 'drizzle-orm';

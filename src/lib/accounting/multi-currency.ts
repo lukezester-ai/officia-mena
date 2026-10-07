@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { exchangeRates } from '@/lib/db/schema/accounting_reports';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';

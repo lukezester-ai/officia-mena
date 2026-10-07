@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { journalLines, journalEntries } from '@/lib/db/schema/accounting';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';

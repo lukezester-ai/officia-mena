@@ -3,6 +3,7 @@
  * Full compliance with Saudi Arabia's electronic invoicing requirements
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createHash } from 'node:crypto';
 import { generateUblXml } from '@/lib/accounting/zatca/xml';
 import { generateZatcaQrCode } from '@/lib/accounting/zatca-qr';

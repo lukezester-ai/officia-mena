@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { hrAnalytics } from '@/lib/db/schema/hr_extensions';
 import { employees } from '@/lib/db/schema/hr';

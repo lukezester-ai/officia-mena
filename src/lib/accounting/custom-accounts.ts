@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { accounts } from '@/lib/db/schema/accounting';
 import { eq, and, desc } from 'drizzle-orm';

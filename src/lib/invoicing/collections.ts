@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { invoiceCollections } from '@/lib/db/schema/invoice_extensions';
 import { invoices } from '@/lib/db/schema/invoices';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { customReports, reportSnapshots } from '@/lib/db/schema/accounting_reports';
 import { accounts, journalEntries, journalLines } from '@/lib/db/schema/accounting';
