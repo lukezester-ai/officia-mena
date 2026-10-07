@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
       const fromCurrency = searchParams.get('fromCurrency');
       const toCurrency = searchParams.get('toCurrency');
       const amount = Number(searchParams.get('amount'));
-      const date = searchParams.get('date') ? new Date(searchParams.get('date')) : undefined;
+      const dateStr = searchParams.get('date');
+      const date = dateStr ? new Date(dateStr) : undefined;
 
       if (!fromCurrency || !toCurrency || isNaN(amount)) {
         return NextResponse.json({ success: false, error: 'Invalid conversion parameters' }, { status: 400 });
