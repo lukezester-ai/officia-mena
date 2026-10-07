@@ -42,20 +42,22 @@ export async function getAuditLogs(
   entityId?: string,
   limit = 50
 ) {
-  let query = db
-    .select()
-    .from(auditLogEntries)
-    .where(eq(auditLogEntries.tenantId, tenantId));
+  const conditions = [eq(auditLogEntries.tenantId, tenantId)];
 
   if (entityType) {
-    query = query.andWhere(eq(auditLogEntries.entityType, entityType));
+    conditions.push(eq(auditLogEntries.entityType, entityType));
   }
 
   if (entityId) {
-    query = query.andWhere(eq(auditLogEntries.entityId, entityId));
+    conditions.push(eq(auditLogEntries.entityId, entityId));
   }
 
-  return query.orderBy(desc(auditLogEntries.createdAt)).limit(limit);
+  return db
+    .select()
+    .from(auditLogEntries)
+    .where(and(...conditions))
+    .orderBy(desc(auditLogEntries.createdAt))
+    .limit(limit);
 }
 
 export async function getAuditLogsByUser(tenantId: string, userId: string, limit = 50) {
