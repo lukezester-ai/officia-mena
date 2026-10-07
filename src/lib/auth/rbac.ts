@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db/db';
 import { users } from '@/lib/db/schema/users';
 
-export type UserRole = 'admin' | 'finance' | 'manager' | 'member' | 'ai-admin';
+export type UserRole = 'admin' | 'finance' | 'manager' | 'member' | 'ai-admin' | 'hr' | 'inventory';
 
 export async function requireRole(...allowedRoles: UserRole[]) {
   const session = await auth();
