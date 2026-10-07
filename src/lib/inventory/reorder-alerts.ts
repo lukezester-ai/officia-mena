@@ -4,7 +4,7 @@ import {
   inventoryAlerts,
 } from '@/lib/db/schema/inventory_extensions';
 import { inventoryLevels } from '@/lib/db/schema/inventory';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 
 export interface ReorderSettingsInput {
   tenantId: string;
@@ -42,20 +42,20 @@ export async function createReorderSettings(input: ReorderSettingsInput) {
 }
 
 export async function getReorderSettings(tenantId: string, productId?: string) {
-  const query = db
-    .select()
-    .from(inventoryReorderSettings)
-    .where(and(eq(inventoryReorderSettings.tenantId, tenantId), eq(inventoryReorderSettings.isActive, true)));
+  const conditions = [
+    eq(inventoryReorderSettings.tenantId, tenantId),
+    eq(inventoryReorderSettings.isActive, true),
+  ];
 
   if (productId) {
-    query.where(and(
-      eq(inventoryReorderSettings.tenantId, tenantId),
-      eq(inventoryReorderSettings.isActive, true),
-      eq(inventoryReorderSettings.productId, productId)
-    ));
+    conditions.push(eq(inventoryReorderSettings.productId, productId));
   }
 
-  return query.orderBy(inventoryReorderSettings.productId);
+  return db
+    .select()
+    .from(inventoryReorderSettings)
+    .where(and(...conditions))
+    .orderBy(inventoryReorderSettings.productId);
 }
 
 export async function updateReorderSettings(
@@ -106,7 +106,7 @@ export async function checkReorderNeeded(tenantId: string) {
       .limit(1);
 
     const currentQuantity = level?.quantity || 0;
-    const reorderPoint = setting.reorderPoint + setting.safetyStock;
+    const reorderPoint = setting.reorderPoint + (setting.safetyStock ?? 0);
 
     if (currentQuantity <= reorderPoint) {
       reorderNeeded.push({
@@ -153,23 +153,21 @@ export async function createLowStockAlert(
 }
 
 export async function getAlerts(tenantId: string, productId?: string, isResolved?: boolean) {
-  const query = db
-    .select()
-    .from(inventoryAlerts)
-    .where(eq(inventoryAlerts.tenantId, tenantId));
+  const conditions = [eq(inventoryAlerts.tenantId, tenantId)];
 
   if (productId) {
-    query.where(and(eq(inventoryAlerts.tenantId, tenantId), eq(inventoryAlerts.productId, productId)));
+    conditions.push(eq(inventoryAlerts.productId, productId));
   }
 
   if (isResolved !== undefined) {
-    query.where(and(
-      eq(inventoryAlerts.tenantId, tenantId),
-      eq(inventoryAlerts.isResolved, isResolved)
-    ));
+    conditions.push(eq(inventoryAlerts.isResolved, isResolved));
   }
 
-  return query.orderBy(desc(inventoryAlerts.createdAt));
+  return db
+    .select()
+    .from(inventoryAlerts)
+    .where(and(...conditions))
+    .orderBy(desc(inventoryAlerts.createdAt));
 }
 
 export async function resolveAlert(alertId: string, tenantId: string, userId: string) {
@@ -240,7 +238,7 @@ export async function generateReorderRecommendations(tenantId: string) {
       leadTimeDays: item.leadTimeDays,
       autoOrder: item.autoOrder,
       preferredSupplierId: item.preferredSupplierId,
-      estimatedArrivalDate: new Date(Date.now() + item.leadTimeDays * 24 * 60 * 60 * 1000),
+      estimatedArrivalDate: new Date(Date.now() + (item.leadTimeDays ?? 7) * 24 * 60 * 60 * 1000),
     });
   }
 
@@ -260,7 +258,8 @@ export async function getAlertStats(tenantId: string) {
 
   for (const alert of alerts) {
     stats.byType[alert.alertType] = (stats.byType[alert.alertType] || 0) + 1;
-    stats.bySeverity[alert.severity] = (stats.bySeverity[alert.severity] || 0) + 1;
+    const severity = alert.severity ?? 'medium';
+    stats.bySeverity[severity] = (stats.bySeverity[severity] || 0) + 1;
   }
 
   return stats;

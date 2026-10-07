@@ -6,6 +6,8 @@ import {
 } from '@/lib/db/schema/hr_extensions';
 import { eq, and, desc } from 'drizzle-orm';
 
+const toDateString = (date: Date) => date.toISOString().slice(0, 10);
+
 export interface SkillInput {
   tenantId: string;
   employeeId: string;
@@ -27,10 +29,10 @@ export async function addEmployeeSkill(input: SkillInput) {
       skillName: input.skillName,
       skillLevel: input.skillLevel,
       yearsOfExperience: input.yearsOfExperience || 0,
-      lastUsed: input.lastUsed,
+      lastUsed: input.lastUsed ? toDateString(input.lastUsed) : undefined,
       isCertified: input.isCertified || false,
       certificationName: input.certificationName,
-      certificationExpiry: input.certificationExpiry,
+      certificationExpiry: input.certificationExpiry ? toDateString(input.certificationExpiry) : undefined,
     })
     .returning();
 
@@ -49,7 +51,13 @@ export async function updateSkill(skillId: string, tenantId: string, updates: Pa
   const [skill] = await db
     .update(employeeSkills)
     .set({
-      ...updates,
+      skillName: updates.skillName,
+      skillLevel: updates.skillLevel,
+      yearsOfExperience: updates.yearsOfExperience,
+      lastUsed: updates.lastUsed ? toDateString(updates.lastUsed) : undefined,
+      isCertified: updates.isCertified,
+      certificationName: updates.certificationName,
+      certificationExpiry: updates.certificationExpiry ? toDateString(updates.certificationExpiry) : undefined,
       updatedAt: new Date(),
     })
     .where(and(eq(employeeSkills.id, skillId), eq(employeeSkills.tenantId, tenantId)))
@@ -85,9 +93,9 @@ export async function addEmployeeEducation(input: EducationInput) {
       institution: input.institution,
       degree: input.degree,
       fieldOfStudy: input.fieldOfStudy,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      gpa: input.gpa,
+      startDate: toDateString(input.startDate),
+      endDate: toDateString(input.endDate),
+      gpa: input.gpa?.toFixed(2),
       isHighest: input.isHighest || false,
     })
     .returning();
@@ -107,7 +115,13 @@ export async function updateEducation(educationId: string, tenantId: string, upd
   const [education] = await db
     .update(employeeEducation)
     .set({
-      ...updates,
+      institution: updates.institution,
+      degree: updates.degree,
+      fieldOfStudy: updates.fieldOfStudy,
+      startDate: updates.startDate ? toDateString(updates.startDate) : undefined,
+      endDate: updates.endDate ? toDateString(updates.endDate) : undefined,
+      gpa: updates.gpa?.toFixed(2),
+      isHighest: updates.isHighest,
       updatedAt: new Date(),
     })
     .where(and(eq(employeeEducation.id, educationId), eq(employeeEducation.tenantId, tenantId)))
@@ -141,8 +155,8 @@ export async function addWorkHistory(input: WorkHistoryInput) {
       employeeId: input.employeeId,
       company: input.company,
       position: input.position,
-      startDate: input.startDate,
-      endDate: input.endDate,
+      startDate: toDateString(input.startDate),
+      endDate: input.endDate ? toDateString(input.endDate) : undefined,
       description: input.description,
       current: input.current || false,
     })
@@ -163,7 +177,12 @@ export async function updateWorkHistory(historyId: string, tenantId: string, upd
   const [history] = await db
     .update(employeeWorkHistory)
     .set({
-      ...updates,
+      company: updates.company,
+      position: updates.position,
+      startDate: updates.startDate ? toDateString(updates.startDate) : undefined,
+      endDate: updates.endDate ? toDateString(updates.endDate) : undefined,
+      description: updates.description,
+      current: updates.current,
       updatedAt: new Date(),
     })
     .where(and(eq(employeeWorkHistory.id, historyId), eq(employeeWorkHistory.tenantId, tenantId)))

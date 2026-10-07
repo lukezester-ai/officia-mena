@@ -6,6 +6,8 @@ import {
 } from '@/lib/db/schema/hr_extensions';
 import { eq, and, desc, gte, lte } from 'drizzle-orm';
 
+const toDateString = (date: Date) => date.toISOString().slice(0, 10);
+
 export interface LeaveTypeInput {
   tenantId: string;
   name: string;
@@ -98,20 +100,17 @@ export async function initializeLeaveBalance(
 }
 
 export async function getLeaveBalances(employeeId: string, tenantId: string, year?: number) {
-  const query = db
-    .select()
-    .from(leaveBalances)
-    .where(and(eq(leaveBalances.employeeId, employeeId), eq(leaveBalances.tenantId, tenantId)));
+  const conditions = [eq(leaveBalances.employeeId, employeeId), eq(leaveBalances.tenantId, tenantId)];
 
   if (year) {
-    query.where(and(
-      eq(leaveBalances.employeeId, employeeId),
-      eq(leaveBalances.tenantId, tenantId),
-      eq(leaveBalances.year, year)
-    ));
+    conditions.push(eq(leaveBalances.year, year));
   }
 
-  return query.orderBy(desc(leaveBalances.year));
+  return db
+    .select()
+    .from(leaveBalances)
+    .where(and(...conditions))
+    .orderBy(desc(leaveBalances.year));
 }
 
 export async function updateLeaveBalance(
@@ -155,7 +154,8 @@ export async function createLeaveRequest(input: LeaveRequestInput) {
     .where(and(
       eq(leaveBalances.employeeId, input.employeeId),
       eq(leaveBalances.leaveTypeId, input.leaveTypeId),
-      eq(leaveBalances.year, currentYear)
+      eq(leaveBalances.year, currentYear),
+      eq(leaveBalances.tenantId, input.tenantId)
     ))
     .limit(1);
 
@@ -163,7 +163,7 @@ export async function createLeaveRequest(input: LeaveRequestInput) {
     throw new Error('Leave balance not found for this year');
   }
 
-  const availableDays = balance.totalDays - balance.usedDays - balance.pendingDays;
+  const availableDays = balance.totalDays - (balance.usedDays ?? 0) - (balance.pendingDays ?? 0);
   if (availableDays < input.totalDays) {
     throw new Error(`Insufficient leave balance. Available: ${availableDays}, Requested: ${input.totalDays}`);
   }
@@ -174,8 +174,8 @@ export async function createLeaveRequest(input: LeaveRequestInput) {
       tenantId: input.tenantId,
       employeeId: input.employeeId,
       leaveTypeId: input.leaveTypeId,
-      startDate: input.startDate,
-      endDate: input.endDate,
+      startDate: toDateString(input.startDate),
+      endDate: toDateString(input.endDate),
       totalDays: input.totalDays,
       reason: input.reason,
       attachmentUrl: input.attachmentUrl,
@@ -185,30 +185,28 @@ export async function createLeaveRequest(input: LeaveRequestInput) {
 
   // Update pending days in balance
   await updateLeaveBalance(balance.id, input.tenantId, {
-    pendingDays: balance.pendingDays + input.totalDays,
+    pendingDays: (balance.pendingDays ?? 0) + input.totalDays,
   });
 
   return request;
 }
 
 export async function getLeaveRequests(tenantId: string, employeeId?: string, status?: string) {
-  const query = db
-    .select()
-    .from(leaveRequests)
-    .where(eq(leaveRequests.tenantId, tenantId));
+  const conditions = [eq(leaveRequests.tenantId, tenantId)];
 
   if (employeeId) {
-    query.where(and(eq(leaveRequests.tenantId, tenantId), eq(leaveRequests.employeeId, employeeId)));
+    conditions.push(eq(leaveRequests.employeeId, employeeId));
   }
 
   if (status) {
-    query.where(and(
-      eq(leaveRequests.tenantId, tenantId),
-      eq(leaveRequests.status, status)
-    ));
+    conditions.push(eq(leaveRequests.status, status));
   }
 
-  return query.orderBy(desc(leaveRequests.createdAt));
+  return db
+    .select()
+    .from(leaveRequests)
+    .where(and(...conditions))
+    .orderBy(desc(leaveRequests.createdAt));
 }
 
 export async function approveLeaveRequest(requestId: string, tenantId: string, approverId: string) {
@@ -252,8 +250,8 @@ export async function approveLeaveRequest(requestId: string, tenantId: string, a
 
   if (balance) {
     await updateLeaveBalance(balance.id, tenantId, {
-      usedDays: balance.usedDays + request.totalDays,
-      pendingDays: balance.pendingDays - request.totalDays,
+      usedDays: (balance.usedDays ?? 0) + request.totalDays,
+      pendingDays: (balance.pendingDays ?? 0) - request.totalDays,
     });
   }
 
@@ -302,7 +300,7 @@ export async function rejectLeaveRequest(requestId: string, tenantId: string, ap
 
   if (balance) {
     await updateLeaveBalance(balance.id, tenantId, {
-      pendingDays: balance.pendingDays - request.totalDays,
+      pendingDays: (balance.pendingDays ?? 0) - request.totalDays,
     });
   }
 
@@ -349,7 +347,7 @@ export async function cancelLeaveRequest(requestId: string, tenantId: string) {
 
     if (balance) {
       await updateLeaveBalance(balance.id, tenantId, {
-        pendingDays: balance.pendingDays - request.totalDays,
+        pendingDays: (balance.pendingDays ?? 0) - request.totalDays,
       });
     }
   }
@@ -368,15 +366,22 @@ export async function getLeaveRequestsByDateRange(
     .where(and(
       eq(leaveRequests.tenantId, tenantId),
       eq(leaveRequests.status, 'approved'),
-      gte(leaveRequests.startDate, startDate),
-      lte(leaveRequests.endDate, endDate)
+      gte(leaveRequests.startDate, toDateString(startDate)),
+      lte(leaveRequests.endDate, toDateString(endDate))
     ))
     .orderBy(leaveRequests.startDate);
 }
 
 export async function getLeaveStatistics(tenantId: string, year?: number) {
   const currentYear = year || new Date().getFullYear();
-  const requests = await getLeaveRequests(tenantId);
+  const requests = await db
+    .select()
+    .from(leaveRequests)
+    .where(and(
+      eq(leaveRequests.tenantId, tenantId),
+      gte(leaveRequests.startDate, `${currentYear}-01-01`),
+      lte(leaveRequests.startDate, `${currentYear}-12-31`)
+    ));
 
   const stats = {
     totalRequests: requests.length,

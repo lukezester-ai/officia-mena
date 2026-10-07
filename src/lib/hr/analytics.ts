@@ -71,7 +71,8 @@ export async function generateHRAnalytics(input: AnalyticsInput) {
 
   // Group by status
   for (const employee of employeeData) {
-    analyticsData.byStatus[employee.status] = (analyticsData.byStatus[employee.status] || 0) + 1;
+    const status = employee.status ?? 'unknown';
+    analyticsData.byStatus[status] = (analyticsData.byStatus[status] || 0) + 1;
   }
 
   // Calculate salary distribution
@@ -87,8 +88,8 @@ export async function generateHRAnalytics(input: AnalyticsInput) {
     .values({
       tenantId: input.tenantId,
       periodType: input.periodType,
-      periodStart: input.periodStart,
-      periodEnd: input.periodEnd,
+      periodStart: input.periodStart.toISOString().split('T')[0],
+      periodEnd: input.periodEnd.toISOString().split('T')[0],
       totalEmployees,
       newHires,
       terminations,
@@ -123,8 +124,8 @@ export async function getAnalyticsSnapshot(tenantId: string, snapshotId: string)
 }
 
 export async function comparePeriods(tenantId: string, period1Id: string, period2Id: string) {
-  const [period1] = await getAnalyticsSnapshot(tenantId, period1Id);
-  const [period2] = await getAnalyticsSnapshot(tenantId, period2Id);
+  const period1 = await getAnalyticsSnapshot(tenantId, period1Id);
+  const period2 = await getAnalyticsSnapshot(tenantId, period2Id);
 
   if (!period1 || !period2) {
     throw new Error('One or both analytics snapshots not found');
@@ -175,7 +176,7 @@ export async function getEmployeeRetentionRate(tenantId: string, months = 12) {
       : 100;
 
     return {
-      period: a.periodStart.toISOString().split('T')[0],
+      period: a.periodStart,
       retentionRate: retentionRate.toFixed(2),
       totalEmployees: data.totalEmployees,
       terminations: data.terminations,
@@ -192,7 +193,7 @@ export async function getPayrollTrend(tenantId: string, months = 12) {
     const data = a.data as any;
 
     return {
-      period: a.periodStart.toISOString().split('T')[0],
+      period: a.periodStart,
       totalPayroll: data.totalPayroll,
       averageSalary: data.averageSalary,
       totalEmployees: data.totalEmployees,
@@ -202,7 +203,7 @@ export async function getPayrollTrend(tenantId: string, months = 12) {
   return trend;
 }
 
-export async function getDepartmentBreakdown(tenantId: string) {
+export async function getDepartmentBreakdown(_tenantId: string) {
   // This would require department field in employees table
   // For now, return mock data
   return [

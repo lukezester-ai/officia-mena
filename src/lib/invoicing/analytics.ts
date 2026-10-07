@@ -58,8 +58,10 @@ export async function generateInvoiceAnalytics(input: AnalyticsInput) {
 
   // Group by status
   for (const invoice of invoicesData) {
-    analyticsData.byStatus[invoice.status] = (analyticsData.byStatus[invoice.status] || 0) + 1;
-    analyticsData.byCurrency[invoice.currency] = (analyticsData.byCurrency[invoice.currency] || 0) + Number(invoice.totalAmount);
+    const status = invoice.status ?? 'unknown';
+    const currency = invoice.currency ?? 'SAR';
+    analyticsData.byStatus[status] = (analyticsData.byStatus[status] || 0) + 1;
+    analyticsData.byCurrency[currency] = (analyticsData.byCurrency[currency] || 0) + Number(invoice.totalAmount);
   }
 
   // Generate monthly trend (simplified)
@@ -113,8 +115,8 @@ export async function getAnalyticsSnapshot(tenantId: string, snapshotId: string)
 }
 
 export async function comparePeriods(tenantId: string, period1Id: string, period2Id: string) {
-  const [period1] = await getAnalyticsSnapshot(tenantId, period1Id);
-  const [period2] = await getAnalyticsSnapshot(tenantId, period2Id);
+  const period1 = await getAnalyticsSnapshot(tenantId, period1Id);
+  const period2 = await getAnalyticsSnapshot(tenantId, period2Id);
 
   if (!period1 || !period2) {
     throw new Error('One or both analytics snapshots not found');
@@ -176,7 +178,7 @@ export async function getInvoiceAgingReport(tenantId: string) {
 
   const agingReport = await Promise.all(
     agingBuckets.map(async (bucket) => {
-      const invoices = await db
+      const invoiceRows = await db
         .select({
           id: invoices.id,
           invoiceNumber: invoices.invoiceNumber,
@@ -193,7 +195,7 @@ export async function getInvoiceAgingReport(tenantId: string) {
           )
         );
 
-      const bucketInvoices = invoices.filter(inv => {
+      const bucketInvoices = invoiceRows.filter(inv => {
         if (!inv.dueDate) return false;
         const daysOverdue = Math.floor((today.getTime() - new Date(inv.dueDate).getTime()) / (1000 * 60 * 60 * 24));
         return daysOverdue <= bucket.days && daysOverdue > (bucket.days === 999 ? 90 : bucket.days - 30);

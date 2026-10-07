@@ -4,7 +4,9 @@ import {
   benefitPlans,
   employeeBenefitEnrollments,
 } from '@/lib/db/schema/hr_extensions';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, lte } from 'drizzle-orm';
+
+const toDateString = (date: Date) => date.toISOString().slice(0, 10);
 
 export interface BenefitPlanInput {
   tenantId: string;
@@ -27,8 +29,8 @@ export async function createBenefitPlan(input: BenefitPlanInput) {
       type: input.type,
       employerContribution: input.employerContribution.toFixed(2),
       employeeContribution: input.employeeContribution.toFixed(2),
-      effectiveDate: input.effectiveDate,
-      expiryDate: input.expiryDate,
+      effectiveDate: toDateString(input.effectiveDate),
+      expiryDate: input.expiryDate ? toDateString(input.expiryDate) : undefined,
       isActive: true,
     })
     .returning();
@@ -52,9 +54,14 @@ export async function updateBenefitPlan(
   const [plan] = await db
     .update(benefitPlans)
     .set({
-      ...updates,
+      name: updates.name,
+      description: updates.description,
+      type: updates.type,
       employerContribution: updates.employerContribution?.toFixed(2),
       employeeContribution: updates.employeeContribution?.toFixed(2),
+      effectiveDate: updates.effectiveDate ? toDateString(updates.effectiveDate) : undefined,
+      expiryDate: updates.expiryDate ? toDateString(updates.expiryDate) : undefined,
+      isActive: updates.isActive,
       updatedAt: new Date(),
     })
     .where(and(eq(benefitPlans.id, planId), eq(benefitPlans.tenantId, tenantId)))
@@ -86,7 +93,7 @@ export async function enrollEmployeeInBenefit(input: BenefitEnrollmentInput) {
       tenantId: input.tenantId,
       employeeId: input.employeeId,
       benefitPlanId: input.benefitPlanId,
-      enrollmentDate: input.enrollmentDate,
+      enrollmentDate: toDateString(input.enrollmentDate),
       coverageLevel: input.coverageLevel || 'employee_only',
       dependents: input.dependents as any,
       status: 'active',
@@ -112,7 +119,9 @@ export async function updateBenefitEnrollment(
   const [enrollment] = await db
     .update(employeeBenefitEnrollments)
     .set({
-      ...updates,
+      enrollmentDate: updates.enrollmentDate ? toDateString(updates.enrollmentDate) : undefined,
+      coverageLevel: updates.coverageLevel,
+      status: updates.status,
       dependents: updates.dependents as any,
       updatedAt: new Date(),
     })
@@ -170,13 +179,23 @@ export async function deleteBenefitEnrollment(enrollmentId: string, tenantId: st
 export async function getEmployeeBenefitsSummary(employeeId: string, tenantId: string) {
   const enrollments = await getEmployeeBenefitEnrollments(employeeId, tenantId);
 
+  const benefits: Array<{
+    planName: string;
+    type: string;
+    status: string | null;
+    coverageLevel: string | null;
+    employerContribution: string;
+    employeeContribution: string;
+    monthlyCost: string;
+    enrollmentDate: string;
+  }> = [];
   const summary = {
     totalBenefits: enrollments.length,
     activeBenefits: enrollments.filter(e => e.status === 'active').length,
     suspendedBenefits: enrollments.filter(e => e.status === 'suspended').length,
     terminatedBenefits: enrollments.filter(e => e.status === 'terminated').length,
     totalMonthlyCost: 0,
-    benefits: [],
+    benefits,
   };
 
   for (const enrollment of enrollments) {
@@ -229,7 +248,7 @@ export async function getExpiringBenefits(tenantId: string, daysThreshold = 30) 
     .where(and(
       eq(benefitPlans.tenantId, tenantId),
       eq(benefitPlans.isActive, true),
-      lte(benefitPlans.expiryDate, thresholdDate)
+      lte(benefitPlans.expiryDate, toDateString(thresholdDate))
     ))
     .orderBy(benefitPlans.expiryDate);
 

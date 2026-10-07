@@ -7,6 +7,8 @@ import {
 } from '@/lib/db/schema/hr_extensions';
 import { eq, and, desc, gte, lte } from 'drizzle-orm';
 
+const toDateString = (date: Date) => date.toISOString().slice(0, 10);
+
 export interface TimesheetInput {
   tenantId: string;
   employeeId: string;
@@ -21,8 +23,8 @@ export async function createTimesheet(input: TimesheetInput) {
     .values({
       tenantId: input.tenantId,
       employeeId: input.employeeId,
-      periodStart: input.periodStart,
-      periodEnd: input.periodEnd,
+      periodStart: toDateString(input.periodStart),
+      periodEnd: toDateString(input.periodEnd),
       totalHours: '0.00',
       regularHours: '0.00',
       overtimeHours: '0.00',
@@ -35,20 +37,17 @@ export async function createTimesheet(input: TimesheetInput) {
 }
 
 export async function getTimesheets(employeeId: string, tenantId: string, status?: string) {
-  const query = db
-    .select()
-    .from(timesheets)
-    .where(and(eq(timesheets.employeeId, employeeId), eq(timesheets.tenantId, tenantId)));
+  const conditions = [eq(timesheets.employeeId, employeeId), eq(timesheets.tenantId, tenantId)];
 
   if (status) {
-    query.where(and(
-      eq(timesheets.employeeId, employeeId),
-      eq(timesheets.tenantId, tenantId),
-      eq(timesheets.status, status)
-    ));
+    conditions.push(eq(timesheets.status, status));
   }
 
-  return query.orderBy(desc(timesheets.periodStart));
+  return db
+    .select()
+    .from(timesheets)
+    .where(and(...conditions))
+    .orderBy(desc(timesheets.periodStart));
 }
 
 export async function updateTimesheet(
@@ -59,7 +58,10 @@ export async function updateTimesheet(
   const [timesheet] = await db
     .update(timesheets)
     .set({
-      ...updates,
+      periodStart: updates.periodStart ? toDateString(updates.periodStart) : undefined,
+      periodEnd: updates.periodEnd ? toDateString(updates.periodEnd) : undefined,
+      status: updates.status,
+      notes: updates.notes,
       updatedAt: new Date(),
     })
     .where(and(eq(timesheets.id, timesheetId), eq(timesheets.tenantId, tenantId)))
@@ -130,7 +132,7 @@ export async function addTimeEntry(input: TimeEntryInput) {
       tenantId: input.tenantId,
       timesheetId: input.timesheetId,
       employeeId: input.employeeId,
-      date: input.date,
+      date: toDateString(input.date),
       project: input.project,
       task: input.task,
       hours: input.hours.toFixed(2),
@@ -161,8 +163,12 @@ export async function updateTimeEntry(
   const [entry] = await db
     .update(timeEntries)
     .set({
-      ...updates,
+      date: updates.date ? toDateString(updates.date) : undefined,
+      project: updates.project,
+      task: updates.task,
       hours: updates.hours?.toFixed(2),
+      isOvertime: updates.isOvertime,
+      description: updates.description,
       updatedAt: new Date(),
     })
     .where(and(eq(timeEntries.id, entryId), eq(timeEntries.tenantId, tenantId)))
@@ -225,7 +231,7 @@ export async function createAttendanceRecord(input: AttendanceRecordInput) {
     .values({
       tenantId: input.tenantId,
       employeeId: input.employeeId,
-      date: input.date,
+      date: toDateString(input.date),
       checkInTime: input.checkInTime,
       checkOutTime: input.checkOutTime,
       status: input.status || 'present',
@@ -247,32 +253,36 @@ export async function createAttendanceRecord(input: AttendanceRecordInput) {
 }
 
 export async function getAttendanceRecords(employeeId: string, tenantId: string, startDate?: Date, endDate?: Date) {
-  const query = db
-    .select()
-    .from(attendanceRecords)
-    .where(and(eq(attendanceRecords.employeeId, employeeId), eq(attendanceRecords.tenantId, tenantId)));
+  const conditions = [eq(attendanceRecords.employeeId, employeeId), eq(attendanceRecords.tenantId, tenantId)];
 
   if (startDate && endDate) {
-    query.where(and(
-      eq(attendanceRecords.employeeId, employeeId),
-      eq(attendanceRecords.tenantId, tenantId),
-      gte(attendanceRecords.date, startDate),
-      lte(attendanceRecords.date, endDate)
-    ));
+    conditions.push(gte(attendanceRecords.date, toDateString(startDate)));
+    conditions.push(lte(attendanceRecords.date, toDateString(endDate)));
   }
 
-  return query.orderBy(desc(attendanceRecords.date));
+  return db
+    .select()
+    .from(attendanceRecords)
+    .where(and(...conditions))
+    .orderBy(desc(attendanceRecords.date));
 }
 
 export async function updateAttendanceRecord(
   recordId: string,
   tenantId: string,
-  updates: Partial<AttendanceRecordInput>
+  updates: Partial<AttendanceRecordInput & { workHours: string }>
 ) {
   const [record] = await db
     .update(attendanceRecords)
     .set({
-      ...updates,
+      employeeId: updates.employeeId,
+      date: updates.date ? toDateString(updates.date) : undefined,
+      checkInTime: updates.checkInTime,
+      checkOutTime: updates.checkOutTime,
+      workHours: updates.workHours,
+      status: updates.status,
+      notes: updates.notes,
+      location: updates.location,
       updatedAt: new Date(),
     })
     .where(and(eq(attendanceRecords.id, recordId), eq(attendanceRecords.tenantId, tenantId)))
@@ -284,6 +294,7 @@ export async function updateAttendanceRecord(
 export async function checkIn(employeeId: string, tenantId: string, location?: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const todayString = toDateString(today);
 
   const [existing] = await db
     .select()
@@ -291,7 +302,7 @@ export async function checkIn(employeeId: string, tenantId: string, location?: s
     .where(and(
       eq(attendanceRecords.employeeId, employeeId),
       eq(attendanceRecords.tenantId, tenantId),
-      gte(attendanceRecords.date, today)
+      gte(attendanceRecords.date, todayString)
     ))
     .limit(1);
 
@@ -314,6 +325,7 @@ export async function checkIn(employeeId: string, tenantId: string, location?: s
 export async function checkOut(employeeId: string, tenantId: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const todayString = toDateString(today);
 
   const [record] = await db
     .select()
@@ -321,7 +333,7 @@ export async function checkOut(employeeId: string, tenantId: string) {
     .where(and(
       eq(attendanceRecords.employeeId, employeeId),
       eq(attendanceRecords.tenantId, tenantId),
-      gte(attendanceRecords.date, today)
+      gte(attendanceRecords.date, todayString)
     ))
     .limit(1);
 

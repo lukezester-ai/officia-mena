@@ -212,8 +212,6 @@ export async function generateDemandForecast(
     .limit(100);
 
   const forecastData = [];
-  const periodDays = forecastPeriod === 'weekly' ? 7 : forecastPeriod === 'monthly' ? 30 : 90;
-
   for (let i = 1; i <= monthsAhead; i++) {
     const forecastDate = new Date();
     forecastDate.setMonth(forecastDate.getMonth() + i);
@@ -241,7 +239,7 @@ export async function generateDemandForecast(
       forecastPeriod,
       forecastDate: new Date(),
       forecastData: forecastData as any,
-      confidence: 0.7,
+      confidence: '0.70',
       lastTrainedAt: new Date(),
     })
     .returning();

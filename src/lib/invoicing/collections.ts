@@ -1,7 +1,7 @@
 import { db } from '@/lib/db/db';
 import { invoiceCollections } from '@/lib/db/schema/invoice_extensions';
 import { invoices } from '@/lib/db/schema/invoices';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, isNull } from 'drizzle-orm';
 
 export interface CollectionInput {
   tenantId: string;
@@ -33,16 +33,17 @@ export async function createCollectionEntry(input: CollectionInput) {
 }
 
 export async function getCollectionEntries(tenantId: string, invoiceId?: string) {
-  const query = db
-    .select()
-    .from(invoiceCollections)
-    .where(eq(invoiceCollections.tenantId, tenantId));
+  const conditions = [eq(invoiceCollections.tenantId, tenantId)];
 
   if (invoiceId) {
-    query.where(and(eq(invoiceCollections.tenantId, tenantId), eq(invoiceCollections.invoiceId, invoiceId)));
+    conditions.push(eq(invoiceCollections.invoiceId, invoiceId));
   }
 
-  return query.orderBy(desc(invoiceCollections.createdAt));
+  return db
+    .select()
+    .from(invoiceCollections)
+    .where(and(...conditions))
+    .orderBy(desc(invoiceCollections.createdAt));
 }
 
 export async function getInvoiceCollections(invoiceId: string, tenantId: string) {
@@ -107,7 +108,12 @@ export async function getOverdueCollections(tenantId: string) {
       eq(invoices.status, 'overdue')
     ));
 
-  const collections = [];
+  const collections: Array<{
+    invoice: (typeof overdueInvoices)[number];
+    collection: typeof invoiceCollections.$inferSelect | null;
+    daysOverdue: number;
+    recommendedStage: CollectionInput['collectionStage'];
+  }> = [];
 
   for (const invoice of overdueInvoices) {
     const [collection] = await db
@@ -195,7 +201,7 @@ export async function getCollectionPipeline(tenantId: string) {
       .where(and(
         eq(invoiceCollections.tenantId, tenantId),
         eq(invoiceCollections.collectionStage, stage),
-        eq(invoiceCollections.resolvedAt, null)
+        isNull(invoiceCollections.resolvedAt)
       ));
 
     pipeline.push({
@@ -234,7 +240,7 @@ export async function autoEscalateCollections(tenantId: string) {
     if (!nextAction || nextAction > today) continue;
 
     // Auto-escalate based on stage and time
-    let newStage = collection.collectionStage;
+    let newStage: CollectionInput['collectionStage'] = collection.collectionStage as CollectionInput['collectionStage'];
     if (collection.collectionStage === 'friendly' && daysOverdue > 30) {
       newStage = 'formal';
     } else if (collection.collectionStage === 'formal' && daysOverdue > 60) {

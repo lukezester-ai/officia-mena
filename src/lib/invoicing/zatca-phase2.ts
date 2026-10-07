@@ -85,7 +85,7 @@ export class ZatcaPhase2Integration {
     // Generate QR code (Phase 1)
     const qrCode = generateZatcaQrCode({
       sellerName: invoice.sellerName,
-      vatRegistrationNumber: invoice.sellerVatNumber,
+      vatNumber: invoice.sellerVatNumber,
       timestamp: invoice.issueDate.toISOString(),
       invoiceTotal: invoice.totalAmount.toFixed(2),
       vatTotal: invoice.vatAmount.toFixed(2),
@@ -108,7 +108,7 @@ export class ZatcaPhase2Integration {
     });
 
     // Sign the invoice (cryptographic stamp)
-    const cryptographicStamp = await signInvoice(xml, this.csid, this.csidSecret);
+    const cryptographicStamp = signInvoice(invoiceHash, this.csidSecret);
 
     return {
       invoiceHash,

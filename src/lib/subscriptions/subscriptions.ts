@@ -56,16 +56,17 @@ export async function createSubscriptionPlan(input: PlanInput) {
 }
 
 export async function getSubscriptionPlans(tenantId: string, isPublic?: boolean) {
-  const query = db
-    .select()
-    .from(subscriptionPlans)
-    .where(eq(subscriptionPlans.tenantId, tenantId));
+  const conditions = [eq(subscriptionPlans.tenantId, tenantId)];
 
   if (isPublic !== undefined) {
-    query.where(and(eq(subscriptionPlans.tenantId, tenantId), eq(subscriptionPlans.isPublic, isPublic)));
+    conditions.push(eq(subscriptionPlans.isPublic, isPublic));
   }
 
-  return query.orderBy(subscriptionPlans.sortOrder, subscriptionPlans.amount);
+  return db
+    .select()
+    .from(subscriptionPlans)
+    .where(and(...conditions))
+    .orderBy(subscriptionPlans.sortOrder, subscriptionPlans.amount);
 }
 
 export async function updatePlan(planId: string, tenantId: string, updates: Partial<PlanInput & { isActive: boolean }>) {
@@ -151,29 +152,25 @@ export async function recordUsage(tenantId: string, subscriptionId: string, metr
 }
 
 export async function getUsage(tenantId: string, subscriptionId: string, metricName?: string, periodStart?: Date, periodEnd?: Date) {
-  const query = db
-    .select()
-    .from(subscriptionUsage)
-    .where(and(eq(subscriptionUsage.tenantId, tenantId), eq(subscriptionUsage.subscriptionId, subscriptionId)));
+  const conditions = [
+    eq(subscriptionUsage.tenantId, tenantId),
+    eq(subscriptionUsage.subscriptionId, subscriptionId),
+  ];
 
   if (metricName) {
-    query.where(and(
-      eq(subscriptionUsage.tenantId, tenantId),
-      eq(subscriptionUsage.subscriptionId, subscriptionId),
-      eq(subscriptionUsage.metricName, metricName)
-    ));
+    conditions.push(eq(subscriptionUsage.metricName, metricName));
   }
 
   if (periodStart && periodEnd) {
-    query.where(and(
-      eq(subscriptionUsage.tenantId, tenantId),
-      eq(subscriptionUsage.subscriptionId, subscriptionId),
-      gte(subscriptionUsage.periodStart, periodStart),
-      lte(subscriptionUsage.periodEnd, periodEnd)
-    ));
+    conditions.push(gte(subscriptionUsage.periodStart, periodStart));
+    conditions.push(lte(subscriptionUsage.periodEnd, periodEnd));
   }
 
-  return query.orderBy(desc(subscriptionUsage.periodStart));
+  return db
+    .select()
+    .from(subscriptionUsage)
+    .where(and(...conditions))
+    .orderBy(desc(subscriptionUsage.periodStart));
 }
 
 export async function addPaymentMethod(tenantId: string, userId: string, stripePaymentMethodId: string, type: 'card' | 'bank_account', last4: string, brand?: string, expiryMonth?: number, expiryYear?: number) {
@@ -257,11 +254,11 @@ export async function validateDiscountCode(tenantId: string, code: string, planI
   }
 
   const now = new Date();
-  if (now < discount.validFrom || now > discount.validUntil) {
+  if (now < discount.validFrom || (discount.validUntil && now > discount.validUntil)) {
     return { valid: false, reason: 'Discount code expired' };
   }
 
-  if (discount.maxUses && discount.usedCount >= discount.maxUses) {
+  if (discount.maxUses && (discount.usedCount ?? 0) >= discount.maxUses) {
     return { valid: false, reason: 'Discount code usage limit reached' };
   }
 
@@ -307,7 +304,7 @@ export async function redeemDiscountCode(tenantId: string, code: string, subscri
   // Update usage count
   await db
     .update(discountCodes)
-    .set({ usedCount: discount.usedCount + 1, updatedAt: new Date() })
+    .set({ usedCount: (discount.usedCount ?? 0) + 1, updatedAt: new Date() })
     .where(eq(discountCodes.id, discount.id));
 
   return redemption;

@@ -5,6 +5,8 @@ import {
 } from '@/lib/db/schema/hr_extensions';
 import { eq, and, desc } from 'drizzle-orm';
 
+const toDateString = (date: Date) => date.toISOString().slice(0, 10);
+
 export interface PerformanceReviewInput {
   tenantId: string;
   employeeId: string;
@@ -26,7 +28,7 @@ export async function createPerformanceReview(input: PerformanceReviewInput) {
       employeeId: input.employeeId,
       reviewerId: input.reviewerId,
       reviewPeriod: input.reviewPeriod,
-      reviewDate: input.reviewDate,
+      reviewDate: toDateString(input.reviewDate),
       overallRating: input.overallRating.toFixed(1),
       strengths: input.strengths,
       areasForImprovement: input.areasForImprovement,
@@ -55,8 +57,14 @@ export async function updatePerformanceReview(
   const [review] = await db
     .update(performanceReviews)
     .set({
-      ...updates,
+      reviewPeriod: updates.reviewPeriod,
+      reviewDate: updates.reviewDate ? toDateString(updates.reviewDate) : undefined,
       overallRating: updates.overallRating?.toFixed(1),
+      strengths: updates.strengths,
+      areasForImprovement: updates.areasForImprovement,
+      goals: updates.goals,
+      comments: updates.comments,
+      status: updates.status,
       updatedAt: new Date(),
     })
     .where(and(eq(performanceReviews.id, reviewId), eq(performanceReviews.tenantId, tenantId)))
@@ -117,7 +125,7 @@ export async function createPerformanceGoal(input: PerformanceGoalInput) {
       title: input.title,
       description: input.description,
       category: input.category,
-      targetDate: input.targetDate,
+      targetDate: toDateString(input.targetDate),
       priority: input.priority || 'medium',
       weight: input.weight?.toFixed(2) || '1.00',
       progress: 0,
@@ -144,8 +152,14 @@ export async function updatePerformanceGoal(
   const [goal] = await db
     .update(performanceGoals)
     .set({
-      ...updates,
+      title: updates.title,
+      description: updates.description,
+      category: updates.category,
+      targetDate: updates.targetDate ? toDateString(updates.targetDate) : undefined,
+      priority: updates.priority,
       weight: updates.weight?.toFixed(2),
+      progress: updates.progress,
+      status: updates.status,
       updatedAt: new Date(),
     })
     .where(and(eq(performanceGoals.id, goalId), eq(performanceGoals.tenantId, tenantId)))
@@ -227,7 +241,7 @@ export async function getGoalStatistics(employeeId: string, tenantId: string) {
     completed: goals.filter(g => g.status === 'completed').length,
     cancelled: goals.filter(g => g.status === 'cancelled').length,
     averageProgress: goals.length > 0
-      ? goals.reduce((sum, g) => sum + g.progress, 0) / goals.length
+      ? goals.reduce((sum, g) => sum + (g.progress ?? 0), 0) / goals.length
       : 0,
     byCategory: {} as Record<string, number>,
     byPriority: {} as Record<string, number>,
@@ -235,7 +249,8 @@ export async function getGoalStatistics(employeeId: string, tenantId: string) {
 
   for (const goal of goals) {
     stats.byCategory[goal.category] = (stats.byCategory[goal.category] || 0) + 1;
-    stats.byPriority[goal.priority] = (stats.byPriority[goal.priority] || 0) + 1;
+    const priority = goal.priority ?? 'medium';
+    stats.byPriority[priority] = (stats.byPriority[priority] || 0) + 1;
   }
 
   return stats;
