@@ -61,19 +61,28 @@ export async function getAllAccounts(tenantId: string) {
 
 export async function getAccountHierarchy(tenantId: string) {
   const allAccounts = await getAllAccounts(tenantId);
+  type Account = (typeof allAccounts)[number];
+  type AccountNode = Account & { children: AccountNode[] };
 
   // Build hierarchy
-  const accountMap = new Map(allAccounts.map(account => [account.id, { ...account, children: [] }]));
-  const rootAccounts: any[] = [];
+  const accountMap = new Map<string, AccountNode>();
+  for (const account of allAccounts) {
+    accountMap.set(account.id, { ...account, children: [] });
+  }
+
+  const rootAccounts: AccountNode[] = [];
 
   for (const account of allAccounts) {
+    const node = accountMap.get(account.id);
+    if (!node) continue;
+
     if (account.parentAccountId) {
       const parent = accountMap.get(account.parentAccountId);
       if (parent) {
-        parent.children.push(accountMap.get(account.id));
+        parent.children.push(node);
       }
     } else {
-      rootAccounts.push(accountMap.get(account.id));
+      rootAccounts.push(node);
     }
   }
 
