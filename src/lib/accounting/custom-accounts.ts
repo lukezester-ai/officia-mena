@@ -67,8 +67,8 @@ export async function getAccountHierarchy(tenantId: string) {
   const rootAccounts: any[] = [];
 
   for (const account of allAccounts) {
-    if (account.parentId) {
-      const parent = accountMap.get(account.parentId);
+    if (account.parentAccountId) {
+      const parent = accountMap.get(account.parentAccountId);
       if (parent) {
         parent.children.push(accountMap.get(account.id));
       }
