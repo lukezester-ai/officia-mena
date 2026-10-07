@@ -42,20 +42,17 @@ export async function getAuditLogs(
   entityId?: string,
   limit = 50
 ) {
-  const query = db
+  let query = db
     .select()
     .from(auditLogEntries)
     .where(eq(auditLogEntries.tenantId, tenantId));
 
   if (entityType) {
-    query.where(and(eq(auditLogEntries.tenantId, tenantId), eq(auditLogEntries.entityType, entityType)));
+    query = query.andWhere(eq(auditLogEntries.entityType, entityType));
   }
 
   if (entityId) {
-    query.where(and(
-      eq(auditLogEntries.tenantId, tenantId),
-      entityId ? eq(auditLogEntries.entityId, entityId) : undefined
-    ));
+    query = query.andWhere(eq(auditLogEntries.entityId, entityId));
   }
 
   return query.orderBy(desc(auditLogEntries.createdAt)).limit(limit);
