@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { exchangeRates } from '@/lib/db/schema/accounting_reports';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 
 export interface ExchangeRateInput {
   tenantId: string;
@@ -43,23 +43,22 @@ export async function getExchangeRates(
   toCurrency?: string,
   limit = 50
 ) {
-  const query = db
-    .select()
-    .from(exchangeRates)
-    .where(eq(exchangeRates.tenantId, tenantId));
+  const conditions = [eq(exchangeRates.tenantId, tenantId)];
 
   if (fromCurrency) {
-    query.where(and(eq(exchangeRates.tenantId, tenantId), eq(exchangeRates.fromCurrency, fromCurrency.toUpperCase())));
+    conditions.push(eq(exchangeRates.fromCurrency, fromCurrency.toUpperCase()));
   }
 
   if (toCurrency) {
-    query.where(and(
-      eq(exchangeRates.tenantId, tenantId),
-      toCurrency ? eq(exchangeRates.toCurrency, toCurrency.toUpperCase()) : undefined
-    ));
+    conditions.push(eq(exchangeRates.toCurrency, toCurrency.toUpperCase()));
   }
 
-  return query.orderBy(desc(exchangeRates.effectiveDate)).limit(limit);
+  return db
+    .select()
+    .from(exchangeRates)
+    .where(and(...conditions))
+    .orderBy(desc(exchangeRates.effectiveDate))
+    .limit(limit);
 }
 
 export async function getLatestExchangeRate(

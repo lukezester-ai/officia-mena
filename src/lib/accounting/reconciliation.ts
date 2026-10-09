@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { reconciliationRules } from '@/lib/db/schema/accounting_reports';
-import { accounting } from '@/lib/db/schema/accounting';
-import { and, eq, or, like } from 'drizzle-orm';
+import { journalLines } from '@/lib/db/schema/accounting';
+import { bankTransactions } from '@/lib/db/schema/bank';
+import { and, eq } from 'drizzle-orm';
 
 interface BankTransaction {
   id: string;

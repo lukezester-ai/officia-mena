@@ -108,7 +108,12 @@ export async function getOverdueCollections(tenantId: string) {
       eq(invoices.status, 'overdue')
     ));
 
-  const collections = [];
+  const collections: Array<{
+    invoice: (typeof overdueInvoices)[number];
+    collection: typeof invoiceCollections.$inferSelect | null;
+    daysOverdue: number;
+    recommendedStage: CollectionInput['collectionStage'];
+  }> = [];
 
   for (const invoice of overdueInvoices) {
     const [collection] = await db
@@ -235,7 +240,7 @@ export async function autoEscalateCollections(tenantId: string) {
     if (!nextAction || nextAction > today) continue;
 
     // Auto-escalate based on stage and time
-    let newStage = collection.collectionStage;
+    let newStage: CollectionInput['collectionStage'] = collection.collectionStage as CollectionInput['collectionStage'];
     if (collection.collectionStage === 'friendly' && daysOverdue > 30) {
       newStage = 'formal';
     } else if (collection.collectionStage === 'formal' && daysOverdue > 60) {

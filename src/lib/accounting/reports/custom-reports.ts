@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { customReports, reportSnapshots } from '@/lib/db/schema/accounting_reports';
-import { accounts, journalEntries, journalLines } from '@/lib/db/schema/accounting';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { getAccountingOverview } from './overview';
 
 export type CustomReportType = 'profit_loss' | 'balance_sheet' | 'cash_flow' | 'custom';
@@ -198,16 +197,18 @@ export async function getReportSnapshots(
   reportType?: string,
   limit = 12
 ) {
-  const query = db
-    .select()
-    .from(reportSnapshots)
-    .where(eq(reportSnapshots.tenantId, tenantId));
+  const conditions = [eq(reportSnapshots.tenantId, tenantId)];
 
   if (reportType) {
-    query.where(and(eq(reportSnapshots.tenantId, tenantId), eq(reportSnapshots.reportType, reportType)));
+    conditions.push(eq(reportSnapshots.reportType, reportType));
   }
 
-  return query.orderBy(desc(reportSnapshots.periodStart)).limit(limit);
+  return db
+    .select()
+    .from(reportSnapshots)
+    .where(and(...conditions))
+    .orderBy(desc(reportSnapshots.periodStart))
+    .limit(limit);
 }
 
 export async function deleteCustomReport(tenantId: string, reportId: string) {

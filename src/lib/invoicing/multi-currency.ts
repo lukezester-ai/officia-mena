@@ -116,7 +116,7 @@ export async function convertInvoiceCurrency(
     throw new Error('Invoice not found');
   }
 
-  const sourceCurrency = invoice.currency;
+  const sourceCurrency = invoice.currency ?? 'SAR';
   if (sourceCurrency === targetCurrency) {
     return { invoice, converted: false };
   }
@@ -172,14 +172,15 @@ export async function convertInvoiceCurrency(
 }
 
 export async function getInvoiceCurrenciesInUse(tenantId: string) {
-  const invoiceList = await db
+  const invoiceRows = await db
     .select({ currency: invoices.currency })
     .from(invoices)
     .where(eq(invoices.tenantId, tenantId));
 
   const currencyCount = new Map<string, number>();
-  for (const invoice of invoiceList) {
-    currencyCount.set(invoice.currency, (currencyCount.get(invoice.currency) || 0) + 1);
+  for (const invoice of invoiceRows) {
+    const currency = invoice.currency ?? 'SAR';
+    currencyCount.set(currency, (currencyCount.get(currency) || 0) + 1);
   }
 
   return Array.from(currencyCount.entries()).map(([currency, count]) => ({

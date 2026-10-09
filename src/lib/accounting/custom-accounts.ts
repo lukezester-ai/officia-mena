@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
 import { accounts } from '@/lib/db/schema/accounting';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, ne } from 'drizzle-orm';
 
 export interface CustomAccountInput {
   tenantId: string;
@@ -61,19 +60,28 @@ export async function getAllAccounts(tenantId: string) {
 
 export async function getAccountHierarchy(tenantId: string) {
   const allAccounts = await getAllAccounts(tenantId);
+  type Account = (typeof allAccounts)[number];
+  type AccountNode = Account & { children: AccountNode[] };
 
   // Build hierarchy
-  const accountMap = new Map(allAccounts.map(account => [account.id, { ...account, children: [] }]));
-  const rootAccounts: any[] = [];
+  const accountMap = new Map<string, AccountNode>();
+  for (const account of allAccounts) {
+    accountMap.set(account.id, { ...account, children: [] });
+  }
+
+  const rootAccounts: AccountNode[] = [];
 
   for (const account of allAccounts) {
+    const node = accountMap.get(account.id);
+    if (!node) continue;
+
     if (account.parentAccountId) {
       const parent = accountMap.get(account.parentAccountId);
       if (parent) {
-        parent.children.push(accountMap.get(account.id));
+        parent.children.push(node);
       }
     } else {
-      rootAccounts.push(accountMap.get(account.id));
+      rootAccounts.push(node);
     }
   }
 
@@ -141,20 +149,16 @@ export async function deactivateAccount(accountId: string, tenantId: string) {
 }
 
 export async function validateAccountCode(tenantId: string, code: string, excludeId?: string) {
-  const query = db
-    .select()
-    .from(accounts)
-    .where(and(eq(accounts.tenantId, tenantId), eq(accounts.code, code)));
-
+  const conditions = [eq(accounts.tenantId, tenantId), eq(accounts.code, code)];
   if (excludeId) {
-    query.where(and(
-      eq(accounts.tenantId, tenantId),
-      eq(accounts.code, code),
-      // excludeId ? neq(accounts.id, excludeId) : undefined
-    ));
+    conditions.push(ne(accounts.id, excludeId));
   }
 
-  const [existing] = await query.limit(1);
+  const [existing] = await db
+    .select()
+    .from(accounts)
+    .where(and(...conditions))
+    .limit(1);
   return !existing;
 }
 

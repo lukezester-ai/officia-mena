@@ -5,7 +5,7 @@ import {
   productAttributes,
   productAttributeValues,
 } from '@/lib/db/schema/inventory_extensions';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export interface CategoryInput {
   tenantId: string;
@@ -44,18 +44,27 @@ export async function getCategories(tenantId: string) {
 
 export async function getCategoryTree(tenantId: string) {
   const categories = await getCategories(tenantId);
+  type Category = (typeof categories)[number];
+  type CategoryNode = Category & { children: CategoryNode[] };
 
-  const categoryMap = new Map(categories.map(cat => [cat.id, { ...cat, children: [] }]));
-  const rootCategories: any[] = [];
+  const categoryMap = new Map<string, CategoryNode>();
+  for (const category of categories) {
+    categoryMap.set(category.id, { ...category, children: [] });
+  }
+
+  const rootCategories: CategoryNode[] = [];
 
   for (const category of categories) {
+    const node = categoryMap.get(category.id);
+    if (!node) continue;
+
     if (category.parentId) {
       const parent = categoryMap.get(category.parentId);
       if (parent) {
-        parent.children.push(categoryMap.get(category.id));
+        parent.children.push(node);
       }
     } else {
-      rootCategories.push(categoryMap.get(category.id));
+      rootCategories.push(node);
     }
   }
 

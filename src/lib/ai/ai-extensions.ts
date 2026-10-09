@@ -9,7 +9,7 @@ import {
   aiModelPerformance,
   aiFeatureFlags,
 } from '@/lib/db/schema/ai_extensions';
-import { eq, and, desc, gte, lte } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 
 export interface AnalyticsInput {
   tenantId: string;
@@ -92,16 +92,17 @@ export async function queueDocumentProcessing(
 }
 
 export async function getProcessingQueue(tenantId: string, status?: string) {
-  const query = db
-    .select()
-    .from(documentProcessingQueue)
-    .where(eq(documentProcessingQueue.tenantId, tenantId));
+  const conditions = [eq(documentProcessingQueue.tenantId, tenantId)];
 
   if (status) {
-    query.where(and(eq(documentProcessingQueue.tenantId, tenantId), eq(documentProcessingQueue.status, status)));
+    conditions.push(eq(documentProcessingQueue.status, status));
   }
 
-  return query.orderBy(desc(documentProcessingQueue.priority), documentProcessingQueue.createdAt);
+  return db
+    .select()
+    .from(documentProcessingQueue)
+    .where(and(...conditions))
+    .orderBy(desc(documentProcessingQueue.priority), documentProcessingQueue.createdAt);
 }
 
 export async function createKnowledgeArticle(
@@ -137,23 +138,20 @@ export async function searchKnowledgeArticles(
   category?: string,
   limit = 10
 ) {
-  const searchQuery = db
-    .select()
-    .from(knowledgeArticles)
-    .where(and(
-      eq(knowledgeArticles.tenantId, tenantId),
-      eq(knowledgeArticles.isActive, true)
-    ));
+  const conditions = [
+    eq(knowledgeArticles.tenantId, tenantId),
+    eq(knowledgeArticles.isActive, true),
+  ];
 
   if (category) {
-    searchQuery.where(and(
-      eq(knowledgeArticles.tenantId, tenantId),
-      eq(knowledgeArticles.isActive, true),
-      eq(knowledgeArticles.category, category)
-    ));
+    conditions.push(eq(knowledgeArticles.category, category));
   }
 
-  return searchQuery.limit(limit);
+  return db
+    .select()
+    .from(knowledgeArticles)
+    .where(and(...conditions))
+    .limit(limit);
 }
 
 export async function logKnowledgeSearch(
@@ -210,16 +208,18 @@ export async function createSafetyEvent(
 }
 
 export async function getSafetyEvents(tenantId: string, severity?: string, limit = 20) {
-  const query = db
-    .select()
-    .from(aiSafetyEvents)
-    .where(eq(aiSafetyEvents.tenantId, tenantId));
+  const conditions = [eq(aiSafetyEvents.tenantId, tenantId)];
 
   if (severity) {
-    query.where(and(eq(aiSafetyEvents.tenantId, tenantId), eq(aiSafetyEvents.severity, severity)));
+    conditions.push(eq(aiSafetyEvents.severity, severity));
   }
 
-  return query.orderBy(desc(aiSafetyEvents.createdAt)).limit(limit);
+  return db
+    .select()
+    .from(aiSafetyEvents)
+    .where(and(...conditions))
+    .orderBy(desc(aiSafetyEvents.createdAt))
+    .limit(limit);
 }
 
 export async function resolveSafetyEvent(eventId: string, tenantId: string, actionTaken: string, userId: string) {
@@ -258,16 +258,20 @@ export async function updateModelPerformance(
     .limit(1);
 
   if (performance) {
+    const totalRequests = performance.totalRequests ?? 0;
+    const averageLatency = Number(performance.averageLatency ?? 0);
+    const averageTokens = Number(performance.averageTokens ?? 0);
+    const averageEvaluationScore = Number(performance.averageEvaluationScore ?? 0);
     const [updated] = await db
       .update(aiModelPerformance)
       .set({
-        totalRequests: performance.totalRequests + 1,
-        successfulRequests: performance.successfulRequests + (success ? 1 : 0),
-        failedRequests: performance.failedRequests + (success ? 0 : 1),
-        averageLatency: ((performance.averageLatency * performance.totalRequests) + latency) / (performance.totalRequests + 1),
-        averageTokens: ((performance.averageTokens * performance.totalRequests) + tokens) / (performance.totalRequests + 1),
-        averageEvaluationScore: evaluationScore
-          ? ((performance.averageEvaluationScore * performance.totalRequests) + evaluationScore) / (performance.totalRequests + 1)
+        totalRequests: totalRequests + 1,
+        successfulRequests: (performance.successfulRequests ?? 0) + (success ? 1 : 0),
+        failedRequests: (performance.failedRequests ?? 0) + (success ? 0 : 1),
+        averageLatency: (((averageLatency * totalRequests) + latency) / (totalRequests + 1)).toFixed(2),
+        averageTokens: (((averageTokens * totalRequests) + tokens) / (totalRequests + 1)).toFixed(2),
+        averageEvaluationScore: evaluationScore !== undefined
+          ? (((averageEvaluationScore * totalRequests) + evaluationScore) / (totalRequests + 1)).toFixed(2)
           : performance.averageEvaluationScore,
         lastUsedAt: new Date(),
         updatedAt: new Date(),
@@ -363,7 +367,8 @@ export async function getFeatureFlag(tenantId: string, featureName: string, user
   }
 
   // Check rollout percentage
-  if (flag.rolloutPercentage > 0 && flag.rolloutPercentage < 100) {
+  const rolloutPercentage = flag.rolloutPercentage ?? 0;
+  if (rolloutPercentage > 0 && rolloutPercentage < 100) {
     // Would need consistent user hash for deterministic rollout
     // For now, return disabled if not explicitly enabled
     return { ...flag, isEnabled: flag.isEnabled };

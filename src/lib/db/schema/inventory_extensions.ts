@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, numeric, integer, boolean, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, numeric, integer, boolean, jsonb, type AnyPgColumn } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { products, warehouses } from './inventory';
 
@@ -8,7 +8,7 @@ export const productCategories = pgTable('product_categories', {
   tenantId: uuid('tenant_id').notNull().references(() => tenants.id),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
-  parentId: uuid('parent_id').references(() => productCategories.id),
+  parentId: uuid('parent_id').references((): AnyPgColumn => productCategories.id),
   code: varchar('code', { length: 50 }),
   level: integer('level').default(0),
   isActive: boolean('is_active').default(true),

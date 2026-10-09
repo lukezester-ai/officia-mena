@@ -106,7 +106,7 @@ export async function generateNextInvoice(recurringId: string, tenantId: string)
       tenantId: recurring.tenantId,
       invoiceNumber: `REC-${Date.now()}`, // Would need proper numbering
       issueDate: nextDate,
-      dueDate: new Date(nextDate.getTime() + (recurring.paymentTerms || 30) * 24 * 60 * 60 * 1000),
+      dueDate: new Date(nextDate.getTime() + (recurring.paymentTerms ?? 30) * 24 * 60 * 60 * 1000),
       clientName: `Client ${recurring.clientId}`, // Would get from clients table
       subtotal: (Number(recurring.invoiceAmount) / (1 + Number(recurring.vatRate) / 100)).toFixed(2),
       vatRate: recurring.vatRate,
@@ -133,9 +133,9 @@ export async function generateNextInvoice(recurringId: string, tenantId: string)
   // Update recurring invoice
   const nextNextDate = calculateNextInvoiceDate(
     recurring.frequency,
-    recurring.interval,
-    recurring.dayOfMonth,
-    recurring.dayOfWeek,
+    recurring.interval ?? 1,
+    recurring.dayOfMonth ?? undefined,
+    recurring.dayOfWeek ?? undefined,
     nextDate
   );
 
@@ -144,7 +144,7 @@ export async function generateNextInvoice(recurringId: string, tenantId: string)
     .set({
       nextInvoiceDate: nextNextDate,
       lastGeneratedAt: today,
-      totalGenerated: (recurring.totalGenerated || 0) + 1,
+      totalGenerated: (recurring.totalGenerated ?? 0) + 1,
       updatedAt: new Date(),
     })
     .where(eq(recurringInvoices.id, recurring.id));
@@ -292,7 +292,11 @@ export async function getRecurringInvoiceStats(tenantId: string) {
     active: recurring.filter(r => r.isActive).length,
     paused: recurring.filter(r => !r.isActive).length,
     autoGenerate: recurring.filter(r => r.autoGenerate).length,
+<<<<<<< HEAD
     totalGenerated: recurring.reduce((sum, r) => sum + (r.totalGenerated || 0), 0),
+=======
+    totalGenerated: recurring.reduce((sum, r) => sum + (r.totalGenerated ?? 0), 0),
+>>>>>>> 45d81ea9cd1516366b596a5746857754c46877af
     byFrequency: {} as Record<string, number>,
   };
 

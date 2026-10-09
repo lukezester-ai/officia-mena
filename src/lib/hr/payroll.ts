@@ -110,8 +110,8 @@ export async function createPayrollRun(input: PayrollRunInput) {
     .insert(payrollRuns)
     .values({
       tenantId: input.tenantId,
-      periodMonth: input.periodMonth,
-      periodYear: input.periodYear,
+      periodMonth: input.periodMonth.toFixed(0),
+      periodYear: input.periodYear.toFixed(0),
       totalAmount: totalAmount.toFixed(2),
       wpsStatus: 'PENDING',
     })

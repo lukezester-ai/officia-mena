@@ -4,7 +4,7 @@ import {
   inventoryAdjustments,
 } from '@/lib/db/schema/inventory_extensions';
 import { inventoryLevels, stockMovements } from '@/lib/db/schema/inventory';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 
 export interface TransferInput {
   tenantId: string;
@@ -21,7 +21,7 @@ export interface TransferInput {
 export async function createTransfer(input: TransferInput) {
   // Check if source warehouse has enough stock
   const [sourceLevel] = await db
-    .select({ quantity: inventoryLevels.quantity })
+    .select({ id: inventoryLevels.id, quantity: inventoryLevels.quantity })
     .from(inventoryLevels)
     .where(and(
       eq(inventoryLevels.productId, input.productId),
@@ -62,7 +62,7 @@ export async function startTransfer(transferId: string, tenantId: string) {
   await db
     .update(inventoryLevels)
     .set({
-      quantity: (inv) => inv.quantity - transfer.quantity,
+      quantity: sql`${inventoryLevels.quantity} - ${transfer.quantity}`,
       lastUpdated: new Date(),
     })
     .where(and(
@@ -105,7 +105,7 @@ export async function completeTransfer(transferId: string, tenantId: string) {
 
   // Add to destination warehouse
   const [destLevel] = await db
-    .select({ quantity: inventoryLevels.quantity })
+    .select({ id: inventoryLevels.id, quantity: inventoryLevels.quantity })
     .from(inventoryLevels)
     .where(and(
       eq(inventoryLevels.productId, transfer.productId),
@@ -171,7 +171,7 @@ export async function cancelTransfer(transferId: string, tenantId: string) {
     await db
       .update(inventoryLevels)
       .set({
-        quantity: (inv) => inv.quantity + transfer.quantity,
+        quantity: sql`${inventoryLevels.quantity} + ${transfer.quantity}`,
         lastUpdated: new Date(),
       })
       .where(and(
@@ -215,16 +215,17 @@ export async function getTransfer(transferId: string, tenantId: string) {
 }
 
 export async function getTransfers(tenantId: string, status?: string) {
-  const query = db
-    .select()
-    .from(inventoryTransfers)
-    .where(eq(inventoryTransfers.tenantId, tenantId));
+  const conditions = [eq(inventoryTransfers.tenantId, tenantId)];
 
   if (status) {
-    query.where(and(eq(inventoryTransfers.tenantId, tenantId), eq(inventoryTransfers.status, status)));
+    conditions.push(eq(inventoryTransfers.status, status));
   }
 
-  return query.orderBy(desc(inventoryTransfers.createdAt));
+  return db
+    .select()
+    .from(inventoryTransfers)
+    .where(and(...conditions))
+    .orderBy(desc(inventoryTransfers.createdAt));
 }
 
 export interface AdjustmentInput {
@@ -240,7 +241,7 @@ export interface AdjustmentInput {
 
 export async function createAdjustment(input: AdjustmentInput) {
   const [currentLevel] = await db
-    .select({ quantity: inventoryLevels.quantity })
+    .select({ id: inventoryLevels.id, quantity: inventoryLevels.quantity })
     .from(inventoryLevels)
     .where(and(
       eq(inventoryLevels.productId, input.productId),
@@ -306,16 +307,17 @@ export async function createAdjustment(input: AdjustmentInput) {
 }
 
 export async function getAdjustments(tenantId: string, productId?: string) {
-  const query = db
-    .select()
-    .from(inventoryAdjustments)
-    .where(eq(inventoryAdjustments.tenantId, tenantId));
+  const conditions = [eq(inventoryAdjustments.tenantId, tenantId)];
 
   if (productId) {
-    query.where(and(eq(inventoryAdjustments.tenantId, tenantId), eq(inventoryAdjustments.productId, productId)));
+    conditions.push(eq(inventoryAdjustments.productId, productId));
   }
 
-  return query.orderBy(desc(inventoryAdjustments.createdAt));
+  return db
+    .select()
+    .from(inventoryAdjustments)
+    .where(and(...conditions))
+    .orderBy(desc(inventoryAdjustments.createdAt));
 }
 
 export async function getTransferStats(tenantId: string) {

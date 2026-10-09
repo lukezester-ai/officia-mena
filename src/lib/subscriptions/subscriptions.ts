@@ -154,7 +154,11 @@ export async function recordUsage(tenantId: string, subscriptionId: string, metr
 export async function getUsage(tenantId: string, subscriptionId: string, metricName?: string, periodStart?: Date, periodEnd?: Date) {
   const conditions = [
     eq(subscriptionUsage.tenantId, tenantId),
+<<<<<<< HEAD
     eq(subscriptionUsage.subscriptionId, subscriptionId)
+=======
+    eq(subscriptionUsage.subscriptionId, subscriptionId),
+>>>>>>> 45d81ea9cd1516366b596a5746857754c46877af
   ];
 
   if (metricName) {
@@ -258,7 +262,7 @@ export async function validateDiscountCode(tenantId: string, code: string, planI
     return { valid: false, reason: 'Discount code expired' };
   }
 
-  if (discount.maxUses && (discount.usedCount || 0) >= discount.maxUses) {
+  if (discount.maxUses && (discount.usedCount ?? 0) >= discount.maxUses) {
     return { valid: false, reason: 'Discount code usage limit reached' };
   }
 
@@ -304,7 +308,7 @@ export async function redeemDiscountCode(tenantId: string, code: string, subscri
   // Update usage count
   await db
     .update(discountCodes)
-    .set({ usedCount: (discount.usedCount || 0) + 1, updatedAt: new Date() })
+    .set({ usedCount: (discount.usedCount ?? 0) + 1, updatedAt: new Date() })
     .where(eq(discountCodes.id, discount.id));
 
   return redemption;

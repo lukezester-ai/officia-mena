@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '@/lib/db/db';
-import { budgets, budgetLines, accounts } from '@/lib/db/schema/accounting_reports';
-import { eq, and, inArray } from 'drizzle-orm';
+import { budgets, budgetLines } from '@/lib/db/schema/accounting_reports';
+import { eq, and } from 'drizzle-orm';
 import { getAccountingOverview } from './overview';
 
 export interface BudgetInput {
@@ -55,16 +55,17 @@ export async function createBudget(input: BudgetInput) {
 }
 
 export async function getBudgets(tenantId: string, fiscalYear?: number) {
-  const query = db
-    .select()
-    .from(budgets)
-    .where(eq(budgets.tenantId, tenantId));
+  const conditions = [eq(budgets.tenantId, tenantId)];
 
   if (fiscalYear) {
-    query.where(and(eq(budgets.tenantId, tenantId), eq(budgets.fiscalYear, fiscalYear)));
+    conditions.push(eq(budgets.fiscalYear, fiscalYear));
   }
 
-  return query.orderBy(budgets.fiscalYear, budgets.fiscalMonth);
+  return db
+    .select()
+    .from(budgets)
+    .where(and(...conditions))
+    .orderBy(budgets.fiscalYear, budgets.fiscalMonth);
 }
 
 export async function getBudget(budgetId: string, tenantId: string) {
@@ -191,10 +192,13 @@ export async function getBudgetAlerts(tenantId: string) {
 
   for (const budget of activeBudgets) {
     const budgetVsActual = await getBudgetVsActual(budget.id, tenantId);
+    const budgetDetails = await getBudget(budget.id, tenantId);
 
     for (const item of budgetVsActual) {
       const threshold = Number(item.variancePercentage);
-      const limit = budget.lines.find((line) => line.accountId === item.accountId)?.varianceThreshold || 10;
+      const limit = Number(
+        budgetDetails.lines.find((line) => line.accountId === item.accountId)?.varianceThreshold
+      ) || 10;
 
       if (Math.abs(threshold) > limit) {
         alerts.push({
