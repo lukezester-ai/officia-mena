@@ -57,6 +57,7 @@
     "@types/qrcode.react": "^1.0.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/stripe": "^8.0.416",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^6.0.4",
     "drizzle-kit": "^0.31.10",

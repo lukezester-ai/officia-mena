@@ -2,7 +2,7 @@
 import { db } from '@/lib/db/db';
 import { invoiceCurrencySettings } from '@/lib/db/schema/invoice_extensions';
 import { invoices } from '@/lib/db/schema/invoices';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, isNull } from 'drizzle-orm';
 
 export interface CurrencySettingsInput {
   tenantId: string;
@@ -127,7 +127,7 @@ export async function convertInvoiceCurrency(
     .from(invoiceCurrencySettings)
     .where(and(
       eq(invoiceCurrencySettings.tenantId, tenantId),
-      eq(invoiceCurrencySettings.currency, sourceCurrency)
+      sourceCurrency ? eq(invoiceCurrencySettings.currency, sourceCurrency) : isNull(invoiceCurrencySettings.currency)
     ))
     .limit(1);
 
@@ -136,7 +136,7 @@ export async function convertInvoiceCurrency(
     .from(invoiceCurrencySettings)
     .where(and(
       eq(invoiceCurrencySettings.tenantId, tenantId),
-      eq(invoiceCurrencySettings.currency, targetCurrency)
+      targetCurrency ? eq(invoiceCurrencySettings.currency, targetCurrency) : isNull(invoiceCurrencySettings.currency)
     ))
     .limit(1);
 
@@ -172,13 +172,13 @@ export async function convertInvoiceCurrency(
 }
 
 export async function getInvoiceCurrenciesInUse(tenantId: string) {
-  const invoices = await db
+  const invoiceList = await db
     .select({ currency: invoices.currency })
     .from(invoices)
     .where(eq(invoices.tenantId, tenantId));
 
   const currencyCount = new Map<string, number>();
-  for (const invoice of invoices) {
+  for (const invoice of invoiceList) {
     currencyCount.set(invoice.currency, (currencyCount.get(invoice.currency) || 0) + 1);
   }
 

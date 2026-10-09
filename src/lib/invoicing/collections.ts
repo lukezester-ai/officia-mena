@@ -1,7 +1,7 @@
 import { db } from '@/lib/db/db';
 import { invoiceCollections } from '@/lib/db/schema/invoice_extensions';
 import { invoices } from '@/lib/db/schema/invoices';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, isNull } from 'drizzle-orm';
 
 export interface CollectionInput {
   tenantId: string;
@@ -33,16 +33,17 @@ export async function createCollectionEntry(input: CollectionInput) {
 }
 
 export async function getCollectionEntries(tenantId: string, invoiceId?: string) {
-  const query = db
-    .select()
-    .from(invoiceCollections)
-    .where(eq(invoiceCollections.tenantId, tenantId));
+  const conditions = [eq(invoiceCollections.tenantId, tenantId)];
 
   if (invoiceId) {
-    query.where(and(eq(invoiceCollections.tenantId, tenantId), eq(invoiceCollections.invoiceId, invoiceId)));
+    conditions.push(eq(invoiceCollections.invoiceId, invoiceId));
   }
 
-  return query.orderBy(desc(invoiceCollections.createdAt));
+  return db
+    .select()
+    .from(invoiceCollections)
+    .where(and(...conditions))
+    .orderBy(desc(invoiceCollections.createdAt));
 }
 
 export async function getInvoiceCollections(invoiceId: string, tenantId: string) {
@@ -195,7 +196,7 @@ export async function getCollectionPipeline(tenantId: string) {
       .where(and(
         eq(invoiceCollections.tenantId, tenantId),
         eq(invoiceCollections.collectionStage, stage),
-        eq(invoiceCollections.resolvedAt, null)
+        isNull(invoiceCollections.resolvedAt)
       ));
 
     pipeline.push({
@@ -219,7 +220,7 @@ export async function autoEscalateCollections(tenantId: string) {
       const newCollection = await createCollectionEntry({
         tenantId,
         invoiceId: invoice.id,
-        collectionStage: recommendedStage,
+        collectionStage: recommendedStage as 'friendly' | 'formal' | 'escalated' | 'legal',
         actionTaken: 'auto_created',
         notes: `Auto-created collection entry for overdue invoice (${daysOverdue} days overdue)`,
         userId: 'system', // Would need actual user ID
@@ -247,7 +248,7 @@ export async function autoEscalateCollections(tenantId: string) {
       const updated = await advanceCollectionStage(
         collection.id,
         tenantId,
-        newStage,
+        newStage as 'friendly' | 'formal' | 'escalated' | 'legal',
         'auto_escalation',
         `Auto-escalated from ${collection.collectionStage} to ${newStage}`
       );

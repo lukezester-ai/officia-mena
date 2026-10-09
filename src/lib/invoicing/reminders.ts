@@ -37,20 +37,20 @@ export async function createReminder(input: ReminderInput) {
 }
 
 export async function getReminders(tenantId: string, invoiceId?: string) {
-  const query = db
-    .select()
-    .from(invoiceReminders)
-    .where(and(eq(invoiceReminders.tenantId, tenantId), eq(invoiceReminders.isActive, true)));
+  const conditions = [
+    eq(invoiceReminders.tenantId, tenantId),
+    eq(invoiceReminders.isActive, true)
+  ];
 
   if (invoiceId) {
-    query.where(and(
-      eq(invoiceReminders.tenantId, tenantId),
-      eq(invoiceReminders.isActive, true),
-      eq(invoiceReminders.invoiceId, invoiceId)
-    ));
+    conditions.push(eq(invoiceReminders.invoiceId, invoiceId));
   }
 
-  return query.orderBy(desc(invoiceReminders.createdAt));
+  return db
+    .select()
+    .from(invoiceReminders)
+    .where(and(...conditions))
+    .orderBy(desc(invoiceReminders.createdAt));
 }
 
 export async function sendReminder(reminderId: string, tenantId: string) {
@@ -81,7 +81,7 @@ export async function sendReminder(reminderId: string, tenantId: string) {
     .update(invoiceReminders)
     .set({
       lastSentAt: new Date(),
-      sendCount: reminder.sendCount + 1,
+      sendCount: (reminder.sendCount || 0) + 1,
       updatedAt: new Date(),
     })
     .where(eq(invoiceReminders.id, reminderId))
@@ -220,7 +220,7 @@ export async function getReminderStats(tenantId: string) {
     total: reminders.length,
     automated: reminders.filter(r => r.isAutomated).length,
     manual: reminders.filter(r => !r.isAutomated).length,
-    sent: reminders.reduce((sum, r) => sum + r.sendCount, 0),
+    sent: reminders.reduce((sum, r) => sum + (r.sendCount || 0), 0),
     byType: {} as Record<string, number>,
   };
 
