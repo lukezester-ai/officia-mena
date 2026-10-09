@@ -154,11 +154,7 @@ export async function recordUsage(tenantId: string, subscriptionId: string, metr
 export async function getUsage(tenantId: string, subscriptionId: string, metricName?: string, periodStart?: Date, periodEnd?: Date) {
   const conditions = [
     eq(subscriptionUsage.tenantId, tenantId),
-<<<<<<< HEAD
-    eq(subscriptionUsage.subscriptionId, subscriptionId)
-=======
     eq(subscriptionUsage.subscriptionId, subscriptionId),
->>>>>>> 45d81ea9cd1516366b596a5746857754c46877af
   ];
 
   if (metricName) {
