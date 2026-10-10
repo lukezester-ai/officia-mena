@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, MapPin, Send, Loader2 } from 'lucide-react';
+import { Mail as MailIcon, MapPin as MapPinIcon, Send as SendIcon, Loader2 as Loader2Icon } from 'lucide-react';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -52,7 +52,7 @@ export default function ContactPage() {
             {submitted ? (
               <div className="glass-panel p-10 rounded-3xl border border-[var(--color-emerald-500)]/30 text-center">
                 <div className="w-16 h-16 rounded-full bg-[var(--color-emerald-500)]/20 flex items-center justify-center mx-auto mb-6">
-                  <Send className="text-[var(--color-emerald-500)]" size={32} />
+                  <SendIcon className="text-[var(--color-emerald-500)]" size={32} />
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">شكراً لتواصلك معنا!</h2>
                 <p className="text-[var(--color-desert-300)]">سنقوم بالرد على استفسارك في أقرب وقت ممكن.</p>
@@ -77,7 +77,7 @@ export default function ContactPage() {
                   <textarea name="message" required rows={5} className="w-full bg-black/40 border border-gray-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[var(--color-gold-500)]/50 transition-colors resize-none" placeholder="كيف يمكننا مساعدتك؟"></textarea>
                 </div>
                 <button type="submit" disabled={loading} className="w-full py-4 rounded-xl gold-gradient text-[#1A120B] font-bold hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-70">
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send size={18} /> إرسال الرسالة</>}
+                  {loading ? <Loader2Icon className="w-5 h-5 animate-spin" /> : <><SendIcon size={18} /> إرسال الرسالة</>}
                 </button>
               </form>
             )}
@@ -89,7 +89,7 @@ export default function ContactPage() {
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl gold-gradient/20 border border-[var(--color-gold-500)]/30 flex items-center justify-center shrink-0">
-                    <Mail className="text-[var(--color-gold-500)]" size={20} />
+                    <MailIcon className="text-[var(--color-gold-500)]" size={20} />
                   </div>
                   <div>
                     <h3 className="font-bold text-white">البريد الإلكتروني</h3>
@@ -99,7 +99,7 @@ export default function ContactPage() {
 
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-xl gold-gradient/20 border border-[var(--color-gold-500)]/30 flex items-center justify-center shrink-0">
-                    <MapPin className="text-[var(--color-gold-500)]" size={20} />
+                    <MapPinIcon className="text-[var(--color-gold-500)]" size={20} />
                   </div>
                   <div>
                     <h3 className="font-bold text-white">العنوان</h3>
