@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Wrench } from 'lucide-react';
+import { Wrench as WrenchIcon } from 'lucide-react';
 import { repairMissingAccountingPostings } from './actions';
 
 type RepairSummary = {
@@ -37,7 +37,7 @@ export function AccountingRepairPanel() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="flex items-center gap-2 text-lg font-black text-white">
-            <Wrench className="text-primary" size={18} />
+            <WrenchIcon className="text-primary" size={18} />
             إصلاح الترحيلات المفقودة
           </h2>
           <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">
@@ -50,7 +50,7 @@ export function AccountingRepairPanel() {
           disabled={isPending}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-black text-background transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Wrench size={16} />
+          <WrenchIcon size={16} />
           {isPending ? 'جاري الإصلاح...' : 'تشغيل الإصلاح'}
         </button>
       </div>
