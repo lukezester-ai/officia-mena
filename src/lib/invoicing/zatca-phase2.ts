@@ -108,11 +108,7 @@ export class ZatcaPhase2Integration {
     });
 
     // Sign the invoice (cryptographic stamp)
-<<<<<<< HEAD
-    const cryptographicStamp = await signInvoice(invoiceHash, this.csid);
-=======
     const cryptographicStamp = signInvoice(invoiceHash, this.csidSecret);
->>>>>>> 45d81ea9cd1516366b596a5746857754c46877af
 
     return {
       invoiceHash,

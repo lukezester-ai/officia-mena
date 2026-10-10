@@ -39,11 +39,7 @@ export async function createReminder(input: ReminderInput) {
 export async function getReminders(tenantId: string, invoiceId?: string) {
   const conditions = [
     eq(invoiceReminders.tenantId, tenantId),
-<<<<<<< HEAD
-    eq(invoiceReminders.isActive, true)
-=======
     eq(invoiceReminders.isActive, true),
->>>>>>> 45d81ea9cd1516366b596a5746857754c46877af
   ];
 
   if (invoiceId) {

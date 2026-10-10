@@ -292,11 +292,7 @@ export async function getRecurringInvoiceStats(tenantId: string) {
     active: recurring.filter(r => r.isActive).length,
     paused: recurring.filter(r => !r.isActive).length,
     autoGenerate: recurring.filter(r => r.autoGenerate).length,
-<<<<<<< HEAD
-    totalGenerated: recurring.reduce((sum, r) => sum + (r.totalGenerated || 0), 0),
-=======
     totalGenerated: recurring.reduce((sum, r) => sum + (r.totalGenerated ?? 0), 0),
->>>>>>> 45d81ea9cd1516366b596a5746857754c46877af
     byFrequency: {} as Record<string, number>,
   };
 
