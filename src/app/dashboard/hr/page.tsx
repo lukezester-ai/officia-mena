@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Users, Search, UserPlus, CreditCard, X } from 'lucide-react';
+import { Users, Search, UserPlus, CreditCard, X, Calendar, TrendingUp, Clock } from 'lucide-react';
 import Link from 'next/link';
 import type { InferSelectModel } from 'drizzle-orm';
 import type { employees as employeesTable } from '@/lib/db/schema/hr';
@@ -107,10 +107,22 @@ export default function HrPage() {
           <p className="text-[var(--color-desert-600)]">إدارة الموظفين وتتبع الإقامات.</p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <Link href="/dashboard/hr/payroll" className="bg-[var(--color-gold-50)] border border-[var(--color-gold-200)] text-[var(--color-gold-700)] px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[var(--color-gold-100)] transition-colors shadow-sm">
             <CreditCard size={18} />
             الرواتب
+          </Link>
+          <Link href="/dashboard/hr/leave-management" className="bg-white border border-[var(--color-desert-200)] text-[var(--color-desert-700)] px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[var(--color-desert-50)] transition-colors shadow-sm">
+            <Calendar size={18} />
+            الإجازات
+          </Link>
+          <Link href="/dashboard/hr/performance" className="bg-white border border-[var(--color-desert-200)] text-[var(--color-desert-700)] px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[var(--color-desert-50)] transition-colors shadow-sm">
+            <TrendingUp size={18} />
+            التقييم
+          </Link>
+          <Link href="/dashboard/hr/time-tracking" className="bg-white border border-[var(--color-desert-200)] text-[var(--color-desert-700)] px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[var(--color-desert-50)] transition-colors shadow-sm">
+            <Clock size={18} />
+            الحضور
           </Link>
           <button 
             onClick={() => setShowModal(true)}
