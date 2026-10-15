@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Star, TrendingUp, Search, CheckCircle2 } from 'lucide-react';
+import { Star, TrendingUp, Plus, Search, CheckCircle2 } from 'lucide-react';
 
 type PerformanceReview = {
   id: string;
@@ -21,7 +21,22 @@ type PerformanceReview = {
 export default function PerformancePage() {
   const [reviews, setReviews] = useState<PerformanceReview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState<PerformanceReview | null>(null);
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={16}
+            className={star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-300'}
+          />
+        ))}
+      </div>
+    );
+  };
 
   useEffect(() => {
     // Mock data - replace with API call
@@ -263,6 +278,78 @@ export default function PerformancePage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl" dir="rtl">
+            <div className="p-6 border-b border-[var(--color-desert-200)] bg-[var(--color-desert-50)] flex justify-between items-center">
+              <h2 className="text-xl font-bold text-[var(--color-desert-900)]">تقييم جديد</h2>
+              <button onClick={() => setShowModal(false)} className="text-[var(--color-desert-500)] hover:text-black">
+                <span className="text-2xl">×</span>
+              </button>
+            </div>
+            <form className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">الموظف</label>
+                <select className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]">
+                  <option value="">اختر الموظف</option>
+                  <option value="EMP001">أحمد عبدالله</option>
+                  <option value="EMP002">محمد علي</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">فترة التقييم</label>
+                <select className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]">
+                  <option value="Q1 2024">Q1 2024</option>
+                  <option value="Q2 2024">Q2 2024</option>
+                  <option value="Q3 2024">Q3 2024</option>
+                  <option value="Q4 2024">Q4 2024</option>
+                </select>
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-[var(--color-desert-700)]">الإنتاجية</span>
+                  <div className="flex gap-1">{renderStars(0)}</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-[var(--color-desert-700)]">العمل الجماعي</span>
+                  <div className="flex gap-1">{renderStars(0)}</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-[var(--color-desert-700)]">التواصل</span>
+                  <div className="flex gap-1">{renderStars(0)}</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-[var(--color-desert-700)]">الحضور</span>
+                  <div className="flex gap-1">{renderStars(0)}</div>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">ملاحظات</label>
+                <textarea 
+                  className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
+                  rows={3}
+                />
+              </div>
+              <div className="flex gap-3 pt-4 border-t border-[var(--color-desert-200)]">
+                <button 
+                  type="submit"
+                  className="flex-1 bg-[var(--color-desert-900)] hover:bg-black text-white font-bold py-3 rounded-xl"
+                >
+                  حفظ التقييم
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="bg-white border border-[var(--color-desert-200)] hover:bg-[var(--color-desert-50)] text-[var(--color-desert-700)] font-bold py-3 px-8 rounded-xl"
+                >
+                  إلغاء
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
