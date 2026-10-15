@@ -211,7 +211,7 @@ export default function LeaveManagementPage() {
                   <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">نوع الإجازة</label>
                   <select 
                     value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value as any})}
+                    onChange={(e) => setFormData({...formData, type: e.target.value as 'annual' | 'sick' | 'emergency' | 'unpaid'})}
                     className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
                   >
                     <option value="annual">إجازة سنوية</option>

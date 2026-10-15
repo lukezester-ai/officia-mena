@@ -158,7 +158,7 @@ export default function TimeTrackingPage() {
             </div>
             <select 
               value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
+              onChange={(e) => setFilter(e.target.value as 'all' | 'present' | 'late' | 'absent')}
               className="bg-white border border-[var(--color-desert-200)] rounded-lg py-2 px-4 text-sm focus:outline-none focus:border-[var(--color-gold-500)]"
             >
               <option value="all">الكل</option>

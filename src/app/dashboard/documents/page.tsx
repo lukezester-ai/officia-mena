@@ -51,22 +51,6 @@ export default function DocumentsPage() {
 
   const toggleRole = (role: string) => setRoles(current => current.includes(role) ? current.filter(item => item !== role) : [...current, role]);
 
-  const arabicLabels: Record<string, string> = {
-    'Активни документи': 'الوثائق النشطة',
-    'Retrievals': 'عمليات البحث',
-    'Без резултат': 'بدون نتائج',
-    'Средна латентност': 'متوسط زمن الاستجابة',
-    'company': 'الشركة بالكامل',
-    'restricted': 'وصول محدود',
-    'Ingest': 'رفع',
-    'Document registry': 'سجل الوثائق',
-    'Документ': 'الوثيقة',
-    'Версия': 'الإصدار',
-    'Страници': 'الصفحات',
-    'Достъп': 'الوصول',
-    'Статус': 'الحالة'
-  };
-
   return (
     <main className="mx-auto max-w-7xl space-y-6 p-6" dir="rtl">
       <div>

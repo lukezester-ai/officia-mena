@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Star, TrendingUp, Plus, Search, CheckCircle2 } from 'lucide-react';
+import { Star, TrendingUp, Search, CheckCircle2 } from 'lucide-react';
 
 type PerformanceReview = {
   id: string;
@@ -21,7 +21,6 @@ type PerformanceReview = {
 export default function PerformancePage() {
   const [reviews, setReviews] = useState<PerformanceReview[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState<PerformanceReview | null>(null);
 
   useEffect(() => {
