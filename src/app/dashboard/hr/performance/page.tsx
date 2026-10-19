@@ -97,20 +97,6 @@ export default function PerformancePage() {
     }
   };
 
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            size={16}
-            className={star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-zinc-300'}
-          />
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-6" dir="rtl">
       <div className="flex justify-between items-center">
