@@ -8,7 +8,7 @@ type TimeEntry = {
   employeeId: string;
   employeeName: string;
   date: string;
-  checkIn: string;
+  checkIn: string | null;
   checkOut: string | null;
   hours: number;
   status: 'present' | 'late' | 'absent' | 'half-day';
