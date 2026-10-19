@@ -34,38 +34,122 @@ export default function LeaveManagementPage() {
   });
 
   useEffect(() => {
-    // Mock data - replace with API call
-    setRequests([
-      {
-        id: '1',
-        employeeId: 'EMP001',
-        employeeName: 'أحمد عبدالله',
-        type: 'annual',
-        startDate: '2024-02-01',
-        endDate: '2024-02-05',
-        days: 5,
-        status: 'pending',
-        reason: 'إجازة عائلية'
-      },
-      {
-        id: '2',
-        employeeId: 'EMP002',
-        employeeName: 'محمد علي',
-        type: 'sick',
-        startDate: '2024-01-20',
-        endDate: '2024-01-22',
-        days: 3,
-        status: 'approved',
-        reason: 'مرض طارئ'
+    const fetchRequests = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/hr/leave-management?action=leave-requests');
+        const res = await response.json();
+        if (res.success && res.data) {
+          setRequests(res.data);
+        } else {
+          console.error('Failed to fetch leave requests:', res.error);
+        }
+      } catch (error) {
+        console.error('Error fetching leave requests:', error);
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
+    };
+
+    void fetchRequests();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add request logic here
-    setShowModal(false);
+    try {
+      const response = await fetch('/api/hr/leave-management', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create-leave-request',
+          employeeId: formData.employeeId,
+          leaveTypeId: formData.type,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          totalDays: Math.ceil((new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
+          reason: formData.reason,
+        }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        setShowModal(false);
+        setFormData({
+          employeeId: '',
+          type: 'annual',
+          startDate: '',
+          endDate: '',
+          reason: ''
+        });
+        // Reload requests
+        const fetchResponse = await fetch('/api/hr/leave-management?action=leave-requests');
+        const fetchRes = await fetchResponse.json();
+        if (fetchRes.success && fetchRes.data) {
+          setRequests(fetchRes.data);
+        }
+      } else {
+        alert('فشل في إضافة الطلب: ' + res.error);
+      }
+    } catch (error) {
+      console.error('Error creating leave request:', error);
+      alert('حدث خطأ أثناء إضافة الطلب');
+    }
+  };
+
+  const handleApprove = async (requestId: string) => {
+    try {
+      const response = await fetch('/api/hr/leave-management', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'approve-request',
+          requestId,
+          approverId: 'current-user', // TODO: Get from auth
+        }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        // Reload requests
+        const fetchResponse = await fetch('/api/hr/leave-management?action=leave-requests');
+        const fetchRes = await fetchResponse.json();
+        if (fetchRes.success && fetchRes.data) {
+          setRequests(fetchRes.data);
+        }
+      } else {
+        alert('فشل في الموافقة: ' + res.error);
+      }
+    } catch (error) {
+      console.error('Error approving request:', error);
+      alert('حدث خطأ أثناء الموافقة');
+    }
+  };
+
+  const handleReject = async (requestId: string) => {
+    try {
+      const response = await fetch('/api/hr/leave-management', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reject-request',
+          requestId,
+          approverId: 'current-user', // TODO: Get from auth
+          reason: 'مرفوض',
+        }),
+      });
+      const res = await response.json();
+      if (res.success) {
+        // Reload requests
+        const fetchResponse = await fetch('/api/hr/leave-management?action=leave-requests');
+        const fetchRes = await fetchResponse.json();
+        if (fetchRes.success && fetchRes.data) {
+          setRequests(fetchRes.data);
+        }
+      } else {
+        alert('فشل في الرفض: ' + res.error);
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      alert('حدث خطأ أثناء الرفض');
+    }
   };
 
   const getTypeLabel = (type: string) => {
@@ -163,19 +247,25 @@ export default function LeaveManagementPage() {
                 requests.map((request) => (
                   <tr key={request.id} className="hover:bg-[var(--color-desert-50)]/50 transition-colors">
                     <td className="py-4 px-6 font-bold">{request.employeeName}</td>
-                    <td className="py-4 px-6">{getTypeLabel(request.type)}</td>
-                    <td className="py-4 px-6 font-mono">{request.startDate}</td>
-                    <td className="py-4 px-6 font-mono">{request.endDate}</td>
-                    <td className="py-4 px-6 font-mono font-bold">{request.days}</td>
-                    <td className="py-4 px-6">{request.reason}</td>
+                    <td className="py-4 px-6">{request.type || 'غير محدد'}</td>
+                    <td className="py-4 px-6 font-mono">{request.startDate ? new Date(request.startDate).toLocaleDateString('ar-SA') : '-'}</td>
+                    <td className="py-4 px-6 font-mono">{request.endDate ? new Date(request.endDate).toLocaleDateString('ar-SA') : '-'}</td>
+                    <td className="py-4 px-6 font-mono font-bold">{request.totalDays || request.days || 0}</td>
+                    <td className="py-4 px-6">{request.reason || '-'}</td>
                     <td className="py-4 px-6">{getStatusBadge(request.status)}</td>
                     <td className="py-4 px-6">
                       {request.status === 'pending' && (
                         <div className="flex gap-2">
-                          <button className="bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-600">
+                          <button 
+                            onClick={() => handleApprove(request.id)}
+                            className="bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-600"
+                          >
                             قبول
                           </button>
-                          <button className="bg-rose-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-rose-600">
+                          <button 
+                            onClick={() => handleReject(request.id)}
+                            className="bg-rose-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-rose-600"
+                          >
                             رفض
                           </button>
                         </div>
