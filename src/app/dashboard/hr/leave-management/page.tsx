@@ -7,12 +7,12 @@ type LeaveRequest = {
   id: string;
   employeeId: string;
   employeeName: string;
-  type: 'annual' | 'sick' | 'emergency' | 'unpaid';
-  startDate: string;
-  endDate: string;
-  days: number;
+  type?: string;
+  startDate?: Date | string;
+  endDate?: Date | string;
+  days?: number;
   status: 'pending' | 'approved' | 'rejected';
-  reason: string;
+  reason?: string;
 };
 
 export default function LeaveManagementPage() {
@@ -21,13 +21,13 @@ export default function LeaveManagementPage() {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<{
     employeeId: string;
-    type: 'annual' | 'sick' | 'emergency' | 'unpaid';
+    leaveTypeId: string;
     startDate: string;
     endDate: string;
     reason: string;
   }>({
     employeeId: '',
-    type: 'annual',
+    leaveTypeId: '',
     startDate: '',
     endDate: '',
     reason: ''
@@ -63,7 +63,7 @@ export default function LeaveManagementPage() {
         body: JSON.stringify({
           action: 'create-leave-request',
           employeeId: formData.employeeId,
-          leaveTypeId: formData.type,
+          leaveTypeId: formData.leaveTypeId,
           startDate: formData.startDate,
           endDate: formData.endDate,
           totalDays: Math.ceil((new Date(formData.endDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
@@ -75,7 +75,7 @@ export default function LeaveManagementPage() {
         setShowModal(false);
         setFormData({
           employeeId: '',
-          type: 'annual',
+          leaveTypeId: '',
           startDate: '',
           endDate: '',
           reason: ''
@@ -150,16 +150,6 @@ export default function LeaveManagementPage() {
       console.error('Error rejecting request:', error);
       alert('حدث خطأ أثناء الرفض');
     }
-  };
-
-  const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      annual: 'إجازة سنوية',
-      sick: 'إجازة مرضية',
-      emergency: 'إجازة طارئة',
-      unpaid: 'إجازة بدون راتب'
-    };
-    return labels[type] || type;
   };
 
   const getStatusBadge = (status: string) => {
@@ -250,7 +240,7 @@ export default function LeaveManagementPage() {
                     <td className="py-4 px-6">{request.type || 'غير محدد'}</td>
                     <td className="py-4 px-6 font-mono">{request.startDate ? new Date(request.startDate).toLocaleDateString('ar-SA') : '-'}</td>
                     <td className="py-4 px-6 font-mono">{request.endDate ? new Date(request.endDate).toLocaleDateString('ar-SA') : '-'}</td>
-                    <td className="py-4 px-6 font-mono font-bold">{request.totalDays || request.days || 0}</td>
+                    <td className="py-4 px-6 font-mono font-bold">{request.days || 0}</td>
                     <td className="py-4 px-6">{request.reason || '-'}</td>
                     <td className="py-4 px-6">{getStatusBadge(request.status)}</td>
                     <td className="py-4 px-6">
@@ -306,14 +296,15 @@ export default function LeaveManagementPage() {
                 <div>
                   <label className="block text-sm font-bold text-[var(--color-desert-700)] mb-2">نوع الإجازة</label>
                   <select 
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value as 'annual' | 'sick' | 'emergency' | 'unpaid'})}
+                    value={formData.leaveTypeId}
+                    onChange={(e) => setFormData({...formData, leaveTypeId: e.target.value})}
                     className="w-full bg-[var(--color-desert-50)] border border-[var(--color-desert-200)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--color-gold-500)]"
                   >
-                    <option value="annual">إجازة سنوية</option>
-                    <option value="sick">إجازة مرضية</option>
-                    <option value="emergency">إجازة طارئة</option>
-                    <option value="unpaid">إجازة بدون راتب</option>
+                    <option value="">اختر نوع الإجازة</option>
+                    <option value="1">إجازة سنوية</option>
+                    <option value="2">إجازة مرضية</option>
+                    <option value="3">إجازة طارئة</option>
+                    <option value="4">إجازة بدون راتب</option>
                   </select>
                 </div>
                 <div>
