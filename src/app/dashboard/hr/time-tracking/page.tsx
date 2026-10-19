@@ -6,13 +6,13 @@ import { Clock, Plus, Search, CheckCircle2, AlertCircle } from 'lucide-react';
 type TimeEntry = {
   id: string;
   employeeId: string;
-  employeeName: string;
-  date: string;
-  checkIn: string | null;
-  checkOut: string | null;
-  hours: number;
+  employeeName?: string;
+  date: Date | string;
+  checkInTime?: Date | string | null;
+  checkOutTime?: Date | string | null;
   status: 'present' | 'late' | 'absent' | 'half-day';
-  notes: string;
+  notes?: string;
+  location?: string;
 };
 
 export default function TimeTrackingPage() {
@@ -22,43 +22,34 @@ export default function TimeTrackingPage() {
   const [filter, setFilter] = useState<'all' | 'present' | 'late' | 'absent'>('all');
 
   useEffect(() => {
-    // Mock data - replace with API call
-    setEntries([
-      {
-        id: '1',
-        employeeId: 'EMP001',
-        employeeName: 'أحمد عبدالله',
-        date: '2024-01-15',
-        checkIn: '08:00',
-        checkOut: '17:00',
-        hours: 9,
-        status: 'present',
-        notes: ''
-      },
-      {
-        id: '2',
-        employeeId: 'EMP002',
-        employeeName: 'محمد علي',
-        date: '2024-01-15',
-        checkIn: '08:45',
-        checkOut: '17:00',
-        hours: 8.25,
-        status: 'late',
-        notes: 'تأخر 45 دقيقة'
-      },
-      {
-        id: '3',
-        employeeId: 'EMP003',
-        employeeName: 'خالد محمد',
-        date: '2024-01-15',
-        checkIn: null,
-        checkOut: null,
-        hours: 0,
-        status: 'absent',
-        notes: 'إجازة مرضية'
+    const fetchEntries = async () => {
+      setLoading(true);
+      try {
+        // Fetch all employees first, then get their attendance records
+        const employeesResponse = await fetch('/api/hr/employees');
+        const employeesRes = await employeesResponse.json();
+        
+        if (employeesRes.success && employeesRes.data && employeesRes.data.length > 0) {
+          const allEntries = [];
+          const today = new Date().toISOString().split('T')[0];
+          
+          for (const employee of employeesRes.data) {
+            const attendanceResponse = await fetch(`/api/hr/time-tracking?action=attendance&employeeId=${employee.id}&startDate=${today}&endDate=${today}`);
+            const attendanceRes = await attendanceResponse.json();
+            if (attendanceRes.success && attendanceRes.data) {
+              allEntries.push(...attendanceRes.data);
+            }
+          }
+          setEntries(allEntries);
+        }
+      } catch (error) {
+        console.error('Error fetching time entries:', error);
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
+    };
+
+    void fetchEntries();
   }, []);
 
   const getStatusBadge = (status: string) => {
@@ -97,7 +88,6 @@ export default function TimeTrackingPage() {
     ? entries 
     : entries.filter(entry => entry.status === filter);
 
-  const totalHours = entries.reduce((sum, entry) => sum + entry.hours, 0);
   const presentCount = entries.filter(e => e.status === 'present').length;
   const lateCount = entries.filter(e => e.status === 'late').length;
   const absentCount = entries.filter(e => e.status === 'absent').length;
@@ -122,12 +112,7 @@ export default function TimeTrackingPage() {
         </button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="bg-white border border-[var(--color-desert-200)] rounded-2xl p-6 shadow-sm">
-          <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">إجمالي الساعات</div>
-          <div className="text-3xl font-black text-[var(--color-desert-900)]">{totalHours.toFixed(1)}</div>
-          <div className="text-sm text-[var(--color-desert-500)] mt-2">ساعة</div>
-        </div>
+      <div className="grid gap-4 md:grid-cols-3">
         <div className="bg-white border border-[var(--color-desert-200)] rounded-2xl p-6 shadow-sm">
           <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">الحضور</div>
           <div className="text-3xl font-black text-emerald-600">{presentCount}</div>
@@ -177,7 +162,6 @@ export default function TimeTrackingPage() {
                 <th className="py-3 px-6 font-medium">التاريخ</th>
                 <th className="py-3 px-6 font-medium">وقت الدخول</th>
                 <th className="py-3 px-6 font-medium">وقت الخروج</th>
-                <th className="py-3 px-6 font-medium">الساعات</th>
                 <th className="py-3 px-6 font-medium">الحالة</th>
                 <th className="py-3 px-6 font-medium">ملاحظات</th>
               </tr>
@@ -185,20 +169,19 @@ export default function TimeTrackingPage() {
             <tbody className="divide-y divide-[var(--color-desert-100)] text-[var(--color-desert-900)]">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-[var(--color-desert-500)]">جاري التحميل...</td>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">جاري التحميل...</td>
                 </tr>
               ) : filteredEntries.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-[var(--color-desert-500)]">لا توجد سجلات</td>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">لا توجد سجلات</td>
                 </tr>
               ) : (
                 filteredEntries.map((entry) => (
                   <tr key={entry.id} className="hover:bg-[var(--color-desert-50)]/50 transition-colors">
-                    <td className="py-4 px-6 font-bold">{entry.employeeName}</td>
-                    <td className="py-4 px-6 font-mono">{entry.date}</td>
-                    <td className="py-4 px-6 font-mono">{entry.checkIn || '-'}</td>
-                    <td className="py-4 px-6 font-mono">{entry.checkOut || '-'}</td>
-                    <td className="py-4 px-6 font-mono font-bold">{entry.hours > 0 ? entry.hours.toFixed(1) : '-'}</td>
+                    <td className="py-4 px-6 font-bold">{entry.employeeName || entry.employeeId}</td>
+                    <td className="py-4 px-6 font-mono">{entry.date instanceof Date ? entry.date.toLocaleDateString('ar-SA') : entry.date}</td>
+                    <td className="py-4 px-6 font-mono">{entry.checkInTime ? (entry.checkInTime instanceof Date ? entry.checkInTime.toLocaleTimeString('ar-SA', {hour: '2-digit', minute: '2-digit'}) : entry.checkInTime) : '-'}</td>
+                    <td className="py-4 px-6 font-mono">{entry.checkOutTime ? (entry.checkOutTime instanceof Date ? entry.checkOutTime.toLocaleTimeString('ar-SA', {hour: '2-digit', minute: '2-digit'}) : entry.checkOutTime) : '-'}</td>
                     <td className="py-4 px-6">{getStatusBadge(entry.status)}</td>
                     <td className="py-4 px-6 text-sm text-[var(--color-desert-600)]">{entry.notes || '-'}</td>
                   </tr>
