@@ -6,16 +6,14 @@ import { Star, TrendingUp, Plus, Search, CheckCircle2 } from 'lucide-react';
 type PerformanceReview = {
   id: string;
   employeeId: string;
-  employeeName: string;
-  reviewPeriod: string;
-  overallRating: number;
-  productivity: number;
-  teamwork: number;
-  communication: number;
-  attendance: number;
+  employeeName?: string;
+  reviewPeriod?: string;
+  overallRating?: number;
   status: 'draft' | 'submitted' | 'reviewed';
-  reviewer: string;
-  notes: string;
+  reviewerId?: string;
+  comments?: string;
+  strengths?: string;
+  areasForImprovement?: string;
 };
 
 export default function PerformancePage() {
@@ -39,38 +37,32 @@ export default function PerformancePage() {
   };
 
   useEffect(() => {
-    // Mock data - replace with API call
-    setReviews([
-      {
-        id: '1',
-        employeeId: 'EMP001',
-        employeeName: 'أحمد عبدالله',
-        reviewPeriod: 'Q4 2023',
-        overallRating: 4.5,
-        productivity: 4,
-        teamwork: 5,
-        communication: 4,
-        attendance: 5,
-        status: 'reviewed',
-        reviewer: 'المدير المالي',
-        notes: 'أداء ممتاز مع نمو ملحوظ في الإنتاجية'
-      },
-      {
-        id: '2',
-        employeeId: 'EMP002',
-        employeeName: 'محمد علي',
-        reviewPeriod: 'Q4 2023',
-        overallRating: 3.8,
-        productivity: 4,
-        teamwork: 3,
-        communication: 4,
-        attendance: 4,
-        status: 'submitted',
-        reviewer: 'المدير المالي',
-        notes: 'أداء جيد، يحتاج إلى تحسين في العمل الجماعي'
+    const fetchReviews = async () => {
+      setLoading(true);
+      try {
+        // Fetch all employees first, then get their reviews
+        const employeesResponse = await fetch('/api/hr/employees');
+        const employeesRes = await employeesResponse.json();
+        
+        if (employeesRes.success && employeesRes.data && employeesRes.data.length > 0) {
+          const allReviews = [];
+          for (const employee of employeesRes.data) {
+            const reviewsResponse = await fetch(`/api/hr/performance?action=reviews&employeeId=${employee.id}`);
+            const reviewsRes = await reviewsResponse.json();
+            if (reviewsRes.success && reviewsRes.data) {
+              allReviews.push(...reviewsRes.data);
+            }
+          }
+          setReviews(allReviews);
+        }
+      } catch (error) {
+        console.error('Error fetching performance reviews:', error);
+      } finally {
+        setLoading(false);
       }
-    ]);
-    setLoading(false);
+    };
+
+    void fetchReviews();
   }, []);
 
   const getStatusBadge = (status: string) => {
@@ -159,10 +151,7 @@ export default function PerformancePage() {
                 <th className="py-3 px-6 font-medium">الموظف</th>
                 <th className="py-3 px-6 font-medium">فترة التقييم</th>
                 <th className="py-3 px-6 font-medium">التقييم العام</th>
-                <th className="py-3 px-6 font-medium">الإنتاجية</th>
-                <th className="py-3 px-6 font-medium">العمل الجماعي</th>
-                <th className="py-3 px-6 font-medium">التواصل</th>
-                <th className="py-3 px-6 font-medium">الحضور</th>
+                <th className="py-3 px-6 font-medium">الملاحظات</th>
                 <th className="py-3 px-6 font-medium">الحالة</th>
                 <th className="py-3 px-6 font-medium">إجراءات</th>
               </tr>
@@ -170,27 +159,27 @@ export default function PerformancePage() {
             <tbody className="divide-y divide-[var(--color-desert-100)] text-[var(--color-desert-900)]">
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-[var(--color-desert-500)]">جاري التحميل...</td>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">جاري التحميل...</td>
                 </tr>
               ) : reviews.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-[var(--color-desert-500)]">لا توجد تقييمات أداء</td>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">لا توجد تقييمات أداء</td>
                 </tr>
               ) : (
                 reviews.map((review) => (
                   <tr key={review.id} className="hover:bg-[var(--color-desert-50)]/50 transition-colors">
-                    <td className="py-4 px-6 font-bold">{review.employeeName}</td>
-                    <td className="py-4 px-6 font-mono">{review.reviewPeriod}</td>
+                    <td className="py-4 px-6 font-bold">{review.employeeName || review.employeeId}</td>
+                    <td className="py-4 px-6 font-mono">{review.reviewPeriod || '-'}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold">{review.overallRating}</span>
-                        {renderStars(review.overallRating)}
+                        <span className="font-bold">{review.overallRating || 0}</span>
+                        {renderStars(review.overallRating || 0)}
                       </div>
                     </td>
-                    <td className="py-4 px-6">{renderStars(review.productivity)}</td>
-                    <td className="py-4 px-6">{renderStars(review.teamwork)}</td>
-                    <td className="py-4 px-6">{renderStars(review.communication)}</td>
-                    <td className="py-4 px-6">{renderStars(review.attendance)}</td>
+                    <td className="py-4 px-6">-</td>
+                    <td className="py-4 px-6">-</td>
+                    <td className="py-4 px-6">-</td>
+                    <td className="py-4 px-6">-</td>
                     <td className="py-4 px-6">{getStatusBadge(review.status)}</td>
                     <td className="py-4 px-6">
                       <button 
@@ -221,37 +210,43 @@ export default function PerformancePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm text-[var(--color-desert-600)] mb-1">الموظف</div>
-                  <div className="font-bold text-[var(--color-desert-900)]">{selectedReview.employeeName}</div>
+                  <div className="font-bold text-[var(--color-desert-900)]">{selectedReview.employeeName || selectedReview.employeeId}</div>
                 </div>
                 <div>
                   <div className="text-sm text-[var(--color-desert-600)] mb-1">فترة التقييم</div>
-                  <div className="font-bold text-[var(--color-desert-900)]">{selectedReview.reviewPeriod}</div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-[var(--color-desert-700)]">الإنتاجية</span>
-                  <div className="flex items-center gap-2">{renderStars(selectedReview.productivity)}</div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[var(--color-desert-700)]">العمل الجماعي</span>
-                  <div className="flex items-center gap-2">{renderStars(selectedReview.teamwork)}</div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[var(--color-desert-700)]">التواصل</span>
-                  <div className="flex items-center gap-2">{renderStars(selectedReview.communication)}</div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[var(--color-desert-700)]">الحضور</span>
-                  <div className="flex items-center gap-2">{renderStars(selectedReview.attendance)}</div>
+                  <div className="font-bold text-[var(--color-desert-900)]">{selectedReview.reviewPeriod || '-'}</div>
                 </div>
               </div>
 
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-[var(--color-desert-700)]">التقييم العام</span>
+                  <div className="flex items-center gap-2">{renderStars(selectedReview.overallRating || 0)}</div>
+                </div>
+              </div>
+
+              {selectedReview.strengths && (
+                <div>
+                  <div className="text-sm font-bold text-[var(--color-desert-700)] mb-2">نقاط القوة</div>
+                  <div className="text-[var(--color-desert-900)] bg-[var(--color-desert-50)] p-4 rounded-xl">
+                    {selectedReview.strengths}
+                  </div>
+                </div>
+              )}
+
+              {selectedReview.areasForImprovement && (
+                <div>
+                  <div className="text-sm font-bold text-[var(--color-desert-700)] mb-2">مجالات التحسين</div>
+                  <div className="text-[var(--color-desert-900)] bg-[var(--color-desert-50)] p-4 rounded-xl">
+                    {selectedReview.areasForImprovement}
+                  </div>
+                </div>
+              )}
+
               <div>
-                <div className="text-sm font-bold text-[var(--color-desert-700)] mb-2">ملاحظات المراجع</div>
+                <div className="text-sm font-bold text-[var(--color-desert-700)] mb-2">ملاحظات</div>
                 <div className="text-[var(--color-desert-900)] bg-[var(--color-desert-50)] p-4 rounded-xl">
-                  {selectedReview.notes}
+                  {selectedReview.comments || selectedReview.notes || '-'}
                 </div>
               </div>
 
