@@ -2,17 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  CreditCard, 
-  Landmark, 
-  BrainCircuit, 
+import {
+  LayoutDashboard,
+  FileText,
+  CreditCard,
+  Landmark,
+  BrainCircuit,
   Settings,
   Scale,
   Package,
   Users,
-  Files
+  Files,
+  Bell
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -28,6 +29,7 @@ export default function Sidebar() {
     { icon: Landmark, label: 'البنك', href: '/dashboard/bank' }, // Bank
     { icon: Scale, label: 'الزكاة والضرائب', href: '/dashboard/taxes' }, // Zakat & Taxes
     { icon: Files, label: 'المستندات الذكية', href: '/dashboard/documents' }, // Documents (RAG)
+    { icon: Bell, label: 'الإشعارات', href: '/dashboard/notifications' }, // Notifications
   ];
 
   return (

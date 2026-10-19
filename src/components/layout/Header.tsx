@@ -101,10 +101,10 @@ export default function Header() {
       </div>
       
       <div className="flex items-center gap-4 pl-4 border-l border-[var(--color-desert-200)]">
-        <button className="relative p-2 text-[var(--color-desert-600)] hover:text-[var(--color-gold-600)] hover:bg-[var(--color-desert-50)] rounded-full transition-colors">
+        <Link href="/dashboard/notifications" className="relative p-2 text-[var(--color-desert-600)] hover:text-[var(--color-gold-600)] hover:bg-[var(--color-desert-50)] rounded-full transition-colors">
           <Bell size={20} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--color-emerald-500)] rounded-full border border-white"></span>
-        </button>
+        </Link>
         
         <div className="flex items-center gap-3 pr-2 border-r border-[var(--color-desert-200)] mr-2">
           <div className="text-left flex flex-col items-end">

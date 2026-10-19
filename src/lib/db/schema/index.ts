@@ -25,3 +25,4 @@ export * from './ai_governance';
 export * from './ai_orchestration';
 export * from './ai_extensions';
 export * from './stripe_events';
+export * from './notifications';
