@@ -19,9 +19,15 @@ export default function LeaveManagementPage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    employeeId: string;
+    type: 'annual' | 'sick' | 'emergency' | 'unpaid';
+    startDate: string;
+    endDate: string;
+    reason: string;
+  }>({
     employeeId: '',
-    type: 'annual' as const,
+    type: 'annual',
     startDate: '',
     endDate: '',
     reason: ''
