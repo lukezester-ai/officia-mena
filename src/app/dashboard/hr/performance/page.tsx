@@ -246,7 +246,7 @@ export default function PerformancePage() {
               <div>
                 <div className="text-sm font-bold text-[var(--color-desert-700)] mb-2">ملاحظات</div>
                 <div className="text-[var(--color-desert-900)] bg-[var(--color-desert-50)] p-4 rounded-xl">
-                  {selectedReview.comments || selectedReview.notes || '-'}
+                  {selectedReview.comments || '-'}
                 </div>
               </div>
 
