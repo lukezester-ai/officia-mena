@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireTenant } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { db } from '@/lib/db/db';
 import { notifications } from '@/lib/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 

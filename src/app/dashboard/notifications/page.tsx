@@ -134,7 +134,7 @@ export default function NotificationsPage() {
               className="bg-white border border-[var(--color-desert-200)] text-[var(--color-desert-700)] px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[var(--color-desert-50)] transition-colors shadow-sm"
             >
               <Check size={18} />
-              تعليب الكل كمقروء
+              تعليم الكل كمقروء
             </button>
           )}
         </div>
@@ -239,7 +239,7 @@ export default function NotificationsPage() {
                             className="bg-white border border-[var(--color-desert-200)] text-[var(--color-desert-700)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--color-desert-50)] transition-colors"
                           >
                             <Check size={14} />
-                          قراءة
+                            قراءة
                           </button>
                         )}
                         {notification.actionUrl && (

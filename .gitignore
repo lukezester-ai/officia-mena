@@ -49,3 +49,7 @@ next-env.d.ts
 # build artifacts
 officia-mena.rar
 artifacts/
+
+# ai-trash (temporary files)
+ai-trash/
+!ai-trash/README.md
