@@ -3,6 +3,7 @@ import { getInvoiceById } from '../invoice-actions';
 import { FileText, Printer, ArrowRight, CheckCircle2, QrCode, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
+import InvoiceExportButtons from '@/components/invoices/InvoiceExportButtons';
 
 export default async function InvoiceDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -37,13 +38,14 @@ export default async function InvoiceDetailsPage({ params }: { params: Promise<{
         </div>
         
         <div className="flex gap-3">
-          <Link 
-            href={`/dashboard/invoices/${invoice.id}/print`} 
+          <Link
+            href={`/dashboard/invoices/${invoice.id}/print`}
             target="_blank"
             className="bg-white border-2 border-[var(--color-desert-200)] hover:border-[var(--color-desert-300)] text-[var(--color-desert-700)] font-bold py-2 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2"
           >
             <Printer size={18} /> طباعة A4
           </Link>
+          <InvoiceExportButtons invoice={invoice} />
           {invoice.status !== 'paid' && (
             <button className="bg-[var(--color-gold-500)] hover:bg-[var(--color-gold-600)] text-black font-bold py-2 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2">
               <CreditCard size={18} /> تسجيل كمدفوعة
