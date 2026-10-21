@@ -122,9 +122,9 @@ export default function NotificationsPage() {
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-desert-900)] mb-2 flex items-center gap-3">
             <Bell className="text-[var(--color-gold-600)] size={32} />
-            الإشعارات
+            Notifications
           </h1>
-          <p className="text-[var(--color-desert-600)]">تتبع جميع الإشعارات والتنبيهات</p>
+          <p className="text-[var(--color-desert-600)]">Track all notifications and alerts</p>
         </div>
         
         <div className="flex gap-3">
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
               className="bg-white border border-[var(--color-desert-200)] text-[var(--color-desert-700)] px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[var(--color-desert-50)] transition-colors shadow-sm"
             >
               <Check size={18} />
-              تعليم الكل كمقروء
+              Mark all as read
             </button>
           )}
         </div>
@@ -142,15 +142,15 @@ export default function NotificationsPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="bg-white border border-[var(--color-desert-200)] rounded-2xl p-6 shadow-sm">
-          <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">إجمالي الإشعارات</div>
+          <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">Total Notifications</div>
           <div className="text-3xl font-black text-[var(--color-desert-900)]">{notifications.length}</div>
         </div>
         <div className="bg-white border border-[var(--color-desert-200)] rounded-2xl p-6 shadow-sm">
-          <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">غير مقروء</div>
+          <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">Unread</div>
           <div className="text-3xl font-black text-[var(--color-desert-900)]">{unreadCount}</div>
         </div>
         <div className="bg-white border border-[var(--color-desert-200)] rounded-2xl p-6 shadow-sm">
-          <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">مقروء</div>
+          <div className="text-sm font-bold text-[var(--color-desert-600)] mb-2">Read</div>
           <div className="text-3xl font-black text-[var(--color-desert-900)]">{notifications.length - unreadCount}</div>
         </div>
       </div>
@@ -162,19 +162,19 @@ export default function NotificationsPage() {
               onClick={() => setFilter('all')}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${filter === 'all' ? 'bg-[var(--color-desert-900)] text-white' : 'text-[var(--color-desert-700)] hover:bg-[var(--color-desert-100)]'}`}
             >
-              الكل
+              All
             </button>
             <button 
               onClick={() => setFilter('unread')}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${filter === 'unread' ? 'bg-[var(--color-desert-900)] text-white' : 'text-[var(--color-desert-700)] hover:bg-[var(--color-desert-100)]'}`}
             >
-              غير مقروء
+              Unread
             </button>
             <button 
               onClick={() => setFilter('read')}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${filter === 'read' ? 'bg-[var(--color-desert-900)] text-white' : 'text-[var(--color-desert-700)] hover:bg-[var(--color-desert-100)]'}`}
             >
-              مقروء
+              Read
             </button>
           </div>
         </div>
@@ -183,22 +183,22 @@ export default function NotificationsPage() {
           <table className="w-full text-right text-sm whitespace-nowrap">
             <thead className="bg-[var(--color-desert-50)]/50 text-[var(--color-desert-600)] border-b border-[var(--color-desert-200)]">
               <tr>
-                <th className="py-3 px-6 font-medium">النوع</th>
-                <th className="py-3 px-6 font-medium">العنوان</th>
-                <th className="py-3 px-6 font-medium">الرسالة</th>
-                <th className="py-3 px-6 font-medium">التاريخ</th>
-                <th className="py-3 px-6 font-medium">الحالة</th>
-                <th className="py-3 px-6 font-medium">إجراءات</th>
+                <th className="py-3 px-6 font-medium">Type</th>
+                <th className="py-3 px-6 font-medium">Title</th>
+                <th className="py-3 px-6 font-medium">Message</th>
+                <th className="py-3 px-6 font-medium">Date</th>
+                <th className="py-3 px-6 font-medium">Status</th>
+                <th className="py-3 px-6 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-desert-100)] text-[var(--color-desert-900)]">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">جاري التحميل...</td>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">Loading...</td>
                 </tr>
               ) : filteredNotifications.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">لا توجد إشعارات</td>
+                  <td colSpan={6} className="py-8 text-center text-[var(--color-desert-500)]">No notifications</td>
                 </tr>
               ) : (
                 filteredNotifications.map((notification) => (
@@ -224,10 +224,10 @@ export default function NotificationsPage() {
                     </td>
                     <td className="py-4 px-6">
                       {notification.isRead ? (
-                        <span className="text-[var(--color-desert-500)]">مقروء</span>
+                        <span className="text-[var(--color-desert-500)]">Read</span>
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-xs font-bold text-emerald-300">
-                          جديد
+                          New
                         </span>
                       )}
                     </td>
@@ -239,7 +239,7 @@ export default function NotificationsPage() {
                             className="bg-white border border-[var(--color-desert-200)] text-[var(--color-desert-700)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--color-desert-50)] transition-colors"
                           >
                             <Check size={14} />
-                            قراءة
+                            Read
                           </button>
                         )}
                         {notification.actionUrl && (
@@ -247,7 +247,7 @@ export default function NotificationsPage() {
                             href={notification.actionUrl}
                             className="bg-[var(--color-gold-50)] border border-[var(--color-gold-200)] text-[var(--color-gold-700)] px-3 py-1 rounded-lg text-xs font-bold hover:bg-[var(--color-gold-100)] transition-colors"
                           >
-                            {notification.actionLabel || 'عرض'}
+                            {notification.actionLabel || 'View'}
                           </a>
                         )}
                         <button 
