@@ -1,36 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Crown, Check } from 'lucide-react';
-
-type Subscription = {
-  id: string;
-  planId: string;
-  status: string;
-  currentPeriodEnd: Date;
-};
+import { Crown } from 'lucide-react';
 
 export default function SubscriptionsPage() {
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSubscription = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/subscriptions/extensions');
-        const res = await response.json();
-        if (res.success && res.data) {
-          setSubscription(res.data);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchSubscription();
+    setLoading(false);
   }, []);
 
   return (
@@ -48,18 +25,7 @@ export default function SubscriptionsPage() {
       ) : (
         <div className="bg-white border border-[var(--color-desert-200)] rounded-2xl shadow-sm p-6">
           <h2 className="text-xl font-bold text-[var(--color-desert-900)] mb-4">Current Plan</h2>
-          {subscription ? (
-            <div>
-              <div className="text-2xl font-black text-[var(--color-desert-900)] capitalize">
-                {subscription.planId}
-              </div>
-              <div className="text-sm text-[var(--color-desert-600)] mt-1">
-                Status: {subscription.status}
-              </div>
-            </div>
-          ) : (
-            <div className="text-[var(--color-desert-500)]">No active subscription</div>
-          )}
+          <div className="text-2xl font-black text-[var(--color-desert-900)]">Free</div>
         </div>
       )}
     </div>
