@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Settings, Building2, CreditCard, Users, Globe, Save } from 'lucide-react';
+import { Settings, Building2, CreditCard, Users, Globe, Save, Crown } from 'lucide-react';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('company');
@@ -22,6 +22,7 @@ export default function SettingsPage() {
     { id: 'tax', label: 'الضرائب والزكاة', icon: CreditCard },
     { id: 'users', label: 'المستخدمين', icon: Users },
     { id: 'preferences', label: 'التفضيلات', icon: Globe },
+    { id: 'subscription', label: 'الاشتراك', icon: Crown },
   ];
 
   return (
@@ -220,6 +221,31 @@ export default function SettingsPage() {
                     <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'subscription' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white mb-6">الاشتراك</h2>
+              <div className="space-y-4">
+                <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <div className="text-2xl font-bold text-white">Free</div>
+                      <div className="text-sm text-zinc-400">الخطة المجانية</div>
+                    </div>
+                    <span className="bg-zinc-700 text-zinc-300 px-3 py-1 rounded-full text-sm font-bold">الحالي</span>
+                  </div>
+                  <div className="space-y-2 text-sm text-zinc-400">
+                    <div>• 5 مستخدمين</div>
+                    <div>• الفوترة الأساسية</div>
+                    <div>• المخزون الأساسي</div>
+                  </div>
+                </div>
+                <button className="w-full py-3 bg-primary hover:bg-amber-300 text-background rounded-xl font-bold transition-colors">
+                  ترقية إلى Pro
+                </button>
               </div>
             </div>
           )}
