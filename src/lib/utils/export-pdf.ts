@@ -39,7 +39,18 @@ export function exportToPDF(data: ExportData) {
   doc.save(`${data.filename}.pdf`);
 }
 
-export function exportInvoiceToPDF(invoice: any) {
+export function exportInvoiceToPDF(invoice: {
+  invoiceNumber: string;
+  createdAt?: Date | string;
+  clientName?: string;
+  totalAmount?: number;
+  currency?: string;
+  items?: Array<{
+    description?: string;
+    quantity?: number;
+    price?: number;
+  }>;
+}) {
   const doc = new jsPDF();
 
   // Title
@@ -54,11 +65,11 @@ export function exportInvoiceToPDF(invoice: any) {
 
   // Table
   const headers = ['الوصف', 'الكمية', 'السعر', 'المجموع'];
-  const rows = (invoice.items || []).map((item: any) => [
+  const rows = (invoice.items || []).map((item) => [
     item.description || '-',
     item.quantity?.toString() || '0',
     `${item.price || 0} ${invoice.currency || 'SAR'}`,
-    `${(item.quantity || 0) * (item.price || 0)} ${invoice.currency || 'SAR'}`,
+    `${(item.quantity || 0) * (item.price || 0)} ${invoice.currency || 'SAR}`,
   ]);
 
   autoTable(doc, {
@@ -78,7 +89,7 @@ export function exportInvoiceToPDF(invoice: any) {
   });
 
   // Total
-  const finalY = (doc as any).lastAutoTable.finalY + 20;
+  const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
   doc.setFontSize(14);
   doc.setFont(undefined, 'bold');
   doc.text(`المجموع: ${invoice.totalAmount || 0} ${invoice.currency || 'SAR'}`, 14, finalY);

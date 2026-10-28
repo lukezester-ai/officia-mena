@@ -5,7 +5,18 @@ import { exportInvoiceToPDF } from '@/lib/utils/export-pdf';
 import { exportInvoiceToExcel } from '@/lib/utils/export-excel';
 
 interface InvoiceExportButtonsProps {
-  invoice: any;
+  invoice: {
+    invoiceNumber: string;
+    createdAt?: Date | string;
+    clientName?: string;
+    totalAmount?: number;
+    currency?: string;
+    items?: Array<{
+      description?: string;
+      quantity?: number;
+      price?: number;
+    }>;
+  };
 }
 
 export default function InvoiceExportButtons({ invoice }: InvoiceExportButtonsProps) {
