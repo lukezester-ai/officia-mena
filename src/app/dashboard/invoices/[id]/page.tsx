@@ -45,7 +45,14 @@ export default async function InvoiceDetailsPage({ params }: { params: Promise<{
           >
             <Printer size={18} /> طباعة A4
           </Link>
-          <InvoiceExportButtons invoice={invoice} />
+          <InvoiceExportButtons invoice={{
+            invoiceNumber: invoice.invoiceNumber,
+            createdAt: invoice.issueDate,
+            clientName: invoice.clientName,
+            totalAmount: invoice.totalAmount,
+            currency: invoice.currency,
+            items: invoice.items,
+          }} />
           {invoice.status !== 'paid' && (
             <button className="bg-[var(--color-gold-500)] hover:bg-[var(--color-gold-600)] text-black font-bold py-2 px-6 rounded-xl transition-colors shadow-sm flex items-center gap-2">
               <CreditCard size={18} /> تسجيل كمدفوعة
