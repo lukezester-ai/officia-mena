@@ -10,11 +10,11 @@ export interface ExportData {
 
 export function exportToPDF(data: ExportData) {
   const doc = new jsPDF();
-  
+
   // Add title
   doc.setFontSize(18);
   doc.text(data.title, 14, 22);
-  
+
   // Add table
   autoTable(doc, {
     head: [data.headers],
@@ -34,7 +34,7 @@ export function exportToPDF(data: ExportData) {
       fillColor: [245, 245, 245],
     },
   });
-  
+
   // Save
   doc.save(`${data.filename}.pdf`);
 }
@@ -55,21 +55,21 @@ export function exportInvoiceToPDF(invoice: {
 
   // Title
   doc.setFontSize(20);
-  doc.text('فاتورة', 105, 20, { align: 'center' });
+  doc.text('Invoice', 105, 20, { align: 'center' });
 
   // Invoice number
   doc.setFontSize(12);
-  doc.text(`رقم الفاتورة: ${invoice.invoiceNumber}`, 14, 35);
-  doc.text(`التاريخ: ${invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString('ar-SA') : '-'}`, 14, 45);
-  doc.text(`العميل: ${invoice.clientName || '-'}`, 14, 55);
+  doc.text(`Invoice #: ${invoice.invoiceNumber}`, 14, 35);
+  doc.text(`Date: ${invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString() : '-'}`, 14, 45);
+  doc.text(`Client: ${invoice.clientName || '-'}`, 14, 55);
 
   // Table
-  const headers = ['الوصف', 'الكمية', 'السعر', 'المجموع'];
+  const headers = ['Description', 'Quantity', 'Price', 'Total'];
   const rows = (invoice.items || []).map((item) => [
     item.description || '-',
     item.quantity?.toString() || '0',
-    `${item.price || 0} ${invoice.currency || 'SAR'}`,
-    `${(item.quantity || 0) * (item.price || 0)} ${invoice.currency || 'SAR}`,
+    String(item.price || 0),
+    String((item.quantity || 0) * (item.price || 0)),
   ]);
 
   autoTable(doc, {
@@ -92,7 +92,7 @@ export function exportInvoiceToPDF(invoice: {
   const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
   doc.setFontSize(14);
   doc.setFont(undefined, 'bold');
-  doc.text(`المجموع: ${invoice.totalAmount || 0} ${invoice.currency || 'SAR'}`, 14, finalY);
+  doc.text(`Total: ${invoice.totalAmount || 0} ${invoice.currency || 'SAR'}`, 14, finalY);
 
   doc.save(`invoice-${invoice.invoiceNumber}.pdf`);
 }

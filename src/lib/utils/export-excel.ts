@@ -38,17 +38,17 @@ export function exportInvoiceToExcel(invoice: {
 
   // Invoice info
   const info: (string | number)[][] = [
-    ['رقم الفاتورة', invoice.invoiceNumber || '-'],
-    ['التاريخ', invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString('ar-SA') : '-'],
-    ['العميل', invoice.clientName || '-'],
-    ['المجموع', invoice.totalAmount || 0],
+    ['Invoice #', invoice.invoiceNumber || '-'],
+    ['Date', invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString() : '-'],
+    ['Client', invoice.clientName || '-'],
+    ['Total', invoice.totalAmount || 0],
   ];
 
   const infoWs = XLSX.utils.aoa_to_sheet(info);
-  XLSX.utils.book_append_sheet(wb, infoWs, 'معلومات الفاتورة');
+  XLSX.utils.book_append_sheet(wb, infoWs, 'Invoice Info');
 
   // Items
-  const headers = ['الوصف', 'الكمية', 'السعر', 'المجموع'];
+  const headers = ['Description', 'Quantity', 'Price', 'Total'];
   const rows: (string | number)[][] = (invoice.items || []).map((item) => [
     item.description || '-',
     item.quantity || 0,
@@ -57,7 +57,7 @@ export function exportInvoiceToExcel(invoice: {
   ]);
 
   const itemsWs = XLSX.utils.aoa_to_sheet([headers, ...rows] as (string | number)[][]);
-  XLSX.utils.book_append_sheet(wb, itemsWs, 'البنود');
+  XLSX.utils.book_append_sheet(wb, itemsWs, 'Items');
 
   XLSX.writeFile(wb, `invoice-${invoice.invoiceNumber}.xlsx`);
 }
