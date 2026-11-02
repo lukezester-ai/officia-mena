@@ -49,7 +49,7 @@ export default async function InvoiceDetailsPage({ params }: { params: Promise<{
             invoiceNumber: invoice.invoiceNumber,
             createdAt: invoice.issueDate,
             clientName: invoice.clientName,
-            totalAmount: invoice.totalAmount,
+            totalAmount: parseFloat(invoice.totalAmount || '0'),
             currency: invoice.currency,
             items: invoice.items,
           }} />
